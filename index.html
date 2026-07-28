@@ -556,7 +556,7 @@
         <div style="margin-left: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">
             <i data-lucide="calendar" style="width:16px;height:16px;color:var(--accent-navy);"></i>
             તારીખ (Date):
-            <input type="date" id="header-date-picker" style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
+            <input type="date" id="header-date-picker" min="2020-01-01" max="2035-12-31" style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
         </div>
 
 
@@ -2244,6 +2244,20 @@
             datePicker.addEventListener('change', (e) => {
                 const newDate = e.target.value;
                 if (!newDate) return;
+
+                // Validate date range to prevent typos like year 212026
+                const parts = newDate.split('-');
+                if (parts.length !== 3 || parts[0].length !== 4) {
+                    showCustomDialog('alert', 'ખોટી તારીખ (Invalid Date)', 'કૃપા કરીને સાચી તારીખ અને વર્ષ દાખલ કરો!');
+                    datePicker.value = multiData.active_date;
+                    return;
+                }
+                const year = parseInt(parts[0]);
+                if (year < 2020 || year > 2035) {
+                    showCustomDialog('alert', 'ખોટી તારીખ (Invalid Date)', 'વર્ષ ૨૦૨૦ અને ૨૦૩૫ ની વચ્ચે હોવું જોઈએ!');
+                    datePicker.value = multiData.active_date;
+                    return;
+                }
 
                 const oldDate = multiData.active_date;
                 saveToLocal();

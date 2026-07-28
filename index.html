@@ -1149,8 +1149,10 @@
             const localJson = JSON.stringify(multiData.dates[activeKey]);
 
             if (fbJson !== localJson) {
+                const localActiveDate = multiData.active_date;
                 // Overwrite with newer remote updates
                 multiData = fbData;
+                multiData.active_date = localActiveDate; // Restore local active date to prevent hijack-switching
                 syncStockDataReference();
 
                 // Sync remote updates into local storage

@@ -493,7 +493,54 @@
             gap: 16px;
         }
 
-
+        /* ── Cloud Sync Indicator ── */
+        #sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            cursor: default;
+            user-select: none;
+            margin-left: 10px;
+        }
+        #sync-indicator.synced {
+            background: #f0fdf4 !important;
+            border-color: #86efac !important;
+            color: #16a34a !important;
+        }
+        #sync-indicator.syncing {
+            background: #fefce8 !important;
+            border-color: #fde047 !important;
+            color: #ca8a04 !important;
+        }
+        #sync-indicator.error {
+            background: #fef2f2 !important;
+            border-color: #fca5a5 !important;
+            color: #dc2626 !important;
+        }
+        #sync-indicator .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+        #sync-indicator.synced .sync-dot { background: #22c55e !important; }
+        #sync-indicator.syncing .sync-dot {
+            background: #eab308 !important;
+            animation: syncpulse 0.8s ease-in-out infinite;
+        }
+        #sync-indicator.error .sync-dot { background: #ef4444 !important; }
+        @keyframes syncpulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
     </style>
 </head>
 <body>
@@ -904,40 +951,47 @@
         })();
 
         // ════════════════════════════════════════════════════════
-        // DATA ARCHITECTURE: Firebase Authoritative Cloud Sync
-        // Prevents stale local storage from overwriting Firebase!
+        // DATA ARCHITECTURE: LocalStorage (Primary) + Firebase (Authoritative Sync)
+        // Instant load, absolute consistency, no stale overwrites!
         // ════════════════════════════════════════════════════════
         const LS_KEY = 'galaxy_stock_multi_data';
-        
-        // Initial fallback template
-        let multiData = {
-            active_date: _todayKey,
-            dates: {
-                [_todayKey]: JSON.parse(JSON.stringify(defaultData))
+        let multiData;
+        let _appReady = false; // blocks saves/edits until Firebase completes first sync
+
+        // ── Step 1: Load from LocalStorage instantly so user sees UI immediately ──
+        try {
+            const cached = localStorage.getItem(LS_KEY);
+            if (cached) {
+                multiData = JSON.parse(cached);
+                // Ensure today's date slot exists in local cache
+                if (!multiData.dates[_todayKey]) {
+                    const sorted = Object.keys(multiData.dates).sort();
+                    const last = sorted[sorted.length - 1];
+                    const cloned = JSON.parse(JSON.stringify(multiData.dates[last] || defaultData));
+                    const [y, mo, da] = _todayKey.split('-');
+                    cloned.date = `${da}-${mo}-${y}`;
+                    multiData.dates[_todayKey] = cloned;
+                }
+                multiData.active_date = _todayKey;
+            } else {
+                multiData = {
+                    active_date: _todayKey,
+                    dates: {
+                        [_todayKey]: JSON.parse(JSON.stringify(defaultData))
+                    }
+                };
             }
-        };
-        let stockData = multiData.dates[multiData.active_date];
-        let _appReady = false; // blocks saves/edits until Firebase completes loading
-
-        // ── Show loading overlay while fetching cloud database ──
-        (function showLoadingOverlay() {
-            const overlay = document.createElement('div');
-            overlay.id = 'fb-loading-overlay';
-            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:Outfit,sans-serif;';
-            overlay.innerHTML = `
-                <div style="width:48px;height:48px;border:4px solid #e2e8f0;border-top-color:#002d62;border-radius:50%;animation:fbspin 0.8s linear infinite;"></div>
-                <div style="font-size:1.1rem;font-weight:600;color:#002d62;">ડેટા ક્લાઉડમાંથી લોડ થઈ રહ્યો છે...</div>
-                <div style="font-size:0.85rem;color:#64748b;">Loading authentic database from Cloud. Please wait.</div>
-                <style>@keyframes fbspin{to{transform:rotate(360deg);}}</style>`;
-            document.body.appendChild(overlay);
-        })();
-
-        function hideLoadingOverlay() {
-            const el = document.getElementById('fb-loading-overlay');
-            if (el) el.remove();
+        } catch(e) {
+            multiData = {
+                active_date: _todayKey,
+                dates: {
+                    [_todayKey]: JSON.parse(JSON.stringify(defaultData))
+                }
+            };
         }
+        let stockData = multiData.dates[multiData.active_date];
 
-        // ── Disable input buttons during load ──
+        // ── Disable input buttons during initial sync ──
         function setAppBusy(busy) {
             const btn1 = document.getElementById('btn-add-group');
             const btn2 = document.getElementById('btn-add-kapan');
@@ -956,59 +1010,57 @@
             const lbl = document.getElementById('sync-label');
             if (!el || !lbl) return;
             el.className = '';
-            el.classList.add('sync-indicator', state);
-            el.id = 'sync-indicator';
+            el.classList.add(state);
             lbl.textContent = label;
         }
 
-        // ── Authoritative Save: updates Firebase, then updates local cache ──
+        // ── Save helper: local first (instant), then background firebase sync ──
         function saveToLocal() {
-            if (!_appReady) return; // prevent early saves
             multiData.dates[multiData.active_date] = stockData;
             
-            // Save local backup cache
+            // 1. Instantly save to local cache
             try {
-                db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
+                localStorage.setItem(LS_KEY, JSON.stringify(multiData));
             } catch(e) {}
 
-            // Save to Firebase (Authoritative cloud source of truth)
+            // 2. Sync to Firebase in background
             setSyncStatus('syncing', 'Saving...');
             db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)))
                 .then(() => setSyncStatus('synced', 'Synced ✓'))
                 .catch(err => {
                     console.error('Firebase save error:', err);
-                    setSyncStatus('error', 'Save Failed!');
+                    setSyncStatus('error', 'Offline ⚠');
                 });
         }
 
-        // ── Load directly from Firebase database on startup ──
+        // ── Step 2: Background Authoritative Cloud load (prevents stale overwrites) ──
         setAppBusy(true);
-        setSyncStatus('syncing', 'Connecting...');
+        setSyncStatus('syncing', 'Syncing...');
 
         db.ref(DB_PATH).once('value').then(snapshot => {
             const fbData = snapshot.val();
             const todayNow = getTodayKey();
 
             if (fbData && fbData.dates) {
-                // IMPORTANT: Firebase is the absolute truth. Discard any local storage to prevent data corruption!
+                // Firebase is the absolute truth! Cleanly override the stale local cache
                 multiData = fbData;
                 
-                // Ensure today's date slot exists
+                // Ensure today exists
                 if (!multiData.dates[todayNow]) {
-                    const sortedKeys = Object.keys(multiData.dates).sort();
-                    const lastKey = sortedKeys[sortedKeys.length - 1];
-                    const cloned = JSON.parse(JSON.stringify(multiData.dates[lastKey] || defaultData));
+                    const sorted = Object.keys(multiData.dates).sort();
+                    const last = sorted[sorted.length - 1];
+                    const cloned = JSON.parse(JSON.stringify(multiData.dates[last] || defaultData));
                     const [y, mo, da] = todayNow.split('-');
                     cloned.date = `${da}-${mo}-${y}`;
                     cloned.grand_totals = { total_kapan: 0, total_pcs: 0, total_carat: 0 };
                     multiData.dates[todayNow] = cloned;
                     
-                    // Instantly push this new date to Firebase
+                    // Sync new date slot to Firebase
                     db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
                 }
                 multiData.active_date = todayNow;
             } else {
-                // Brand new database initialization
+                // First time ever: initialize database
                 multiData = {
                     active_date: todayNow,
                     dates: {
@@ -1022,11 +1074,10 @@
             _appReady = true;
             setAppBusy(false);
             setSyncStatus('synced', 'Synced ✓');
-            hideLoadingOverlay();
 
-            // Save copy to local cache
+            // Save authoritative copy to localStorage
             try {
-                db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
+                localStorage.setItem(LS_KEY, JSON.stringify(multiData));
             } catch(e) {}
 
             // Populate and render UI
@@ -1035,26 +1086,23 @@
             initDatePicker();
             renderMasterGroupTable();
             populateGroupDropdown();
-            console.log("✅ Cloud database loaded successfully.");
+            console.log("✅ Authoritative cloud sync complete.");
             
         }).catch(err => {
-            console.error('Firebase load error:', err);
-            // Fallback to local storage ONLY if network is down
-            try {
-                const cached = localStorage.getItem(LS_KEY);
-                if (cached) {
-                    multiData = JSON.parse(cached);
-                    stockData = multiData.dates[multiData.active_date];
-                }
-            } catch(e) {}
-            
+            console.error('Firebase sync failed, using cached offline data:', err);
             _appReady = true;
             setAppBusy(false);
-            setSyncStatus('error', 'Offline Cache');
-            hideLoadingOverlay();
+            setSyncStatus('error', 'Offline ⚠');
+
+            // Fallback render of cached data
+            updateKPIs();
+            renderStockCards('');
+            initDatePicker();
+            renderMasterGroupTable();
+            populateGroupDropdown();
         });
 
-        // ── Real-time listener: Auto-sync changes from other devices instantly ──
+        // ── Step 3: Real-time update listener for multi-device sync ──
         db.ref(DB_PATH).on('value', snapshot => {
             if (!_appReady) return;
             const fbData = snapshot.val();
@@ -1065,20 +1113,21 @@
             const localJson = JSON.stringify(multiData.dates[activeKey]);
 
             if (fbJson !== localJson) {
+                // Overwrite with newer remote updates
                 multiData = fbData;
                 stockData = multiData.dates[activeKey] || stockData;
-                
-                // Save to local cache
+
+                // Sync remote updates into local storage
                 try {
-                    db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
+                    localStorage.setItem(LS_KEY, JSON.stringify(multiData));
                 } catch(e) {}
 
-                // Update UI instantly
+                // Render remote changes instantly
                 updateKPIs();
                 renderStockCards(document.getElementById('search-bar')?.value || '');
                 renderMasterGroupTable();
                 setSyncStatus('synced', 'Synced ✓');
-                console.log("🔄 Realtime Cloud database synced.");
+                console.log("🔄 Realtime remote updates synced.");
             }
         });
         // Returns today's date in YYYY-MM-DD format (device real time)

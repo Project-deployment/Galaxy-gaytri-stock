@@ -747,8 +747,8 @@
     
     <!-- Add Kapan Modal Dialog -->
     <div id="modal-add-kapan" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
+        <div id="modal-add-kapan-content" style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px; position: relative;">
+            <div id="modal-add-kapan-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; cursor: move; user-select: none;">
                 <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;"><i data-lucide="plus-circle"></i> Add Kapan</h3>
                 <button id="modal-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
             </div>
@@ -804,8 +804,8 @@
 
     <!-- Add Group Modal Dialog -->
     <div id="modal-add-group" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif;">
-        <div style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 450px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
+        <div id="modal-add-group-content" style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 450px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px; position: relative;">
+            <div id="modal-add-group-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; cursor: move; user-select: none;">
                 <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;"><i data-lucide="plus-square"></i> Add Rough</h3>
                 <button id="modal-group-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
             </div>
@@ -1626,6 +1626,7 @@
 
         // Helper to open modal
         function openAddGroupModal() {
+            resetModalPosition('modal-add-group-content');
             document.getElementById('modal-add-group').style.display = 'flex';
             document.getElementById('modal-group-error').style.display = 'none';
             // Automatically focus and blink cursor inside the input field
@@ -1989,6 +1990,7 @@
             const inputGroup = document.getElementById('input-group');
             
             if (modal && inputGroup) {
+                resetModalPosition('modal-add-kapan-content');
                 modal.style.display = 'flex';
                 modalError.style.display = 'none';
                 inputGroup.value = groupName;
@@ -2008,6 +2010,7 @@
         if (btnAdd) {
             btnAdd.addEventListener('click', (e) => {
                 e.stopPropagation();
+                resetModalPosition('modal-add-kapan-content');
                 modal.style.display = 'flex';
                 modalError.style.display = 'none';
                 
@@ -2017,6 +2020,66 @@
                 openGroupSearchMenu();
             });
         }
+
+        // Draggable Popups / Modals logic
+        function makeElementDraggable(dragHeaderId, dragContentId) {
+            const dragHeader = document.getElementById(dragHeaderId);
+            const dragContent = document.getElementById(dragContentId);
+            if (!dragHeader || !dragContent) return;
+
+            let startX = 0, startY = 0;
+            let translateX = 0, translateY = 0;
+
+            dragHeader.addEventListener('mousedown', dragStart);
+
+            function dragStart(e) {
+                if (e.button !== 0) return; // Only drag with left click
+                
+                // Don't drag if clicked on interactive elements
+                if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select')) {
+                    return;
+                }
+
+                e.preventDefault();
+
+                startX = e.clientX;
+                startY = e.clientY;
+                translateX = parseFloat(dragContent.dataset.translateX) || 0;
+                translateY = parseFloat(dragContent.dataset.translateY) || 0;
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', dragEnd);
+            }
+
+            function drag(e) {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                const newX = translateX + dx;
+                const newY = translateY + dy;
+
+                dragContent.style.transform = `translate(${newX}px, ${newY}px)`;
+                dragContent.dataset.translateX = newX;
+                dragContent.dataset.translateY = newY;
+            }
+
+            function dragEnd() {
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', dragEnd);
+            }
+        }
+
+        function resetModalPosition(dragContentId) {
+            const dragContent = document.getElementById(dragContentId);
+            if (dragContent) {
+                dragContent.style.transform = "translate(0px, 0px)";
+                dragContent.dataset.translateX = "0";
+                dragContent.dataset.translateY = "0";
+            }
+        }
+
+        // Initialize dragging for both modals
+        makeElementDraggable('modal-add-kapan-header', 'modal-add-kapan-content');
+        makeElementDraggable('modal-add-group-header', 'modal-add-group-content');
 
         if (btnClose) {
             btnClose.addEventListener('click', () => {

@@ -2185,6 +2185,16 @@
                     return;
                 }
 
+                // Validate that Kapan No starts with the group prefix (first word)
+                const groupPrefix = selectedGroupName.split(' ')[0].trim();
+                if (!kapan.toLowerCase().startsWith(groupPrefix.toLowerCase())) {
+                    modalError.innerHTML = '⚠️ આ ગ્રુપમાં માત્ર <span style="color:#002d62;font-weight:700;">' + groupPrefix + '</span> થી શરૂ થતો જ કાપણ નંબર ઉમેરી શકાશે!';
+                    modalError.style.display = 'block';
+                    const kapanInput = document.getElementById('input-kapan');
+                    if (kapanInput) { kapanInput.focus(); kapanInput.select(); }
+                    return;
+                }
+
                                 // Duplicate Kapan check - same number cannot be added twice in same group
                 const isDuplicate = group.items.some(item =>
                     !item.is_subtotal && item.kapan && item.kapan.trim().toLowerCase() === kapan.toLowerCase()

@@ -2175,8 +2175,38 @@
 
                 const selectedGroupName = selectGroup.value;
                 const kapan = document.getElementById('input-kapan').value.trim();
-                const pcs = parseInt(document.getElementById('input-pcs').value);
-                const carat = parseFloat(document.getElementById('input-carat').value);
+                const pcsVal = document.getElementById('input-pcs').value.trim();
+                const caratVal = document.getElementById('input-carat').value.trim();
+
+                // 1. Kapan No. Validation (Only numbers and dashes)
+                if (!/^[0-9\-]+$/.test(kapan)) {
+                    modalError.innerHTML = '⚠️ કાપણ નંબરમાં ફક્ત <span style="color:#002d62;font-weight:700;">આંકડા (0-9)</span> અને <span style="color:#002d62;font-weight:700;">ડેશ (-)</span> જ લખી શકાશે! (દા.ત. 867-13)';
+                    modalError.style.display = 'block';
+                    const inputK = document.getElementById('input-kapan');
+                    if (inputK) { inputK.focus(); inputK.select(); }
+                    return;
+                }
+
+                // 2. Raw Pieces Validation (Only digits)
+                if (!/^\d+$/.test(pcsVal)) {
+                    modalError.innerHTML = '⚠️ કાચા નંગમાં ફક્ત <span style="color:#002d62;font-weight:700;">નંબરો (આંકડા)</span> જ લખી શકાશે! કોઈ પોઇન્ટ કે ચિહ્ન ચાલશે નહીં.';
+                    modalError.style.display = 'block';
+                    const inputP = document.getElementById('input-pcs');
+                    if (inputP) { inputP.focus(); inputP.select(); }
+                    return;
+                }
+
+                // 3. Raw Carat Validation (Only digits and dot)
+                if (!/^\d+(\.\d+)?$/.test(caratVal)) {
+                    modalError.innerHTML = '⚠️ કાચા કેરેટમાં ફક્ત <span style="color:#002d62;font-weight:700;">આંકડા</span> અને <span style="color:#002d62;font-weight:700;">પોઇન્ટ (.)</span> જ લખી શકાશે! (દા.ત. 225.43)';
+                    modalError.style.display = 'block';
+                    const inputC = document.getElementById('input-carat');
+                    if (inputC) { inputC.focus(); inputC.select(); }
+                    return;
+                }
+
+                const pcs = parseInt(pcsVal);
+                const carat = parseFloat(caratVal);
 
                 const group = stockData.groups.find(g => g.name === selectedGroupName);
                 if (!group) {

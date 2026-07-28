@@ -1179,6 +1179,23 @@
             return `${y}-${m}-${d}`;
         }
 
+        // Find and clone the stock data of the closest date strictly before newDate
+        function getClonedDataForDate(newDate) {
+            const sortedDates = Object.keys(multiData.dates).sort();
+            let targetDate = null;
+            for (let i = sortedDates.length - 1; i >= 0; i--) {
+                if (sortedDates[i] < newDate) {
+                    targetDate = sortedDates[i];
+                    break;
+                }
+            }
+            if (targetDate) {
+                return JSON.parse(JSON.stringify(multiData.dates[targetDate]));
+            } else {
+                return JSON.parse(JSON.stringify(defaultData));
+            }
+        }
+
         // Switch active date to today and update stockData reference + UI
         function switchToToday() {
             const todayKey = getTodayKey();
@@ -1187,8 +1204,8 @@
             saveToLocal(); // save current date first
 
             if (!multiData.dates[todayKey]) {
-                // Create today's date entry by cloning previous active date
-                const cloned = JSON.parse(JSON.stringify(stockData));
+                // Create today's date entry by cloning closest previous date
+                const cloned = getClonedDataForDate(todayKey);
                 const [y, mo, da] = todayKey.split('-');
                 cloned.date = `${da}-${mo}-${y}`;
                 multiData.dates[todayKey] = cloned;
@@ -2234,8 +2251,8 @@
                 multiData.active_date = newDate;
 
                 if (!multiData.dates[newDate]) {
-                    // Carry forward the stock by cloning the old date's data!
-                    const clonedData = JSON.parse(JSON.stringify(multiData.dates[oldDate] || defaultData));
+                    // Carry forward the stock by cloning closest previous date
+                    const clonedData = getClonedDataForDate(newDate);
                     const parts = newDate.split('-');
                     clonedData.date = `${parts[2]}-${parts[1]}-${parts[0]}`;
                     multiData.dates[newDate] = clonedData;

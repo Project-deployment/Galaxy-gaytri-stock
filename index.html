@@ -1206,6 +1206,24 @@
             renderStockCards(document.getElementById('search-bar') ? document.getElementById('search-bar').value : '');
         }
 
+        // Ensure active date is today, switching and alerting the user if needed
+        function ensureActiveDateIsToday() {
+            const todayKey = getTodayKey();
+            if (multiData.active_date !== todayKey) {
+                switchToToday();
+                
+                const parts = todayKey.split('-');
+                const displayD = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                
+                // Update dashboard header-date
+                const headerDate = document.getElementById('header-date');
+                if (headerDate) headerDate.textContent = displayD;
+                
+                // Alert user
+                showCustomDialog('alert', 'તારીખ બદલાઈ (Date Switched)', `આજની તારીખ ${displayD} પર ઓટોમેટિક સ્વિચ કરવામાં આવ્યું છે જેથી જૂનો ડેટા સચવાયેલો રહે!`);
+            }
+        }
+
         // Format numbers in Indian Style
         function formatNumber(num) {
             if (num === null || num === undefined || isNaN(num)) return '-';
@@ -2029,6 +2047,7 @@
         if (formAddGroup) {
             formAddGroup.addEventListener('submit', (e) => {
                 e.preventDefault();
+                ensureActiveDateIsToday(); // Auto-switch to today!
                 modalGroupError.style.display = 'none';
                 
 
@@ -2070,6 +2089,7 @@
         if (formAdd) {
             formAdd.addEventListener('submit', (e) => {
                 e.preventDefault();
+                ensureActiveDateIsToday(); // Auto-switch to today!
                 modalError.style.display = 'none';
                 
 

@@ -1782,7 +1782,12 @@
 
                 card.innerHTML = `
                     <div class="card-header-bar" id="card-header-${safeId}">
-                        <div class="group-title">${group.name}</div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div class="group-title">${group.name}</div>
+                            <button onclick="openAddKapanForGroup('${group.name.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" title="આ ગ્રુપમાં Kapan ઉમેરો">
+                                <i data-lucide="plus-circle" style="width:16px;height:16px;"></i>
+                            </button>
+                        </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <button class="btn-bulk-delete" id="btn-bulk-delete-${safeId}" onclick="performBulkDelete('${group.name.replace(/'/g, "\\'")}')" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
                                 <i data-lucide="trash-2" style="width:12px;height:12px;"></i> કાઢી નાખો (<span class="bulk-count">0</span>)
@@ -1938,6 +1943,29 @@
         // Stub dropdown populate helper
         function populateGroupDropdown() {
             // Custom search is auto-populated dynamically
+        }
+
+        // Open Add Kapan Modal pre-filled with the specified group name
+        function openAddKapanForGroup(groupName) {
+            const modal = document.getElementById('modal-add-kapan');
+            const modalError = document.getElementById('modal-error');
+            const inputGroup = document.getElementById('input-group');
+            
+            if (modal && inputGroup) {
+                modal.style.display = 'flex';
+                modalError.style.display = 'none';
+                inputGroup.value = groupName;
+                closeGroupSearchMenu(); // Close search party dropdown just in case
+                
+                // Focus on the Kapan input after modal animation/display
+                setTimeout(() => {
+                    const kInput = document.getElementById('input-kapan');
+                    if (kInput) {
+                        kInput.focus();
+                        kInput.select();
+                    }
+                }, 50);
+            }
         }
 
         if (btnAdd) {

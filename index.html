@@ -561,9 +561,10 @@
 
 
         
-        <!-- Backup & Restore Buttons -->
+        <!-- Backup & Restore & Clear Buttons -->
         <button class="top-tab" onclick="downloadBackup()" style="margin-left: auto; border-color: #059669; color: #059669;"><i data-lucide="download" style="width:16px;height:16px;"></i> બેકઅપ ડાઉનલોડ (Backup)</button>
         <button class="top-tab" onclick="triggerRestore()" style="border-color: #0891b2; color: #0891b2;"><i data-lucide="upload" style="width:16px;height:16px;"></i> બેકઅપ લોડ (Restore)</button>
+        <button class="top-tab" onclick="clearAllData()" style="border-color: #dc2626; color: #dc2626;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i> બધો ડેટા સાફ કરો (Clear All)</button>
         <input type="file" id="file-restore" style="display: none;" accept=".json" onchange="restoreBackup(event)">
 
         <!-- Cloud Sync Indicator -->
@@ -2140,6 +2141,30 @@
                 }
             };
             reader.readAsText(file);
+        }
+
+        // Clear all data from LocalStorage and Firebase
+        async function clearAllData() {
+            const confirmClear = await showCustomDialog('confirm', 'બધો ડેટા સાફ કરો (Clear All)', 'શું તમે ખરેખર બધો ડેટા સાફ કરવા માંગો છો? આનાથી LocalStorage અને Firebase બંનેમાંથી બધો ડેટા કાયમ માટે કાઢી નાખવામાં આવશે.');
+            if (!confirmClear) return;
+
+            // Clear LocalStorage
+            localStorage.removeItem(LS_KEY);
+
+            // Clear Firebase Database
+            setSyncStatus('syncing', 'Clearing Cloud...');
+            db.ref(DB_PATH).remove()
+                .then(async () => {
+                    setSyncStatus('synced', 'Cleared ✓');
+                    await showCustomDialog('alert', 'સફળ (Success)', 'LocalStorage અને Firebase બંનેમાંથી બધો ડેટા સફળતાપૂર્વક સાફ થઈ ગયો છે!');
+                    window.location.reload();
+                })
+                .catch(async (err) => {
+                    console.error('Firebase clear error:', err);
+                    setSyncStatus('error', 'Offline ⚠');
+                    await showCustomDialog('alert', 'ભૂલ (Error)', 'ક્લાઉડ ડેટા સાફ કરવામાં કોઈ ભૂલ આવી, પણ લોકલ ડેટા સાફ થઈ ગયો છે.');
+                    window.location.reload();
+                });
         }
 
         // Date Picker initialization and change handling

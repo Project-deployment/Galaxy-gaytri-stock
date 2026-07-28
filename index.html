@@ -581,7 +581,7 @@
                     <div class="dashboard-title">મુખ્ય ડેશબોર્ડ (Dashboard)</div>
                     <div class="dashboard-date">
                         <i data-lucide="calendar"></i>
-                        Stock Date: <span id="header-date">27-07-2026</span>
+                        Stock Date: <span id="header-date">--</span>
                     </div>
                 </div>
 
@@ -2046,23 +2046,17 @@
         // Date Picker initialization and change handling
         const datePicker = document.getElementById('header-date-picker');
         function initDatePicker() {
-            if (datePicker) {
-                // Always ensure active_date is today on fresh/initial load
-                const todayNow = getTodayKey();
-                if (!multiData.dates[todayNow]) {
-                    // Create today's date slot if missing
-                    const prev = JSON.parse(JSON.stringify(stockData));
-                    const [y, mo, da] = todayNow.split('-');
-                    prev.date = `${da}-${mo}-${y}`;
-                    multiData.dates[todayNow] = prev;
-                }
-                multiData.active_date = todayNow;
-                stockData = multiData.dates[todayNow];
-                saveToLocal();
-                datePicker.value = todayNow;
+            if (!datePicker) return;
+            const activeDate = multiData.active_date || getTodayKey();
+            datePicker.value = activeDate;
+            // Update the dashboard header-date display
+            const parts = activeDate.split('-');
+            if (parts.length === 3) {
+                const headerDate = document.getElementById('header-date');
+                if (headerDate) headerDate.textContent = `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
         }
-        initDatePicker();
+        // Note: initDatePicker() is called AFTER Firebase loads, not here
 
         if (datePicker) {
             datePicker.addEventListener('change', (e) => {
@@ -2095,6 +2089,9 @@
                 
                 const parts = newDate.split('-');
                 const displayD = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                // Update dashboard header-date
+                const headerDate = document.getElementById('header-date');
+                if (headerDate) headerDate.textContent = displayD;
                 showCustomDialog('alert', 'ડેટા લોડ (Data Loaded)', `તારીખ ${displayD} નો ડેટા લોડ થયો છે!`);
             });
         }

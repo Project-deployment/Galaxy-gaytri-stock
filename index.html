@@ -989,7 +989,29 @@
                 }
             };
         }
-        let stockData = multiData.dates[multiData.active_date];
+        let stockData = null;
+
+        // Bulletproof helper to safely normalize data structures and prevent undefined property crashes
+        function syncStockDataReference() {
+            if (!multiData || !multiData.dates || !multiData.active_date) {
+                multiData = {
+                    active_date: _todayKey,
+                    dates: {
+                        [_todayKey]: JSON.parse(JSON.stringify(defaultData))
+                    }
+                };
+            }
+            if (!multiData.dates[multiData.active_date]) {
+                multiData.dates[multiData.active_date] = JSON.parse(JSON.stringify(defaultData));
+            }
+            syncStockDataReference();
+            if (!stockData.groups) stockData.groups = [];
+            if (!stockData.subtotals) stockData.subtotals = [];
+            if (!stockData.grand_totals) stockData.grand_totals = { total_kapan: 0, total_pcs: 0, total_carat: 0 };
+        }
+
+        // Initialize first reference
+        syncStockDataReference();
 
         // ── Disable input buttons during initial sync ──
         function setAppBusy(busy) {
@@ -1070,7 +1092,7 @@
                 db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
             }
 
-            stockData = multiData.dates[multiData.active_date];
+            syncStockDataReference();
             _appReady = true;
             setAppBusy(false);
             setSyncStatus('synced', 'Synced ✓');
@@ -1115,7 +1137,7 @@
             if (fbJson !== localJson) {
                 // Overwrite with newer remote updates
                 multiData = fbData;
-                stockData = multiData.dates[activeKey] || stockData;
+                syncStockDataReference();
 
                 // Sync remote updates into local storage
                 try {
@@ -1157,7 +1179,7 @@
             }
 
             multiData.active_date = todayKey;
-            stockData = multiData.dates[todayKey];
+            syncStockDataReference();
             saveToLocal();
 
             // Sync date picker UI
@@ -2086,7 +2108,7 @@
                     if (parsedData && parsedData.dates && parsedData.active_date) {
                         multiData = parsedData;
                         db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
-                        stockData = multiData.dates[multiData.active_date];
+                        syncStockDataReference();
                         recalculateGrandTotals();
                         populateGroupDropdown();
                         initDatePicker();
@@ -2102,7 +2124,7 @@
                                 }
                             };
                             db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
-                            stockData = multiData.dates[multiData.active_date];
+                            syncStockDataReference();
                             recalculateGrandTotals();
                             populateGroupDropdown();
                             initDatePicker();
@@ -2147,13 +2169,13 @@
 
                 if (!multiData.dates[newDate]) {
                     // Carry forward the stock by cloning the old date's data!
-                    const clonedData = JSON.parse(JSON.stringify(multiData.dates[oldDate]));
+                    const clonedData = JSON.parse(JSON.stringify(multiData.dates[oldDate] || defaultData));
                     const parts = newDate.split('-');
                     clonedData.date = `${parts[2]}-${parts[1]}-${parts[0]}`;
                     multiData.dates[newDate] = clonedData;
                 }
 
-                stockData = multiData.dates[newDate];
+                syncStockDataReference();
                 saveToLocal();
 
                 updateKPIs();

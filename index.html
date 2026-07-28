@@ -1,0 +1,3039 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ગેલેક્ષી STOCK (ગાયત્રી) - ERP Stock System</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDSBNsdBdb9a7pCgm-lOCMkJsKJUVuZoaQ",
+            authDomain: "galaxy-gaytri.firebaseapp.com",
+            databaseURL: "https://galaxy-gaytri-default-rtdb.firebaseio.com",
+            projectId: "galaxy-gaytri",
+            storageBucket: "galaxy-gaytri.firebasestorage.app",
+            messagingSenderId: "817366375093",
+            appId: "1:817366375093:web:bfe35655985e3eca153cfc"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const DB_PATH = 'galaxy_stock';
+    </script>
+    
+    <style>
+        :root {
+            --bg-color: #faf6f4; /* Cream background from screenshot */
+            --header-bg: #ffffff;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --card-hover-border: #94a3b8;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-navy: #002d62; /* Navy blue from ERP */
+            --accent-blue: #2563eb;
+            --accent-emerald: #059669;
+            --accent-cyan: #0891b2;
+            --accent-red: #dc2626;
+            --table-row-hover: #f8fafc;
+            --subtotal-bg: #ecfdf5;
+            --subtotal-border: #a7f3d0;
+            --subtotal-text: #047857;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
+            --sidebar-border: #c0c0c0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-y: scroll;
+        }
+
+        body.modal-open {
+            overflow: hidden !important;
+        }
+
+        /* Smooth scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 50px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--sidebar-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 4px;
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+
+        .top-tab {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #374151;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            text-transform: uppercase;
+            transition: all 0.15s;
+        }
+
+        .top-tab:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .top-tab.active {
+            background: #eff6ff;
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        /* Workspace Wrapper */
+        .workspace {
+            display: flex;
+            flex: 1;
+        }
+
+
+        /* Main Workspace Panel */
+        .main-panel {
+            flex: 1;
+            padding: 24px;
+            background: var(--bg-color);
+        }
+
+        .view-pane {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+        }
+
+        /* Dashboard Specific View */
+        .dashboard-header {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dashboard-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-navy);
+        }
+
+        .dashboard-date {
+            background: #f8fafc;
+            border: 1px solid var(--card-border);
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-date span {
+            color: var(--text-primary);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .dashboard-card {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            padding: 30px 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.06);
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+        }
+
+        .dashboard-card.kapan::before { background: var(--accent-navy); }
+        .dashboard-card.pcs::before { background: var(--accent-emerald); }
+        .dashboard-card.carats::before { background: var(--accent-cyan); }
+
+        .db-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .db-value {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1.1;
+        }
+
+        /* Stock View Styles */
+        .stock-controls {
+            position: sticky;
+            top: 50px;
+            z-index: 990;
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 6px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+            max-width: 450px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-input {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid var(--card-border);
+            padding: 6px 12px 6px 36px;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-navy);
+            background: #ffffff;
+        }
+
+        .btn-add {
+            background: var(--accent-navy);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            transition: opacity 0.15s;
+        }
+
+        .btn-add:hover {
+            opacity: 0.9;
+        }
+
+        /* Group Stock Cards Grid */
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 1400px) {
+            .stock-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .stock-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .stock-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stock-card {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-md);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .stock-card:hover {
+            border-color: var(--card-hover-border);
+        }
+
+        .card-header-bar {
+            padding: 6px 12px;
+            background: var(--accent-navy);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #ffffff;
+        }
+
+        .group-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .group-badge-summary {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        .table-container {
+            flex: 1;
+        }
+
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .stock-table th {
+            position: sticky;
+            top: 0;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--card-border);
+            z-index: 10;
+        }
+
+        .stock-table td {
+            padding: 4px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-primary);
+        }
+
+        .stock-table tr:hover td {
+            background: var(--table-row-hover);
+        }
+
+        .stock-table tbody tr:nth-child(even) td {
+            background: #e2e8f0;
+        }
+
+        .stock-table tbody tr:nth-child(even):hover td {
+            background: #cdd5e0;
+        }
+
+        .col-sno {
+            width: 60px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .col-kapan {
+            font-weight: 600;
+            color: var(--accent-navy);
+        }
+
+        .col-num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .subtotal-row td {
+            background: var(--subtotal-bg) !important;
+            border-top: 1px solid var(--subtotal-border);
+            border-bottom: 2px solid var(--subtotal-border);
+            font-weight: 700;
+            color: var(--subtotal-text) !important;
+        }
+
+        .subtotal-row:hover td {
+            background: #d1fae5 !important;
+        }
+
+        .subtotal-label {
+            font-weight: 700;
+            color: var(--accent-emerald) !important;
+        }
+
+        .placeholder-view {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 60px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .placeholder-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-navy);
+        }
+
+        .placeholder-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+                .no-results-msg {
+            grid-column: 1 / -1;
+            padding: 60px;
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        /* ── Cloud Sync Indicator ── */
+        #sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1.5px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            cursor: default;
+            user-select: none;
+        }
+        #sync-indicator.synced {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #16a34a;
+        }
+        #sync-indicator.syncing {
+            background: #fefce8;
+            border-color: #fde047;
+            color: #ca8a04;
+        }
+        #sync-indicator.error {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #dc2626;
+        }
+        #sync-indicator .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+        #sync-indicator.synced .sync-dot { background: #22c55e; }
+        #sync-indicator.syncing .sync-dot {
+            background: #eab308;
+            animation: syncpulse 0.8s ease-in-out infinite;
+        }
+        #sync-indicator.error .sync-dot { background: #ef4444; }
+        @keyframes syncpulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="top-navbar">
+        <button class="top-tab active" id="btn-top-dashboard" onclick="switchView('dashboard')"><i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard</button>
+        <button class="top-tab" id="btn-top-stock" onclick="switchView('stock')"><i data-lucide="package" style="width:16px;height:16px;"></i> Stock</button>
+        <button class="top-tab" id="btn-top-report" onclick="switchView('report')"><i data-lucide="clipboard-list" style="width:16px;height:16px;"></i> Report</button>
+        <button class="top-tab" id="btn-top-master" onclick="switchView('master')"><i data-lucide="database" style="width:16px;height:16px;"></i> Master</button>
+        
+        <!-- Date selection dropdown/picker in navbar -->
+        <div style="margin-left: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">
+            <i data-lucide="calendar" style="width:16px;height:16px;color:var(--accent-navy);"></i>
+            તારીખ (Date):
+            <input type="date" id="header-date-picker" style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
+        </div>
+        
+        <!-- Backup & Restore Buttons -->
+        <button class="top-tab" onclick="downloadBackup()" style="margin-left: auto; border-color: #059669; color: #059669;"><i data-lucide="download" style="width:16px;height:16px;"></i> બેકઅપ ડાઉનલોડ (Backup)</button>
+        <button class="top-tab" onclick="triggerRestore()" style="border-color: #0891b2; color: #0891b2;"><i data-lucide="upload" style="width:16px;height:16px;"></i> બેકઅપ લોડ (Restore)</button>
+        <input type="file" id="file-restore" style="display: none;" accept=".json" onchange="restoreBackup(event)">
+
+        <!-- Cloud Sync Indicator -->
+        <div id="sync-indicator" class="syncing">
+            <span class="sync-dot"></span>
+            <span id="sync-label">Connecting...</span>
+        </div>
+    </div>
+
+    <!-- Workspace Panel -->
+    <div class="workspace">
+
+
+        <!-- Main Content Area -->
+        <div class="main-panel">
+            
+            <!-- VIEW A: DASHBOARD VIEW -->
+            <div id="view-dashboard" class="view-pane">
+                <div class="dashboard-header">
+                    <div class="dashboard-title">મુખ્ય ડેશબોર્ડ (Dashboard)</div>
+                    <div class="dashboard-date">
+                        <i data-lucide="calendar"></i>
+                        Stock Date: <span id="header-date">27-07-2026</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card kapan">
+                        <div class="db-header">TOTAL KAPAN (કુલ લોટ)</div>
+                        <div class="db-value" id="kpi-lots">0</div>
+                    </div>
+                    <div class="dashboard-card pcs">
+                        <div class="db-header">TOTAL RAW PCS (કુલ નંગ)</div>
+                        <div class="db-value" id="kpi-pcs">0</div>
+                    </div>
+                    <div class="dashboard-card carats">
+                        <div class="db-header">TOTAL RAW CARATS (કુલ કેરેટ)</div>
+                        <div class="db-value" id="kpi-carats">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW B: STOCK VIEW -->
+            <div id="view-stock" class="view-pane" style="display: none;">
+                <div class="stock-controls">
+                    <div class="search-wrapper">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="search-bar" class="search-input" placeholder="કોઈ પણ કાપણ નંબર શોધો (દા.ત. 867-3)...">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-add" id="btn-add-group" style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="plus-square"></i> Add Rough</button>
+                        <button class="btn-add" id="btn-add-kapan" style="cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="plus-circle"></i> Add Kapan</button>
+                    </div>
+                </div>
+
+                <div class="stock-grid" id="stock-grid">
+                    <!-- Cards will be populated dynamically -->
+                </div>
+
+                <div id="no-results" class="no-results-msg" style="display: none;">
+                    <i data-lucide="search" class="no-results-icon" style="width: 48px; height: 48px; opacity:0.5;"></i>
+                    <p>મેળ ખાતો કોઈ કાપણ નંબર મળ્યો નથી.</p>
+                </div>
+            </div>
+
+            <!-- VIEW D: REPORT VIEW -->
+            <div id="view-report" class="view-pane" style="display: none; flex-direction: column; gap: 16px;">
+                <!-- Header Card -->
+                <div class="stock-controls" style="padding: 6px 12px;">
+                    <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="clipboard-list" style="width: 18px; height: 18px;"></i> દૈનિક કાપણ આવક-જાવક રીપોર્ટ (Daily Kapan IN-OUT Report)
+                    </div>
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-secondary);" id="report-date-display">
+                        તારીખ: 27-07-2026
+                    </div>
+                </div>
+
+                <!-- Summary Cards Row -->
+                <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div class="dashboard-card kapan" style="border-left: 5px solid #059669; padding: 8px 12px; min-height: auto; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+                        <div class="db-header" style="color: #059669; font-weight: 700; font-size: 0.75rem;">TOTAL IN (કુલ આવક)</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">નંગ: <span id="report-in-pcs" style="font-size: 1rem; font-weight: 700; color: #059669; font-variant-numeric: tabular-nums;">0</span></div>
+                            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">કેરેટ: <span id="report-in-carats" style="font-size: 1rem; font-weight: 700; color: #059669; font-variant-numeric: tabular-nums;">0.00</span></div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card" style="border-left: 5px solid #dc2626; padding: 8px 12px; min-height: auto; background: #ffffff; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+                        <div class="db-header" style="color: #dc2626; font-weight: 700; font-size: 0.75rem;">TOTAL OUT (કુલ જાવક)</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">નંગ: <span id="report-out-pcs" style="font-size: 1rem; font-weight: 700; color: #dc2626; font-variant-numeric: tabular-nums;">0</span></div>
+                            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">કેરેટ: <span id="report-out-carats" style="font-size: 1rem; font-weight: 700; color: #dc2626; font-variant-numeric: tabular-nums;">0.00</span></div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card" style="border-left: 5px solid var(--accent-navy); padding: 8px 12px; min-height: auto; background: #ffffff; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+                        <div class="db-header" style="color: var(--accent-navy); font-weight: 700; font-size: 0.75rem;">NET CHANGE (ચોખ્ખો ફેરફાર)</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">નંગ: <span id="report-net-pcs" style="font-size: 1rem; font-weight: 700; color: var(--accent-navy); font-variant-numeric: tabular-nums;">0</span></div>
+                            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">કેરેટ: <span id="report-net-carats" style="font-size: 1rem; font-weight: 700; color: var(--accent-navy); font-variant-numeric: tabular-nums;">0.00</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two Column Layout -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- IN Report Card -->
+                    <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column;">
+                        <div style="background: #059669; color: white; padding: 6px 12px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="arrow-down-left" style="width:14px;height:14px;"></i> આવક લીસ્ટ (IN / Received Stock)
+                        </div>
+                        <div style="max-height: 450px; overflow-y: auto;">
+                            <table class="stock-table" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>ગ્રુપ</th>
+                                        <th>કાપણ (Kapan)</th>
+                                        <th style="text-align: right;">આવેલ નંગ</th>
+                                        <th style="text-align: right;">આવેલ કેરેટ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-in-tbody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- OUT Report Card -->
+                    <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column;">
+                        <div style="background: #dc2626; color: white; padding: 6px 12px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i> જાવક અહેવાલ (OUT / Issued Stock)
+                        </div>
+                        <div style="max-height: 450px; overflow-y: auto;">
+                            <table class="stock-table" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>તારીખ</th>
+                                        <th>કાપણ (Kapan)</th>
+                                        <th style="text-align: right;">જાવેલ નંગ</th>
+                                        <th style="text-align: right;">જાવેલ કેરેટ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-out-tbody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW C: MASTER VIEW -->
+            <div id="view-master" class="view-pane" style="display: none;">
+                <div class="stock-controls">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;"><i data-lucide="database"></i> ગ્રુપ માસ્ટર મેનેજર (Group Master)</div>
+                    <div>
+                        <button class="btn-add" onclick="openAddGroupModal()" style="background: #002d62; border: 1px solid #cbd5e1; color: white; pointer-events: auto; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="plus-square"></i> Add Rough</button>
+                    </div>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 12px; box-shadow: var(--shadow-md); overflow: hidden;">
+                    <table class="stock-table" id="master-group-table" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>ગ્રુપનું નામ (Group Name)</th>
+                                <th style="text-align: right;">કુલ લોટ (Total Lots)</th>
+                                <th style="text-align: right;">કુલ નંગ (Total Pcs)</th>
+                                <th style="text-align: right;">કુલ કેરેટ (Total Carats)</th>
+                                <th style="text-align: center;">ક્રિયાઓ (Actions)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="master-group-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    
+    <!-- Add Kapan Modal Dialog -->
+    <div id="modal-add-kapan" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;"><i data-lucide="plus-circle"></i> Add Kapan</h3>
+                <button id="modal-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+            </div>
+            
+            <form id="form-add-kapan" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; flex-direction: column; gap: 4px; position: relative;">
+                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Rough No.</label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="input-group" placeholder="ગ્રુપ સિલેક્ટ કરો..." readonly required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: #f8fafc; cursor: pointer; flex: 1;">
+                        <button type="button" id="btn-open-group-search" style="padding: 8px 10px; background: var(--accent-navy); border: none; color: white; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+                    </div>
+
+                    <!-- Custom Search Party Dropdown Menu -->
+                    <div id="group-search-menu" style="display: none; position: absolute; top: 56px; left: 0; width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.08); z-index: 1100; font-family: 'Outfit', sans-serif; flex-direction: column; overflow: hidden;">
+                        
+                        <!-- Search Box Section -->
+                        <div style="padding: 6px 12px; display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                            <label style="font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">સર્ચ કરો (Search Name)</label>
+                            <input type="text" id="group-search-input" placeholder="અહીં નંબર અથવા નામ ટાઈપ કરો..." style="padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 0.8rem; outline: none; background: #ecfdf5; color: #047857; font-weight: 600; width: 100%; transition: border-color 0.15s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#cbd5e1'">
+                        </div>
+
+                        <!-- Scrollable List -->
+                        <div id="group-search-list" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; background: #ffffff;">
+                            <!-- Add New Party Button -->
+                            <div id="btn-add-new-party-row" style="padding: 4px 12px; font-size: 0.75rem; font-weight: 700; color: #10b981; border-bottom: 1px solid #cbd5e1; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'">
+                                <i data-lucide="plus" style="width:12px;height:12px;color:#10b981;"></i> + નવું ગ્રુપ ઉમેરો (Add New Party)
+                            </div>
+                            <!-- List items will be rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Kapan No.</label>
+                    <input type="text" id="input-kapan" placeholder="દા.ત. 867-15" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">કાચા નંગ (Raw Pieces)</label>
+                    <input type="number" id="input-pcs" placeholder="દા.ત. 1500" required min="0" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">કાચા કેરેટ (Raw Carat)</label>
+                    <input type="number" id="input-carat" placeholder="દા.ત. 75.50" step="0.01" required min="0" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                </div>
+                
+                <div id="modal-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
+                
+                <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                    <i data-lucide="check-circle"></i> સેવ કરો (Save to Local Database)
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Group Modal Dialog -->
+    <div id="modal-add-group" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif;">
+        <div style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 450px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;"><i data-lucide="plus-square"></i> Add Rough</h3>
+                <button id="modal-group-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+            </div>
+            
+            <form id="form-add-group" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">New Rough No.</label>
+                    <input type="text" id="input-group-name" placeholder="દા.ત. 876  CLIV 5-3 અથવા 876" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                </div>
+                
+                <div id="modal-group-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
+                
+                <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                    <i data-lucide="check-circle"></i> ગ્રુપ સેવ કરો (Save Group)
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Dialog Modal Overlay -->
+    <div id="custom-dialog-overlay" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px); font-family: 'Outfit', sans-serif;">
+        <div style="background: #ffffff; color: #0f172a; padding: 24px; width: 90%; max-width: 400px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 16px; animation: modalFadeIn 0.2s ease-out;">
+            <div id="dialog-header" style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent-navy); font-size: 1.1rem; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
+                <!-- Injected dynamically -->
+            </div>
+            <div id="dialog-body" style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; font-weight: 500;">
+                <!-- Injected dynamically -->
+            </div>
+            <!-- Input container for Prompt -->
+            <div id="dialog-input-container" style="display: none;">
+                <input type="text" id="dialog-prompt-input" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; margin-top: 4px; background: #ffffff;">
+            </div>
+            <div id="dialog-footer" style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #cbd5e1; padding-top: 12px;">
+                <button id="dialog-btn-cancel" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">રદ કરો (Cancel)</button>
+                <button id="dialog-btn-ok" style="background: var(--accent-navy); border: none; color: white; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">ઠીક છે (OK)</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes modalFadeIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+
+    <!-- Data Injection & Firebase Management -->
+    <script>
+        // Default static data recovered from Excel
+        const defaultData = {
+  "title": "ગેલેક્ષી STOCK (ગાયત્રી)",
+  "date": "27-07-2026",
+  "grand_totals": {
+    "total_kapan": 109,
+    "total_pcs": 346608,
+    "total_carat": 17462.12
+  },
+  "groups": [
+    {
+      "name": "660/865",
+      "items": [
+        {
+          "s_no": "1",
+          "kapan": "660-1NW",
+          "pcs": 596,
+          "carat": 55.56,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "660-1W",
+          "pcs": 1404,
+          "carat": 159.67,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "660-1OW",
+          "pcs": 437,
+          "carat": 52.12,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "660-1LC",
+          "pcs": 523,
+          "carat": 54.36,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "865-32",
+          "pcs": 2704,
+          "carat": 92.83,
+          "is_subtotal": false
+        }
+      ],
+      "subtotals": [
+        {
+          "s_no": "4",
+          "kapan": null,
+          "pcs": 2960,
+          "carat": 321.71,
+          "is_subtotal": true
+        },
+        {
+          "s_no": null,
+          "kapan": null,
+          "pcs": 109,
+          "carat": null,
+          "is_subtotal": true
+        },
+        {
+          "s_no": null,
+          "kapan": null,
+          "pcs": 346608,
+          "carat": null,
+          "is_subtotal": true
+        },
+        {
+          "s_no": null,
+          "kapan": null,
+          "pcs": 17462,
+          "carat": null,
+          "is_subtotal": true
+        }
+      ]
+    },
+    {
+      "name": "867  CLIV 5-3",
+      "items": [
+        {
+          "s_no": "1",
+          "kapan": "867-3",
+          "pcs": 6107,
+          "carat": 193.15,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "867-4",
+          "pcs": 6026,
+          "carat": 193.22,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "867-5",
+          "pcs": 5899,
+          "carat": 193.04,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "867-6",
+          "pcs": 5947,
+          "carat": 193.04,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "867-7",
+          "pcs": 5900,
+          "carat": 193.1,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "867-8",
+          "pcs": 5965,
+          "carat": 193.19,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "867-9",
+          "pcs": 5924,
+          "carat": 196.06,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "867-10",
+          "pcs": 6020,
+          "carat": 193.1,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "867-11",
+          "pcs": 5934,
+          "carat": 193.15,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "867-12",
+          "pcs": 5929,
+          "carat": 193.09,
+          "is_subtotal": false
+        }
+      ],
+      "subtotals": [
+        {
+          "s_no": "10",
+          "kapan": "10",
+          "pcs": 59651,
+          "carat": 1934.14,
+          "is_subtotal": true
+        }
+      ]
+    },
+    {
+      "name": "868  CLIV 7-5",
+      "items": [
+        {
+          "s_no": "1",
+          "kapan": "868-7",
+          "pcs": 3255,
+          "carat": 202.37,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-9",
+          "pcs": 3293,
+          "carat": 202.37,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-10",
+          "pcs": 3187,
+          "carat": 202.3,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-11",
+          "pcs": 3182,
+          "carat": 202.37,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-12",
+          "pcs": 3132,
+          "carat": 202.32,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-13",
+          "pcs": 3238,
+          "carat": 202.31,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-14",
+          "pcs": 3130,
+          "carat": 202.33,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-15",
+          "pcs": 3177,
+          "carat": 202.3,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-16",
+          "pcs": 3174,
+          "carat": 202.33,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-17",
+          "pcs": 3226,
+          "carat": 202.37,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-18",
+          "pcs": 3185,
+          "carat": 202.36,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-19",
+          "pcs": 3230,
+          "carat": 202.33,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "868-20",
+          "pcs": 3184,
+          "carat": 202.3,
+          "is_subtotal": false
+        }
+      ],
+      "subtotals": [
+        {
+          "s_no": "13",
+          "kapan": "13",
+          "pcs": 41593,
+          "carat": 2630.36,
+          "is_subtotal": true
+        }
+      ]
+    },
+    {
+      "name": "870  AB 7-5",
+      "items": [
+        {
+          "s_no": "1",
+          "kapan": "870-32",
+          "pcs": 2713,
+          "carat": 203.47,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-33",
+          "pcs": 2723,
+          "carat": 203.46,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-34",
+          "pcs": 2801,
+          "carat": 203.51,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-35",
+          "pcs": 2751,
+          "carat": 203.48,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-36",
+          "pcs": 2724,
+          "carat": 203.51,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-37",
+          "pcs": 2770,
+          "carat": 203.49,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-38",
+          "pcs": 2745,
+          "carat": 203.5,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-39",
+          "pcs": 2790,
+          "carat": 203.47,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-41",
+          "pcs": 2832,
+          "carat": 203.48,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-42",
+          "pcs": 2760,
+          "carat": 203.49,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-43",
+          "pcs": 2751,
+          "carat": 203.44,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-45",
+          "pcs": 2742,
+          "carat": 203.49,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-46",
+          "pcs": 2738,
+          "carat": 203.45,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "870-47",
+          "pcs": 2730,
+          "carat": 203.49,
+          "is_subtotal": false
+        }
+      ],
+      "subtotals": [
+        {
+          "s_no": "14",
+          "kapan": "14",
+          "pcs": 38570,
+          "carat": 2848.73,
+          "is_subtotal": true
+        }
+      ]
+    },
+    {
+      "name": "871  NU 6-5",
+      "items": [
+        {
+          "s_no": "1",
+          "kapan": "871-E",
+          "pcs": 1085,
+          "carat": 50.19,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-J",
+          "pcs": 1065,
+          "carat": 50.13,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-H",
+          "pcs": 1082,
+          "carat": 50.16,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-2",
+          "pcs": 4895,
+          "carat": 225.01,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-3",
+          "pcs": 4782,
+          "carat": 225.0,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-4",
+          "pcs": 4905,
+          "carat": 224.91,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-5",
+          "pcs": 4800,
+          "carat": 224.93,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-6",
+          "pcs": 4931,
+          "carat": 224.94,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-7",
+          "pcs": 4805,
+          "carat": 224.95,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-8",
+          "pcs": 4906,
+          "carat": 224.89,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-9",
+          "pcs": 4794,
+          "carat": 224.98,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-10",
+          "pcs": 4821,
+          "carat": 224.93,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-11",
+          "pcs": 4770,
+          "carat": 224.06,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-12",
+          "pcs": 4818,
+          "carat": 224.96,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-13",
+          "pcs": 4720,
+          "carat": 224.95,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-14A",
+          "pcs": 317,
+          "carat": 14.99,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-14B",
+          "pcs": 311,
+          "carat": 15.25,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-14C",
+          "pcs": null,
+          "carat": null,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-14D",
+          "pcs": null,
+          "carat": null,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-14E",
+          "pcs": 317,
+          "carat": 15.51,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-14G",
+          "pcs": 329,
+          "carat": 11.45,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-14H",
+          "pcs": 323,
+          "carat": 15.52,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-15",
+          "pcs": 4514,
+          "carat": 205.58,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-16",
+          "pcs": 4481,
+          "carat": 208.55,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-17",
+          "pcs": 4551,
+          "carat": 208.54,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-18",
+          "pcs": 4487,
+          "carat": 208.55,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-19",
+          "pcs": 4588,
+          "carat": 208.56,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "871-20",
+          "pcs": 4533,
+          "carat": 208.61,
+          "is_subtotal": false
+        }
+      ],
+      "subtotals": [
+        {
+          "s_no": "28",
+          "kapan": "28",
+          "pcs": 89930,
+          "carat": 4170.1,
+          "is_subtotal": true
+        }
+      ]
+    },
+    {
+      "name": "872  AL 6-5",
+      "items": [
+        {
+          "s_no": "1",
+          "kapan": "872-J",
+          "pcs": 960,
+          "carat": 50.35,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-H",
+          "pcs": 963,
+          "carat": 50.3,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-K",
+          "pcs": 981,
+          "carat": 50.29,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-M",
+          "pcs": 970,
+          "carat": 50.48,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-1",
+          "pcs": 2139,
+          "carat": 105.15,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-2",
+          "pcs": 4223,
+          "carat": 214.89,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-3",
+          "pcs": 4276,
+          "carat": 217.99,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-4",
+          "pcs": 4231,
+          "carat": 218.01,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-5",
+          "pcs": 4402,
+          "carat": 217.95,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-6",
+          "pcs": 4172,
+          "carat": 217.98,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-7",
+          "pcs": 4265,
+          "carat": 218.0,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-8",
+          "pcs": 4343,
+          "carat": 218.03,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-9",
+          "pcs": 4239,
+          "carat": 218.01,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-10",
+          "pcs": 4288,
+          "carat": 218.01,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-11",
+          "pcs": 4218,
+          "carat": 217.97,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-12",
+          "pcs": 4216,
+          "carat": 218.02,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-13",
+          "pcs": 4217,
+          "carat": 218.0,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-14",
+          "pcs": 4248,
+          "carat": 217.99,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-15",
+          "pcs": 4205,
+          "carat": 217.9,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-16",
+          "pcs": 4290,
+          "carat": 218.0,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-17",
+          "pcs": 4308,
+          "carat": 217.99,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-18",
+          "pcs": 4235,
+          "carat": 218.04,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-39A",
+          "pcs": null,
+          "carat": null,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-39B",
+          "pcs": null,
+          "carat": null,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-39C",
+          "pcs": null,
+          "carat": null,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-39D",
+          "pcs": null,
+          "carat": null,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-39E",
+          "pcs": null,
+          "carat": null,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-39G",
+          "pcs": null,
+          "carat": null,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-39H",
+          "pcs": null,
+          "carat": null,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-19",
+          "pcs": 4291,
+          "carat": 217.98,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-20",
+          "pcs": 4299,
+          "carat": 217.98,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-21",
+          "pcs": 4310,
+          "carat": 218.0,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-22",
+          "pcs": 4326,
+          "carat": 217.99,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-23",
+          "pcs": 4262,
+          "carat": "218..01",
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-24",
+          "pcs": 4371,
+          "carat": 217.93,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "872-25",
+          "pcs": 4279,
+          "carat": 218.01,
+          "is_subtotal": false
+        }
+      ],
+      "subtotals": [
+        {
+          "s_no": "36",
+          "kapan": "36",
+          "pcs": 108527,
+          "carat": 5317.24,
+          "is_subtotal": true
+        }
+      ]
+    },
+    {
+      "name": "873  NU 6-5",
+      "items": [],
+      "subtotals": [
+        {
+          "s_no": "0",
+          "kapan": "0",
+          "pcs": 0,
+          "carat": 0.0,
+          "is_subtotal": true
+        }
+      ]
+    },
+    {
+      "name": "874  AL 6-5",
+      "items": [
+        {
+          "s_no": "1",
+          "kapan": "874-A",
+          "pcs": 987,
+          "carat": 45.81,
+          "is_subtotal": false
+        }
+      ],
+      "subtotals": [
+        {
+          "s_no": "1",
+          "kapan": "1",
+          "pcs": 987,
+          "carat": 45.81,
+          "is_subtotal": true
+        }
+      ]
+    },
+    {
+      "name": "875   Rej +5-3",
+      "items": [
+        {
+          "s_no": "1",
+          "kapan": "875-A",
+          "pcs": 891,
+          "carat": 50.3,
+          "is_subtotal": false
+        },
+        {
+          "s_no": "1",
+          "kapan": "875-B",
+          "pcs": 795,
+          "carat": 50.9,
+          "is_subtotal": false
+        }
+      ],
+      "subtotals": [
+        {
+          "s_no": "2",
+          "kapan": "2",
+          "pcs": 1686,
+          "carat": 101.2,
+          "is_subtotal": true
+        }
+      ]
+    }
+  ]
+};
+
+        // Custom Dialog Manager
+        const dialogOverlay = document.getElementById('custom-dialog-overlay');
+        const dialogHeader = document.getElementById('dialog-header');
+        const dialogBody = document.getElementById('dialog-body');
+        const dialogInputContainer = document.getElementById('dialog-input-container');
+        const dialogPromptInput = document.getElementById('dialog-prompt-input');
+        const dialogBtnCancel = document.getElementById('dialog-btn-cancel');
+        const dialogBtnOk = document.getElementById('dialog-btn-ok');
+
+        let dialogResolve = null;
+
+        function showCustomDialog(type, title, message, defaultValue = '') {
+            return new Promise((resolve) => {
+                dialogResolve = resolve;
+                
+                let iconHtml = '';
+                if (type === 'alert') {
+                    iconHtml = '<i data-lucide="info" style="width:18px;height:18px;color:#2563eb;"></i>';
+                    dialogBtnCancel.style.display = 'none';
+                    dialogInputContainer.style.display = 'none';
+                    dialogBtnOk.style.background = '#002d62';
+                    dialogBtnOk.innerText = 'ઠીક છે (OK)';
+                } else if (type === 'confirm') {
+                    iconHtml = '<i data-lucide="help-circle" style="width:18px;height:18px;color:#dc2626;"></i>';
+                    dialogBtnCancel.style.display = 'block';
+                    dialogInputContainer.style.display = 'none';
+                    dialogBtnOk.style.background = '#dc2626';
+                    dialogBtnOk.innerText = 'હા (OK)';
+                } else if (type === 'prompt') {
+                    iconHtml = '<i data-lucide="edit-2" style="width:18px;height:18px;color:#002d62;"></i>';
+                    dialogBtnCancel.style.display = 'block';
+                    dialogInputContainer.style.display = 'block';
+                    dialogPromptInput.value = defaultValue;
+                    dialogBtnOk.style.background = '#002d62';
+                    dialogBtnOk.innerText = 'સેવ કરો (Save)';
+                }
+
+                dialogHeader.innerHTML = `${iconHtml} <span>${title}</span>`;
+                dialogBody.innerText = message;
+                
+                dialogOverlay.style.display = 'flex';
+                lucide.createIcons();
+
+                if (type === 'prompt') {
+                    setTimeout(() => dialogPromptInput.focus(), 50);
+                }
+            });
+        }
+
+        dialogBtnOk.addEventListener('click', () => {
+            if (dialogResolve) {
+                dialogOverlay.style.display = 'none';
+                const resolveTemp = dialogResolve;
+                dialogResolve = null;
+                
+                const isPrompt = dialogInputContainer.style.display === 'block';
+                if (isPrompt) {
+                    resolveTemp(dialogPromptInput.value.trim());
+                } else {
+                    resolveTemp(true);
+                }
+            }
+        });
+
+        dialogBtnCancel.addEventListener('click', () => {
+            if (dialogResolve) {
+                dialogOverlay.style.display = 'none';
+                const resolveTemp = dialogResolve;
+                dialogResolve = null;
+                
+                const isPrompt = dialogInputContainer.style.display === 'block';
+                if (isPrompt) {
+                    resolveTemp(null);
+                } else {
+                    resolveTemp(false);
+                }
+            }
+        });
+
+        // ── Dynamic today key ──
+        const _todayKey = (() => {
+            const n = new Date();
+            return n.getFullYear() + '-' +
+                String(n.getMonth() + 1).padStart(2, '0') + '-' +
+                String(n.getDate()).padStart(2, '0');
+        })();
+
+        // ── Firebase-only data store (no localStorage) ──
+        let multiData = {
+            active_date: _todayKey,
+            dates: { [_todayKey]: defaultData }
+        };
+        let stockData = multiData.dates[multiData.active_date];
+        let _fbReady = false; // true once Firebase has loaded
+
+        // Show loading overlay until Firebase data arrives
+        (function showLoadingOverlay() {
+            const overlay = document.createElement('div');
+            overlay.id = 'fb-loading-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:Outfit,sans-serif;';
+            overlay.innerHTML = `
+                <div style="width:48px;height:48px;border:4px solid #e2e8f0;border-top-color:#1e3a5f;border-radius:50%;animation:fbspin 0.8s linear infinite;"></div>
+                <div style="font-size:1rem;font-weight:600;color:#1e3a5f;">ડેટા લોડ થઈ રહ્યો છે...</div>
+                <style>@keyframes fbspin{to{transform:rotate(360deg);}}</style>`;
+            document.body.appendChild(overlay);
+        })();
+
+        function hideLoadingOverlay() {
+            const el = document.getElementById('fb-loading-overlay');
+            if (el) el.remove();
+        }
+
+        // ── Cloud Sync Indicator control ──
+        function setSyncStatus(state, label) {
+            const el = document.getElementById('sync-indicator');
+            const lbl = document.getElementById('sync-label');
+            if (!el || !lbl) return;
+            el.className = ''; // clear all state classes
+            el.classList.add('sync-indicator', state);
+            // Re-apply base id style
+            el.id = 'sync-indicator';
+            lbl.textContent = label;
+        }
+
+        // ── Save to Firebase only ──
+        function saveToLocal() {
+            multiData.dates[multiData.active_date] = stockData;
+            setSyncStatus('syncing', 'Saving...');
+            db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)))
+                .then(() => setSyncStatus('synced', 'Synced ✓'))
+                .catch(e => {
+                    console.warn('Firebase save failed:', e);
+                    setSyncStatus('error', 'Save Failed!');
+                });
+        }
+
+        // ── Load data from Firebase on startup ──
+        db.ref(DB_PATH).once('value').then(snapshot => {
+            const fbData = snapshot.val();
+            const todayNow = getTodayKey();
+            if (fbData && fbData.dates) {
+                multiData = fbData;
+                // Ensure today's date slot exists
+                if (!multiData.dates[todayNow]) {
+                    // Carry forward last available date
+                    const lastKey = Object.keys(multiData.dates).sort().pop();
+                    multiData.dates[todayNow] = JSON.parse(JSON.stringify(multiData.dates[lastKey]));
+                }
+                multiData.active_date = todayNow;
+            } else {
+                // First time — create today's empty data in Firebase
+                multiData = {
+                    active_date: todayNow,
+                    dates: { [todayNow]: defaultData }
+                };
+                db.ref(DB_PATH).set(multiData);
+            }
+            stockData = multiData.dates[multiData.active_date];
+            _fbReady = true;
+            // Refresh all UI
+            updateKPIs();
+            renderStockCards('');
+            initDatePicker();
+            renderMasterGroupTable();
+            populateGroupDropdown();
+            hideLoadingOverlay();
+            setSyncStatus('synced', 'Synced ✓');
+            console.log('✅ Firebase loaded');
+        }).catch(e => {
+            console.error('Firebase load error:', e);
+            hideLoadingOverlay();
+            setSyncStatus('error', 'Not Connected ✗');
+        });
+
+        // ── Real-time listener: sync changes from other devices ──
+        let _skipNextUpdate = false;
+        db.ref(DB_PATH).on('value', snapshot => {
+            if (!_fbReady) return; // skip during initial load
+            if (_skipNextUpdate) { _skipNextUpdate = false; return; }
+            const fbData = snapshot.val();
+            if (!fbData || !fbData.dates) return;
+            const activeKey = multiData.active_date;
+            const fbJson = JSON.stringify(fbData.dates[activeKey]);
+            const localJson = JSON.stringify(multiData.dates[activeKey]);
+            if (fbJson !== localJson) {
+                Object.assign(multiData.dates, fbData.dates);
+                stockData = multiData.dates[activeKey];
+                updateKPIs();
+                renderStockCards(document.getElementById('search-bar')?.value || '');
+                renderMasterGroupTable();
+            }
+        });
+
+        // Returns today's date in YYYY-MM-DD format (device real time)
+        function getTodayKey() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        // Switch active date to today and update stockData reference + UI
+        function switchToToday() {
+            const todayKey = getTodayKey();
+            if (multiData.active_date === todayKey) return; // already on today
+
+            saveToLocal(); // save current date first
+
+            if (!multiData.dates[todayKey]) {
+                // Create today's date entry by cloning previous active date
+                const cloned = JSON.parse(JSON.stringify(stockData));
+                const [y, mo, da] = todayKey.split('-');
+                cloned.date = `${da}-${mo}-${y}`;
+                multiData.dates[todayKey] = cloned;
+            }
+
+            multiData.active_date = todayKey;
+            stockData = multiData.dates[todayKey];
+            saveToLocal();
+
+            // Sync date picker UI
+            const dp = document.getElementById('header-date-picker');
+            if (dp) dp.value = todayKey;
+
+            updateKPIs();
+            renderStockCards(document.getElementById('search-bar') ? document.getElementById('search-bar').value : '');
+        }
+
+        // Format numbers in Indian Style
+        function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num)) return '-';
+            return num.toLocaleString('en-IN');
+        }
+
+        function formatCarat(num) {
+            if (num === null || num === undefined || isNaN(num)) return '-';
+            return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Update indicators in dashboard
+        function updateKPIs() {
+            document.getElementById('kpi-lots').innerText = formatNumber(stockData.grand_totals.total_kapan);
+            document.getElementById('kpi-pcs').innerText = formatNumber(stockData.grand_totals.total_pcs);
+            document.getElementById('kpi-carats').innerText = formatCarat(stockData.grand_totals.total_carat);
+        }
+
+        // Recalculate Grand Totals dynamically in JS
+        function recalculateGrandTotals() {
+            let totalLots = 0;
+            let totalPcs = 0;
+            let totalCarats = 0.0;
+
+            stockData.groups.forEach(group => {
+                let groupPcs = 0;
+                let groupCarat = 0.0;
+                
+                group.items.forEach(item => {
+                    if (!item.is_subtotal) {
+                        const pcs = parseInt(item.pcs);
+                        const carat = parseFloat(item.carat);
+                        if (!isNaN(pcs)) groupPcs += pcs;
+                        if (!isNaN(carat)) groupCarat += carat;
+                    }
+                });
+                
+                totalLots += group.items.filter(item => !item.is_subtotal).length;
+                totalPcs += groupPcs;
+                totalCarats += groupCarat;
+            });
+
+            stockData.grand_totals = {
+                "total_kapan": totalLots,
+                "total_pcs": totalPcs,
+                "total_carat": Number(totalCarats.toFixed(2))
+            };
+
+            saveToLocal();
+            updateKPIs();
+        }
+
+        // Initialize KPIs
+        updateKPIs();
+
+        // Helper to collect all lots mapped by kapan name
+        function getItemsMap(data) {
+            const map = {};
+            if (!data || !data.groups) return map;
+            data.groups.forEach(g => {
+                g.items.forEach(item => {
+                    if (!item.is_subtotal && item.kapan && item.kapan.trim() !== '') {
+                        map[item.kapan] = {
+                            kapan: item.kapan,
+                            pcs: parseInt(item.pcs) || 0,
+                            carat: parseFloat(item.carat) || 0.0,
+                            groupName: g.name
+                        };
+                    }
+                });
+            });
+            return map;
+        }
+
+        // Generate dynamic IN-OUT report compared to previous date
+        function renderDailyReport() {
+            const currentD = multiData.active_date;
+            const sortedDates = Object.keys(multiData.dates).sort();
+            const currentIndex = sortedDates.indexOf(currentD);
+            
+            let prevData = { groups: [] };
+            if (currentIndex > 0) {
+                const prevD = sortedDates[currentIndex - 1];
+                prevData = multiData.dates[prevD];
+            }
+
+            const parts = currentD.split('-');
+            document.getElementById('report-date-display').innerText = `તારીખ: ${parts[2]}-${parts[1]}-${parts[0]}`;
+
+            const prevMap = getItemsMap(prevData);
+            const currMap = getItemsMap(stockData);
+
+            const inItems = [];
+            const outItems = [];
+
+            let totalInPcs = 0;
+            let totalInCarats = 0.0;
+            let totalOutPcs = 0;
+            let totalOutCarats = 0.0;
+
+            // Find IN flows & positive changes
+            Object.keys(currMap).forEach(kapan => {
+                const curr = currMap[kapan];
+                const prev = prevMap[kapan];
+
+                if (!prev) {
+                    inItems.push({
+                        group: curr.groupName,
+                        kapan: curr.kapan,
+                        pcs: curr.pcs,
+                        carat: curr.carat
+                    });
+                    totalInPcs += curr.pcs;
+                    totalInCarats += curr.carat;
+                } else {
+                    const diffPcs = curr.pcs - prev.pcs;
+                    // Round to 2 decimal places to prevent javascript floating point inaccuracies
+                    const currCaratInt = Math.round(curr.carat * 100);
+                    const prevCaratInt = Math.round(prev.carat * 100);
+                    const diffCarat = (currCaratInt - prevCaratInt) / 100;
+
+                    if (diffPcs > 0 || diffCarat > 0) {
+                        const incPcs = Math.max(0, diffPcs);
+                        const incCarat = Math.max(0.0, diffCarat);
+                        inItems.push({
+                            group: curr.groupName,
+                            kapan: curr.kapan,
+                            pcs: incPcs,
+                            carat: incCarat
+                        });
+                        totalInPcs += incPcs;
+                        totalInCarats += incCarat;
+                    } else if (diffPcs < 0 || diffCarat < 0) {
+                        const decPcs = Math.max(0, -diffPcs);
+                        const decCarat = Math.max(0.0, -diffCarat);
+                        outItems.push({
+                            group: curr.groupName,
+                            kapan: curr.kapan,
+                            pcs: decPcs,
+                            carat: decCarat
+                        });
+                        totalOutPcs += decPcs;
+                        totalOutCarats += decCarat;
+                    }
+                }
+            });
+
+            // Find OUT flows (totally deleted / closed kapans)
+            Object.keys(prevMap).forEach(kapan => {
+                const prev = prevMap[kapan];
+                const curr = currMap[kapan];
+
+                if (!curr) {
+                    outItems.push({
+                        group: prev.groupName,
+                        kapan: prev.kapan,
+                        pcs: prev.pcs,
+                        carat: prev.carat
+                    });
+                    totalOutPcs += prev.pcs;
+                    totalOutCarats += prev.carat;
+                }
+            });
+
+            const inTbody = document.getElementById('report-in-tbody');
+            const outTbody = document.getElementById('report-out-tbody');
+
+            inTbody.innerHTML = '';
+            outTbody.innerHTML = '';
+
+            if (inItems.length === 0) {
+                inTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 12px 6px;">આજે કોઈ નવી આવક નથી.</td></tr>';
+            } else {
+                inItems.forEach(item => {
+                    inTbody.innerHTML += `
+                        <tr>
+                            <td>${item.group}</td>
+                            <td>${item.kapan}</td>
+                            <td style="text-align: right; color: #059669; font-weight: 700; font-variant-numeric: tabular-nums;">+${formatNumber(item.pcs)}</td>
+                            <td style="text-align: right; color: #059669; font-weight: 700; font-variant-numeric: tabular-nums;">+${formatCarat(item.carat)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            if (outItems.length === 0) {
+                outTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 12px 6px;">આજે કોઈ નવી જાવક નથી.</td></tr>';
+            } else {
+                outItems.forEach(item => {
+                    outTbody.innerHTML += `
+                        <tr>
+                            <td>${item.group}</td>
+                            <td>${item.kapan}</td>
+                            <td style="text-align: right; color: #dc2626; font-weight: 700; font-variant-numeric: tabular-nums;">-${formatNumber(item.pcs)}</td>
+                            <td style="text-align: right; color: #dc2626; font-weight: 700; font-variant-numeric: tabular-nums;">-${formatCarat(item.carat)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('report-in-pcs').innerText = `+${formatNumber(totalInPcs)}`;
+            document.getElementById('report-in-carats').innerText = `+${formatCarat(totalInCarats)}`;
+            document.getElementById('report-out-pcs').innerText = `-${formatNumber(totalOutPcs)}`;
+            document.getElementById('report-out-carats').innerText = `-${formatCarat(totalOutCarats)}`;
+
+            const netPcs = totalInPcs - totalOutPcs;
+            const netCarat = totalInCarats - totalOutCarats;
+            const netSignPcs = netPcs >= 0 ? '+' : '';
+            const netSignCarat = netCarat >= 0 ? '+' : '';
+
+            const netPcsEl = document.getElementById('report-net-pcs');
+            const netCaratsEl = document.getElementById('report-net-carats');
+
+            netPcsEl.innerText = `${netSignPcs}${formatNumber(netPcs)}`;
+            netCaratsEl.innerText = `${netSignCarat}${formatCarat(netCarat)}`;
+
+            if (netPcs >= 0) {
+                netPcsEl.style.color = '#059669';
+            } else {
+                netPcsEl.style.color = '#dc2626';
+            }
+
+            if (netCarat >= 0) {
+                netCaratsEl.style.color = '#059669';
+            } else {
+                netCaratsEl.style.color = '#dc2626';
+            }
+
+            lucide.createIcons();
+        }
+
+        // View switching logic
+        function switchView(viewName) {
+            // Remove active classes
+            document.querySelectorAll('.top-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.view-pane').forEach(pane => pane.style.display = 'none');
+            
+            if (viewName === 'dashboard') {
+                const topDash = document.getElementById('btn-top-dashboard');
+                if (topDash) topDash.classList.add('active');
+                document.getElementById('view-dashboard').style.display = 'flex';
+                updateKPIs();
+            } else if (viewName === 'stock') {
+                const topStock = document.getElementById('btn-top-stock');
+                if (topStock) topStock.classList.add('active');
+                document.getElementById('view-stock').style.display = 'flex';
+                renderStockCards(document.getElementById('search-bar').value);
+            } else if (viewName === 'report') {
+                const topReport = document.getElementById('btn-top-report');
+                if (topReport) topReport.classList.add('active');
+                document.getElementById('view-report').style.display = 'flex';
+                renderDailyReport();
+            } else if (viewName === 'master') {
+                const topMaster = document.getElementById('btn-top-master');
+                if (topMaster) topMaster.classList.add('active');
+                document.getElementById('view-master').style.display = 'flex';
+                renderMasterGroupTable();
+            }
+        }
+
+        // Keyboard Shortcuts & Modal Escape/Enter Keys
+        window.addEventListener('keydown', (e) => {
+            // Esc key logic
+            if (e.key === 'Escape') {
+                if (dialogOverlay.style.display === 'flex') {
+                    e.preventDefault();
+                    dialogBtnCancel.click(); // Cancels custom dialog
+                } else if (modal.style.display === 'flex') {
+                    e.preventDefault();
+                    modal.style.display = 'none';
+                } else if (modalGroup.style.display === 'flex') {
+                    e.preventDefault();
+                    modalGroup.style.display = 'none';
+                }
+            }
+
+            // Enter key logic for Custom Dialog
+            if (e.key === 'Enter') {
+                if (dialogOverlay.style.display === 'flex') {
+                    e.preventDefault();
+                    dialogBtnOk.click(); // Confirms custom dialog
+                }
+            }
+
+            // F-keys view switching
+            if (e.key === 'F3') {
+                e.preventDefault();
+                switchView('dashboard');
+            } else if (e.key === 'F4') {
+                e.preventDefault();
+                switchView('report');
+            } else if (e.key === 'F9') {
+                e.preventDefault();
+                switchView('stock');
+            } else if (e.key === 'F10') {
+                e.preventDefault();
+                switchView('master');
+            }
+        });
+
+        // Group Master Rendering & Management
+        function renderMasterGroupTable() {
+            const tbody = document.getElementById('master-group-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            stockData.groups.forEach(group => {
+                let groupPcs = 0;
+                let groupCarat = 0.0;
+                
+                group.items.forEach(item => {
+                    if (!item.is_subtotal) {
+                        const pcs = parseInt(item.pcs);
+                        const carat = parseFloat(item.carat);
+                        if (!isNaN(pcs)) groupPcs += pcs;
+                        if (!isNaN(carat)) groupCarat += carat;
+                    }
+                });
+
+                const lotsCount = group.items.filter(item => !item.is_subtotal).length;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 600; color: var(--accent-navy);">${group.name}</td>
+                    <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(lotsCount)}</td>
+                    <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(groupPcs)}</td>
+                    <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(groupCarat)}</td>
+                    <td style="text-align: center;">
+                        <button onclick="editGroupName('${group.name}')" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-right: 6px;">
+                            <i data-lucide="edit-2" style="width:12px;height:12px;"></i> નામ બદલો (Edit)
+                        </button>
+                        <button onclick="deleteGroup('${group.name}')" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                            <i data-lucide="trash-2" style="width:12px;height:12px;"></i> કાઢી નાખો (Delete)
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Initialize icons in the table
+            lucide.createIcons();
+        }
+
+        // Edit group name
+        async function editGroupName(oldName) {
+            const newName = await showCustomDialog('prompt', 'નામ બદલો (Rename)', `"${oldName}" ગ્રુપનું નવું નામ આપો:`, oldName);
+            if (newName === null) return;
+            const trimmed = newName.trim();
+            if (!trimmed) {
+                await showCustomDialog('alert', 'ભૂલ (Error)', "ગ્રુપનું નામ ખાલી હોઈ શકે નહીં!");
+                return;
+            }
+
+            if (trimmed.toLowerCase() !== oldName.toLowerCase()) {
+                const exists = stockData.groups.some(g => g.name.toLowerCase() === trimmed.toLowerCase());
+                if (exists) {
+                    await showCustomDialog('alert', 'ભૂલ (Error)', "આ ગ્રુપ નામ પહેલેથી જ અસ્તિત્વમાં છે!");
+                    return;
+                }
+            }
+
+            const group = stockData.groups.find(g => g.name === oldName);
+            if (group) {
+                group.name = trimmed;
+                recalculateGrandTotals();
+                populateGroupDropdown();
+                renderMasterGroupTable();
+                await showCustomDialog('alert', 'સફળ (Success)', "ગ્રુપનું નામ સફળતાપૂર્વક બદલાઈ ગયું છે!");
+            }
+        }
+
+        // Delete group
+        async function deleteGroup(groupName) {
+            const confirmDelete = await showCustomDialog('confirm', 'ગ્રુપ કાઢી નાખો (Delete)', `શું તમે ખરેખર "${groupName}" ગ્રુપ અને તેની અંદરના તમામ લોટ્સ કાઢી નાખવા માંગો છો? આ ક્રિયા પાછી ખેંચી શકાશે નહીં.`);
+            if (!confirmDelete) return;
+
+            stockData.groups = stockData.groups.filter(g => g.name !== groupName);
+            recalculateGrandTotals();
+            populateGroupDropdown();
+            renderMasterGroupTable();
+            await showCustomDialog('alert', 'સફળ (Success)', "ગ્રુપ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું છે!");
+        }
+
+        // Helper to open modal
+        function openAddGroupModal() {
+            document.getElementById('modal-add-group').style.display = 'flex';
+            document.getElementById('modal-group-error').style.display = 'none';
+            // Automatically focus and blink cursor inside the input field
+            setTimeout(() => {
+                const input = document.getElementById('input-group-name');
+                if (input) input.focus();
+            }, 50);
+        }
+
+        // Delete individual Kapan (lot)
+        async function deleteKapan(groupName, kapanName) {
+            const confirmDelete = await showCustomDialog('confirm', 'કાપણ કાઢી નાખો (Delete)', `શું તમે ખરેખર "${kapanName}" કાપણ કાઢી નાખવા માંગો છો?`);
+            if (!confirmDelete) return;
+
+            const group = stockData.groups.find(g => g.name === groupName);
+            if (group) {
+                group.items = group.items.filter(item => item.kapan !== kapanName);
+                
+                // Recalculate Serial numbers just in case
+                let counter = 1;
+                group.items.forEach(item => {
+                    if (!item.is_subtotal) {
+                        item.s_no = String(counter++);
+                    }
+                });
+
+                recalculateGrandTotals(); // Updates, saves to Firebase, and refreshes KPIs
+                renderStockCards(document.getElementById('search-bar').value);
+                await showCustomDialog('alert', 'સફળ (Success)', "કાપણ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું છે!");
+            }
+        }
+
+        // Toggle Select All checkboxes in a stock card
+        function toggleSelectAllKapan(masterCheckbox, groupName) {
+            const safeId = groupName.replace(/[^a-zA-Z0-9-]/g, '_');
+            const header = document.getElementById(`card-header-${safeId}`);
+            if (header) {
+                const card = header.closest('.stock-card');
+                if (card) {
+                    const checkboxes = card.querySelectorAll('.kapan-checkbox');
+                    checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+                }
+            }
+            updateBulkDeleteButton(groupName);
+        }
+
+        // Update bulk delete button visibility and selected count
+        function updateBulkDeleteButton(groupName) {
+            const safeId = groupName.replace(/[^a-zA-Z0-9-]/g, '_');
+            const header = document.getElementById(`card-header-${safeId}`);
+            if (header) {
+                const card = header.closest('.stock-card');
+                if (card) {
+                    const checkedBoxes = card.querySelectorAll('.kapan-checkbox:checked');
+                    const btn = document.getElementById(`btn-bulk-delete-${safeId}`);
+                    const selectAllCb = card.querySelector('.select-all-kapan');
+                    const totalCheckboxes = card.querySelectorAll('.kapan-checkbox');
+                    
+                    // Keep master checkbox in sync
+                    if (selectAllCb) {
+                        selectAllCb.checked = (checkedBoxes.length === totalCheckboxes.length && totalCheckboxes.length > 0);
+                    }
+                    
+                    if (btn) {
+                        if (checkedBoxes.length > 0) {
+                            btn.style.display = 'inline-flex';
+                            btn.querySelector('.bulk-count').innerText = checkedBoxes.length;
+                        } else {
+                            btn.style.display = 'none';
+                        }
+                    }
+                }
+            }
+        }
+
+        // Perform bulk delete on selected items
+        async function performBulkDelete(groupName) {
+            const safeId = groupName.replace(/[^a-zA-Z0-9-]/g, '_');
+            const header = document.getElementById(`card-header-${safeId}`);
+            if (!header) return;
+            const card = header.closest('.stock-card');
+            if (!card) return;
+
+            const checkedRows = Array.from(card.querySelectorAll('.kapan-row')).filter(row => {
+                const cb = row.querySelector('.kapan-checkbox');
+                return cb && cb.checked;
+            });
+
+            if (checkedRows.length === 0) return;
+
+            const confirmDelete = await showCustomDialog('confirm', 'બલ્ક ડીલીટ (Bulk Delete)', `શું તમે ખરેખર પસંદ કરેલા ${checkedRows.length} કાપણ કાયમ માટે કાઢી નાખવા માંગો છો?`);
+            if (!confirmDelete) return;
+
+            const kapansToDelete = checkedRows.map(row => row.dataset.kapan);
+
+            const group = stockData.groups.find(g => g.name === groupName);
+            if (group) {
+                group.items = group.items.filter(item => item.is_subtotal || !kapansToDelete.includes(item.kapan));
+                
+                // Recalculate Serial numbers
+                let counter = 1;
+                group.items.forEach(item => {
+                    if (!item.is_subtotal) {
+                        item.s_no = String(counter++);
+                    }
+                });
+
+                recalculateGrandTotals(); // Recalculates, saves to Firebase, and updates view
+                renderStockCards(document.getElementById('search-bar') ? document.getElementById('search-bar').value : '');
+                await showCustomDialog('alert', 'સફળ (Success)', `${kapansToDelete.length} કાપણ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યા છે!`);
+            }
+        }
+
+        // Generate Cards & Tables (with 4 Columns: S.No, Kapan, Pieces, Carat)
+        const grid = document.getElementById('stock-grid');
+
+        function renderStockCards(filterText = '') {
+            grid.innerHTML = '';
+            let totalCardsRendered = 0;
+            const query = filterText.toLowerCase().trim();
+
+            stockData.groups.forEach(group => {
+                // Filter items
+                const matchedItems = group.items.filter(item => {
+                    if (!query) return true;
+                    return (item.kapan && item.kapan.toLowerCase().includes(query)) ||
+                           (item.s_no && item.s_no.toString().includes(query));
+                });
+
+                // Skip showing empty cards when searching
+                if (query && matchedItems.length === 0) return;
+
+                totalCardsRendered++;
+
+                // Compute sums
+                let groupPcs = 0;
+                let groupCarat = 0.0;
+                
+                matchedItems.forEach(item => {
+                    if (!item.is_subtotal) {
+                        const pcs = parseInt(item.pcs);
+                        const carat = parseFloat(item.carat);
+                        if (!isNaN(pcs)) groupPcs += pcs;
+                        if (!isNaN(carat)) groupCarat += carat;
+                    }
+                });
+
+                let showSubtotal = true;
+                let subPcs = groupPcs;
+                let subCarat = groupCarat;
+                let subLabel = 'Subtotal';
+
+                // Create stock card
+                const card = document.createElement('div');
+                card.className = 'stock-card';
+                
+                const safeId = group.name.replace(/[^a-zA-Z0-9-]/g, '_');
+                
+                let tableRows = '';
+                matchedItems.forEach(item => {
+                    if (!item.is_subtotal) {
+                        tableRows += `
+                            <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${item.kapan.replace(/'/g, "\\'")}">
+                                <td style="text-align: center; width: 28px; padding: 2px 4px;">
+                                    <input type="checkbox" class="kapan-checkbox" onchange="updateBulkDeleteButton('${group.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transform: scale(1.1);">
+                                </td>
+                                <td class="col-kapan">${item.kapan || '-'}</td>
+                                <td class="col-num col-pcs">${formatNumber(item.pcs)}</td>
+                                <td class="col-num col-cts">${formatCarat(item.carat)}</td>
+                                <td style="text-align: center; width: 24px; padding: 2px;">
+                                    <button onclick="deleteKapan('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="કાપણ કાઢી નાખો">
+                                        <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                if (showSubtotal) {
+                    tableRows += `
+                        <tr class="subtotal-row">
+                            <td></td>
+                            <td class="col-kapan subtotal-label">${subLabel}</td>
+                            <td class="col-num col-pcs">${formatNumber(subPcs)}</td>
+                            <td class="col-num col-cts">${formatCarat(subCarat)}</td>
+                            <td></td>
+                        </tr>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="card-header-bar" id="card-header-${safeId}">
+                        <div class="group-title">${group.name}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button class="btn-bulk-delete" id="btn-bulk-delete-${safeId}" onclick="performBulkDelete('${group.name.replace(/'/g, "\\'")}')" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                                <i data-lucide="trash-2" style="width:12px;height:12px;"></i> કાઢી નાખો (<span class="bulk-count">0</span>)
+                            </button>
+                            <div class="group-badge-summary">${matchedItems.filter(i => !i.is_subtotal).length} Lots</div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="stock-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 28px; text-align: center; padding: 2px 4px;">
+                                        <input type="checkbox" class="select-all-kapan" onchange="toggleSelectAllKapan(this, '${group.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transform: scale(1.1);">
+                                    </th>
+                                    <th>Kapan</th>
+                                    <th style="text-align: right;">Pcs (નંગ)</th>
+                                    <th style="text-align: right;">Carat (કેરેટ)</th>
+                                    <th style="width: 24px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            document.getElementById('no-results').style.display = (totalCardsRendered === 0) ? 'flex' : 'none';
+            
+            // Re-initialize Lucide Icons for dynamic trash buttons
+            lucide.createIcons();
+        }
+
+        // Setup Event Listeners
+        const searchInput = document.getElementById('search-bar');
+        searchInput.addEventListener('input', (e) => {
+            renderStockCards(e.target.value);
+        });
+
+        // Kapan Modal code
+        const modal = document.getElementById('modal-add-kapan');
+        const btnAdd = document.getElementById('btn-add-kapan');
+        const btnClose = document.getElementById('modal-close');
+        const formAdd = document.getElementById('form-add-kapan');
+        const selectGroup = document.getElementById('input-group');
+        const modalError = document.getElementById('modal-error');
+
+        // Search group dropdown variables
+        const groupSearchMenu = document.getElementById('group-search-menu');
+        const groupSearchInput = document.getElementById('group-search-input');
+        const groupSearchList = document.getElementById('group-search-list');
+        const btnOpenGroupSearch = document.getElementById('btn-open-group-search');
+        const btnCloseGroupSearch = document.getElementById('btn-close-group-search');
+        const inputGroup = document.getElementById('input-group');
+        const btnAddNewPartyRow = document.getElementById('btn-add-new-party-row');
+
+        function openGroupSearchMenu() {
+            if (groupSearchMenu) {
+                groupSearchMenu.style.display = 'flex';
+                groupSearchInput.value = '';
+                renderGroupSearchList('');
+                setTimeout(() => {
+                    if (groupSearchInput) groupSearchInput.focus();
+                }, 50);
+            }
+        }
+
+        function closeGroupSearchMenu() {
+            if (groupSearchMenu) {
+                groupSearchMenu.style.display = 'none';
+            }
+        }
+
+        if (btnOpenGroupSearch) {
+            btnOpenGroupSearch.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openGroupSearchMenu();
+            });
+        }
+        if (inputGroup) {
+            inputGroup.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openGroupSearchMenu();
+            });
+        }
+        if (groupSearchMenu) {
+            groupSearchMenu.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+        if (btnCloseGroupSearch) {
+            btnCloseGroupSearch.addEventListener('click', closeGroupSearchMenu);
+        }
+        if (btnAddNewPartyRow) {
+            btnAddNewPartyRow.addEventListener('click', () => {
+                closeGroupSearchMenu();
+                openAddGroupModal();
+            });
+        }
+
+        function renderGroupSearchList(query = '') {
+            if (!groupSearchList) return;
+            const items = groupSearchList.querySelectorAll('.group-search-item');
+            items.forEach(el => el.remove());
+
+            const lowercaseQuery = query.toLowerCase().trim();
+
+            stockData.groups.forEach(g => {
+                if (lowercaseQuery && !g.name.toLowerCase().includes(lowercaseQuery)) {
+                    return;
+                }
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'group-search-item';
+                itemDiv.style.cssText = "padding: 4px 12px; font-size: 0.8rem; font-weight: 600; color: #334155; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.1s;";
+                itemDiv.innerText = g.name;
+
+                itemDiv.onmouseover = () => itemDiv.style.background = '#f1f5f9';
+                itemDiv.onmouseout = () => itemDiv.style.background = 'transparent';
+
+                itemDiv.onclick = () => {
+                    inputGroup.value = g.name;
+                    closeGroupSearchMenu();
+                    setTimeout(() => {
+                        const kInput = document.getElementById('input-kapan');
+                        if (kInput) kInput.focus();
+                    }, 50);
+                };
+
+                groupSearchList.appendChild(itemDiv);
+            });
+            lucide.createIcons();
+        }
+
+        if (groupSearchInput) {
+            groupSearchInput.addEventListener('input', (e) => {
+                renderGroupSearchList(e.target.value);
+            });
+
+            groupSearchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const firstItem = groupSearchList.querySelector('.group-search-item');
+                    if (firstItem) {
+                        firstItem.click();
+                    }
+                }
+            });
+        }
+
+        // Stub dropdown populate helper
+        function populateGroupDropdown() {
+            // Custom search is auto-populated dynamically
+        }
+
+        if (btnAdd) {
+            btnAdd.addEventListener('click', (e) => {
+                e.stopPropagation();
+                modal.style.display = 'flex';
+                modalError.style.display = 'none';
+                
+                if (inputGroup) inputGroup.value = '';
+                
+                // Automatically open ERP-style Search Party menu
+                openGroupSearchMenu();
+            });
+        }
+
+        if (btnClose) {
+            btnClose.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+
+        // Group Modal Controls
+        const modalGroup = document.getElementById('modal-add-group');
+        const btnAddGroup = document.getElementById('btn-add-group');
+        const btnGroupClose = document.getElementById('modal-group-close');
+        const formAddGroup = document.getElementById('form-add-group');
+        const modalGroupError = document.getElementById('modal-group-error');
+
+        if (btnAddGroup) {
+            btnAddGroup.addEventListener('click', () => {
+                openAddGroupModal();
+            });
+        }
+
+        if (btnGroupClose) {
+            btnGroupClose.addEventListener('click', () => {
+                modalGroup.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+            if (e.target === modalGroup) {
+                modalGroup.style.display = 'none';
+            }
+            // Close search menu if clicked outside
+            if (typeof groupSearchMenu !== 'undefined' && groupSearchMenu && groupSearchMenu.style.display === 'flex' && 
+                !groupSearchMenu.contains(e.target) && 
+                e.target !== inputGroup && 
+                e.target !== btnOpenGroupSearch && 
+                !btnOpenGroupSearch.contains(e.target)) {
+                closeGroupSearchMenu();
+            }
+        });
+
+        // Save New Group to Firebase
+        if (formAddGroup) {
+            formAddGroup.addEventListener('submit', (e) => {
+                e.preventDefault();
+                modalGroupError.style.display = 'none';
+
+                // Always save new groups to TODAY's real date
+                switchToToday();
+
+                const groupName = document.getElementById('input-group-name').value.trim();
+
+                // Check if group already exists
+                const exists = stockData.groups.some(g => g.name.toLowerCase() === groupName.toLowerCase());
+                if (exists) {
+                    modalGroupError.innerText = "આ ગ્રુપ નંબર પહેલેથી અસ્તિત્વમાં છે!";
+                    modalGroupError.style.display = 'block';
+                    return;
+                }
+
+                const newGroup = {
+                    name: groupName,
+                    items: [],
+                    subtotals: []
+                };
+
+                stockData.groups.push(newGroup);
+                recalculateGrandTotals(); // Recalculates and saves to Firebase
+                populateGroupDropdown();
+                renderMasterGroupTable(); // Refresh table view immediately
+                
+                // Keep modal open, reset only, and refocus for consecutive entries!
+                formAddGroup.reset();
+                setTimeout(() => {
+                    const input = document.getElementById('input-group-name');
+                    if (input) input.focus();
+                }, 50);
+                
+                renderStockCards(searchInput.value);
+            });
+        }
+
+        // Save New Kapan to Firebase
+        if (formAdd) {
+            formAdd.addEventListener('submit', (e) => {
+                e.preventDefault();
+                modalError.style.display = 'none';
+
+                // Always save new kapans to TODAY's real date
+                switchToToday();
+
+                const selectedGroupName = selectGroup.value;
+                const kapan = document.getElementById('input-kapan').value.trim();
+                const pcs = parseInt(document.getElementById('input-pcs').value);
+                const carat = parseFloat(document.getElementById('input-carat').value);
+
+                const group = stockData.groups.find(g => g.name === selectedGroupName);
+                if (!group) {
+                    modalError.innerText = "ગ્રુપ મળ્યું નથી!";
+                    modalError.style.display = 'block';
+                    return;
+                }
+
+                                // Duplicate Kapan check - same number cannot be added twice in same group
+                const isDuplicate = group.items.some(item =>
+                    !item.is_subtotal && item.kapan && item.kapan.trim().toLowerCase() === kapan.toLowerCase()
+                );
+                if (isDuplicate) {
+                    modalError.innerHTML = '<span style="color:#dc2626;font-weight:700;">⚠️ આ Kapan No. <b>' + kapan + '</b> પહેલેથી જ આ ગ્રુપમાં જમા છે! બીજો નંબર વાપરો.</span>';
+                    modalError.style.display = 'block';
+                    const kapanInput = document.getElementById('input-kapan');
+                    if (kapanInput) { kapanInput.focus(); kapanInput.select(); }
+                    return;
+                }
+
+// Determine new Serial number (items count + 1)
+                const newSno = String(group.items.filter(item => !item.is_subtotal).length + 1);
+
+                const newItem = {
+                    s_no: newSno,
+                    kapan: kapan,
+                    pcs: pcs,
+                    carat: carat,
+                    is_subtotal: false
+                };
+
+                group.items.push(newItem);
+                recalculateGrandTotals(); // Recalculates and saves to Firebase
+                
+                // Keep modal open, reset only Kapan, Pieces, and Carat (keep Group selected for fast entry!)
+                document.getElementById('input-kapan').value = '';
+                document.getElementById('input-pcs').value = '';
+                document.getElementById('input-carat').value = '';
+                
+                setTimeout(() => {
+                    const input = document.getElementById('input-kapan');
+                    if (input) input.focus();
+                }, 50);
+                
+                renderStockCards(searchInput.value);
+            });
+        }
+
+        // Backup download logic (backups all dates!)
+        function downloadBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(multiData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            const dateStr = new Date().toISOString().slice(0, 10);
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `Galaxy_Stock_Backup_ALL_DATES_${dateStr}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Trigger restore file dialogue
+        function triggerRestore() {
+            document.getElementById('file-restore').click();
+        }
+
+        // Load backup from file
+        function restoreBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    if (parsedData && parsedData.dates && parsedData.active_date) {
+                        multiData = parsedData;
+                        db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
+                        stockData = multiData.dates[multiData.active_date];
+                        recalculateGrandTotals();
+                        populateGroupDropdown();
+                        initDatePicker();
+                        renderStockCards();
+                        await showCustomDialog('alert', 'સફળ (Success)', "બધા જ દિવસોનો ડેટા સક્સેસફુલી લોડ થઈ ગયો છે!");
+                        window.location.reload();
+                    } else {
+                        if (parsedData && parsedData.groups) {
+                            multiData = {
+                                active_date: _todayKey,
+                                dates: {
+                                    [_todayKey]: parsedData
+                                }
+                            };
+                            db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
+                            stockData = multiData.dates[multiData.active_date];
+                            recalculateGrandTotals();
+                            populateGroupDropdown();
+                            initDatePicker();
+                            renderStockCards();
+                            await showCustomDialog('alert', 'સફળ (Success)', "જૂનો બેકઅપ સફળતાપૂર્વક લોડ થઈ ગયો છે!");
+                            window.location.reload();
+                        } else {
+                            await showCustomDialog('alert', 'ભૂલ (Error)', "ખોટી બેકઅપ ફાઇલ! કૃપા કરીને સાચી ફાઇલ અપલોડ કરો.");
+                        }
+                    }
+                } catch(err) {
+                    await showCustomDialog('alert', 'ભૂલ (Error)', "ફાઈલ વાંચવામાં ભૂલ આવી છે!");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Date Picker initialization and change handling
+        const datePicker = document.getElementById('header-date-picker');
+        function initDatePicker() {
+            if (datePicker) {
+                // Always ensure active_date is today on fresh/initial load
+                const todayNow = getTodayKey();
+                if (!multiData.dates[todayNow]) {
+                    // Create today's date slot if missing
+                    const prev = JSON.parse(JSON.stringify(stockData));
+                    const [y, mo, da] = todayNow.split('-');
+                    prev.date = `${da}-${mo}-${y}`;
+                    multiData.dates[todayNow] = prev;
+                }
+                multiData.active_date = todayNow;
+                stockData = multiData.dates[todayNow];
+                saveToLocal();
+                datePicker.value = todayNow;
+            }
+        }
+        initDatePicker();
+
+        if (datePicker) {
+            datePicker.addEventListener('change', (e) => {
+                const newDate = e.target.value;
+                if (!newDate) return;
+
+                const oldDate = multiData.active_date;
+                saveToLocal();
+
+                multiData.active_date = newDate;
+
+                if (!multiData.dates[newDate]) {
+                    // Carry forward the stock by cloning the old date's data!
+                    const clonedData = JSON.parse(JSON.stringify(multiData.dates[oldDate]));
+                    const parts = newDate.split('-');
+                    clonedData.date = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    multiData.dates[newDate] = clonedData;
+                }
+
+                stockData = multiData.dates[newDate];
+                saveToLocal();
+
+                updateKPIs();
+                renderStockCards(document.getElementById('search-bar') ? document.getElementById('search-bar').value : '');
+                
+                // If report view is active, update the report
+                if (document.getElementById('view-report').style.display === 'flex') {
+                    renderDailyReport();
+                }
+                
+                const parts = newDate.split('-');
+                const displayD = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                showCustomDialog('alert', 'ડેટા લોડ (Data Loaded)', `તારીખ ${displayD} નો ડેટા લોડ થયો છે!`);
+            });
+        }
+
+        // Render stock view on first load
+        renderStockCards();
+
+        // Init icons
+        lucide.createIcons();
+
+        // Prevent background scrolling when modals or dialogs are open
+        const observer = new MutationObserver(() => {
+            const isKapanOpen = modal && modal.style.display === 'flex';
+            const isGroupOpen = modalGroup && modalGroup.style.display === 'flex';
+            const isDialogOpen = dialogOverlay && dialogOverlay.style.display === 'flex';
+            
+            if (isKapanOpen || isGroupOpen || isDialogOpen) {
+                document.body.classList.add('modal-open');
+            } else {
+                document.body.classList.remove('modal-open');
+            }
+        });
+
+        if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+        if (modalGroup) observer.observe(modalGroup, { attributes: true, attributeFilter: ['style'] });
+        if (dialogOverlay) observer.observe(dialogOverlay, { attributes: true, attributeFilter: ['style'] });
+    </script>
+</body>
+</html>

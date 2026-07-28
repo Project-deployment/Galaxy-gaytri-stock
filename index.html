@@ -2267,7 +2267,6 @@
                 if (!multiData.dates[newDate]) {
                     // Carry forward the stock by cloning closest previous date
                     const clonedData = getClonedDataForDate(newDate);
-                    const parts = newDate.split('-');
                     clonedData.date = `${parts[2]}-${parts[1]}-${parts[0]}`;
                     multiData.dates[newDate] = clonedData;
                 }

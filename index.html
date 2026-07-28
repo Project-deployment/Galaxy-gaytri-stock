@@ -555,6 +555,9 @@
             તારીખ (Date):
             <input type="date" id="header-date-picker" style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
         </div>
+
+        <!-- Firebase Debug Button -->
+        <button class="top-tab" onclick="testFirebase()" style="border-color: #7c3aed; color: #7c3aed; font-size:0.7rem;">🔍 FB Test</button>
         
         <!-- Backup & Restore Buttons -->
         <button class="top-tab" onclick="downloadBackup()" style="margin-left: auto; border-color: #059669; color: #059669;"><i data-lucide="download" style="width:16px;height:16px;"></i> બેકઅપ ડાઉનલોડ (Backup)</button>
@@ -1067,6 +1070,28 @@
         });
 
         // Returns today's date in YYYY-MM-DD format (device real time)
+        // ── Firebase Debug Test ──
+        function testFirebase() {
+            const msg = document.createElement('div');
+            msg.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#1e1e2e;color:#fff;padding:16px 24px;border-radius:12px;z-index:99999;font-family:monospace;font-size:0.8rem;max-width:500px;word-break:break-all;box-shadow:0 8px 32px rgba(0,0,0,0.4)';
+            msg.innerHTML = '<b style="color:#a6e3a1">Testing Firebase...</b><br><br>';
+            document.body.appendChild(msg);
+            db.ref(DB_PATH).once('value')
+                .then(snap => {
+                    msg.innerHTML = '<b style="color:#a6e3a1">✅ Firebase Connected!</b><br><br>'
+                        + 'Data exists: ' + (snap.exists() ? 'YES' : 'NO (empty)') + '<br>'
+                        + 'Path: ' + DB_PATH + '<br>'
+                        + 'DB URL: ' + (db.app.options.databaseURL || 'N/A');
+                    setTimeout(() => msg.remove(), 6000);
+                })
+                .catch(err => {
+                    msg.innerHTML = '<b style="color:#f38ba8">❌ Firebase Error!</b><br><br>'
+                        + '<b>Message:</b> ' + err.message + '<br><br>'
+                        + '<b>Code:</b> ' + (err.code || 'unknown');
+                    setTimeout(() => msg.remove(), 10000);
+                });
+        }
+
         function getTodayKey() {
             const now = new Date();
             const y = now.getFullYear();

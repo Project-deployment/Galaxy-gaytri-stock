@@ -1033,67 +1033,19 @@
                 });
         }
 
-        // ── Step 2: Background Smart Merge & Sync (Local Storage <-> Firebase) ──
+        // ── Step 2: Background Cloud Sync (Loads Firebase in background) ──
         setAppBusy(true);
         setSyncStatus('syncing', 'Syncing...');
 
         db.ref(DB_PATH).once('value').then(snapshot => {
             const fbData = snapshot.val();
             const todayNow = getTodayKey();
-            let firebaseNeedsUpdate = false;
 
             if (fbData && fbData.dates) {
-                // Smart Merge Logic:
-                // 1. Merge Local Storage entries into Firebase if Local has more or newer groups
-                Object.keys(multiData.dates).forEach(dateKey => {
-                    const localDay = multiData.dates[dateKey];
-                    const fbDay = fbData.dates[dateKey];
-
-                    if (!fbDay) {
-                        // Firebase is missing this date, upload local version
-                        fbData.dates[dateKey] = localDay;
-                        firebaseNeedsUpdate = true;
-                    } else {
-                        // Both have this date. Compare total groups count.
-                        const localGroupsCount = (localDay.groups || []).length;
-                        const fbGroupsCount = (fbDay.groups || []).length;
-
-                        // Also count total items to compare detail level
-                        const localItemsCount = (localDay.groups || []).reduce((acc, g) => acc + (g.items || []).length, 0);
-                        const fbItemsCount = (fbDay.groups || []).reduce((acc, g) => acc + (g.items || []).length, 0);
-
-                        if (localGroupsCount > fbGroupsCount || (localGroupsCount === fbGroupsCount && localItemsCount > fbItemsCount)) {
-                            // Local has more data, update Firebase with local data
-                            fbData.dates[dateKey] = localDay;
-                            firebaseNeedsUpdate = true;
-                        }
-                    }
-                });
-
-                // 2. Merge Firebase entries into Local Storage if Firebase has more or newer groups
-                Object.keys(fbData.dates).forEach(dateKey => {
-                    const fbDay = fbData.dates[dateKey];
-                    const localDay = multiData.dates[dateKey];
-
-                    if (!localDay) {
-                        // Local is missing this date, copy from Firebase
-                        multiData.dates[dateKey] = fbDay;
-                    } else {
-                        const localGroupsCount = (localDay.groups || []).length;
-                        const fbGroupsCount = (fbDay.groups || []).length;
-
-                        const localItemsCount = (localDay.groups || []).reduce((acc, g) => acc + (g.items || []).length, 0);
-                        const fbItemsCount = (fbDay.groups || []).reduce((acc, g) => acc + (g.items || []).length, 0);
-
-                        if (fbGroupsCount > localGroupsCount || (fbGroupsCount === localGroupsCount && fbItemsCount >= localItemsCount)) {
-                            // Firebase has more/newer data, update local with Firebase data
-                            multiData.dates[dateKey] = fbDay;
-                        }
-                    }
-                });
-
-                // Set local active date to today
-                multiData.active_date = todayNow;
+                // Firebase is the authoritative copy, load it
+                multiData = fbData;
+                
+                // Ensure today's date slot exists
                 if (!multiData.dates[todayNow]) {
                     const sorted = Object.keys(multiData.dates).sort();
                     const last = sorted[sorted.length - 1];
@@ -1102,16 +1054,19 @@
                     cloned.date = `${da}-${mo}-${y}`;
                     cloned.grand_totals = { total_kapan: 0, total_pcs: 0, total_carat: 0 };
                     multiData.dates[todayNow] = cloned;
-                    fbData.dates[todayNow] = cloned;
-                    firebaseNeedsUpdate = true;
+                    
+                    // Save today's slot to Firebase
+                    db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
                 }
-
-                // If local updated Firebase, push the merged state back to Firebase
-                if (firebaseNeedsUpdate) {
-                    db.ref(DB_PATH).set(JSON.parse(JSON.stringify(fbData)));
-                }
+                multiData.active_date = todayNow;
             } else {
-                // Firebase is empty, upload everything from Local Storage to Firebase
+                // First time ever: initialize database
+                multiData = {
+                    active_date: todayNow,
+                    dates: {
+                        [todayNow]: JSON.parse(JSON.stringify(defaultData))
+                    }
+                };
                 db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
             }
 
@@ -1120,7 +1075,7 @@
             setAppBusy(false);
             setSyncStatus('synced', 'Synced ✓');
 
-            // Save final merged copy to Local Storage
+            // Save to LocalStorage cache
             try {
                 localStorage.setItem(LS_KEY, JSON.stringify(multiData));
             } catch(e) {}
@@ -1131,10 +1086,10 @@
             initDatePicker();
             renderMasterGroupTable();
             populateGroupDropdown();
-            console.log("✅ Smart merge sync completed successfully.");
+            console.log("✅ Cloud load complete.");
             
         }).catch(err => {
-            console.error('Firebase sync failed, using local offline data:', err);
+            console.error('Firebase sync failed, using cached offline data:', err);
             _appReady = true;
             setAppBusy(false);
             setSyncStatus('error', 'Offline ⚠');

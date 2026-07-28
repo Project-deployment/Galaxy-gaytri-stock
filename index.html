@@ -945,109 +945,133 @@
                 String(n.getDate()).padStart(2, '0');
         })();
 
-        // ── Firebase-only data store (no localStorage) ──
-        let multiData = {
-            active_date: _todayKey,
-            dates: { [_todayKey]: defaultData }
-        };
-        let stockData = multiData.dates[multiData.active_date];
-        let _fbReady = false; // true once Firebase has loaded
+        // ════════════════════════════════════════════════════════
+        // HYBRID: localStorage (primary, instant) + Firebase (backup + sync)
+        // ════════════════════════════════════════════════════════
 
-        // Show loading overlay until Firebase data arrives
-        (function showLoadingOverlay() {
-            const overlay = document.createElement('div');
-            overlay.id = 'fb-loading-overlay';
-            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:Outfit,sans-serif;';
-            overlay.innerHTML = `
-                <div style="width:48px;height:48px;border:4px solid #e2e8f0;border-top-color:#1e3a5f;border-radius:50%;animation:fbspin 0.8s linear infinite;"></div>
-                <div style="font-size:1rem;font-weight:600;color:#1e3a5f;">ડેટા લોડ થઈ રહ્યો છે...</div>
-                <style>@keyframes fbspin{to{transform:rotate(360deg);}}</style>`;
-            document.body.appendChild(overlay);
-        })();
-
-        function hideLoadingOverlay() {
-            const el = document.getElementById('fb-loading-overlay');
-            if (el) el.remove();
+        // ── Step 1: Load from localStorage instantly (no spinner) ──
+        const LS_KEY = 'galaxy_stock_multi_data';
+        let multiData;
+        try {
+            const saved = localStorage.getItem(LS_KEY);
+            if (saved) {
+                multiData = JSON.parse(saved);
+                // Ensure today's date exists
+                const todayCheck = _todayKey;
+                if (!multiData.dates[todayCheck]) {
+                    const lastKey = Object.keys(multiData.dates).sort().pop();
+                    multiData.dates[todayCheck] = JSON.parse(JSON.stringify(
+                        multiData.dates[lastKey] || defaultData
+                    ));
+                }
+                multiData.active_date = _todayKey;
+            } else {
+                multiData = {
+                    active_date: _todayKey,
+                    dates: { [_todayKey]: defaultData }
+                };
+            }
+        } catch(e) {
+            multiData = {
+                active_date: _todayKey,
+                dates: { [_todayKey]: defaultData }
+            };
         }
+        let stockData = multiData.dates[multiData.active_date];
 
-        // ── Cloud Sync Indicator control ──
+        // ── Cloud Sync Indicator ──
         function setSyncStatus(state, label) {
             const el = document.getElementById('sync-indicator');
             const lbl = document.getElementById('sync-label');
             if (!el || !lbl) return;
-            el.className = ''; // clear all state classes
+            el.className = '';
             el.classList.add('sync-indicator', state);
-            // Re-apply base id style
             el.id = 'sync-indicator';
             lbl.textContent = label;
         }
 
-        // ── Save to Firebase only ──
+        // ── Save: localStorage first (instant), then Firebase background sync ──
         function saveToLocal() {
             multiData.dates[multiData.active_date] = stockData;
+            // 1. Save to localStorage immediately
+            try {
+                localStorage.setItem(LS_KEY, JSON.stringify(multiData));
+            } catch(e) {
+                console.warn('localStorage save failed:', e);
+            }
+            // 2. Sync to Firebase in background (non-blocking)
             setSyncStatus('syncing', 'Saving...');
             db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)))
                 .then(() => setSyncStatus('synced', 'Synced ✓'))
                 .catch(e => {
-                    console.warn('Firebase save failed:', e);
-                    setSyncStatus('error', 'Save Failed!');
+                    console.warn('Firebase sync failed (data safe in localStorage):', e);
+                    setSyncStatus('error', 'Cloud Sync Failed');
                 });
         }
 
-        // ── Load data from Firebase on startup ──
+        // ── Step 2: Firebase sync in background (does NOT block UI) ──
+        // Pull latest from Firebase and merge — if Firebase has newer/more data
+        setSyncStatus('syncing', 'Syncing...');
         db.ref(DB_PATH).once('value').then(snapshot => {
             const fbData = snapshot.val();
             const todayNow = getTodayKey();
             if (fbData && fbData.dates) {
-                multiData = fbData;
-                // Ensure today's date slot exists
-                if (!multiData.dates[todayNow]) {
-                    // Carry forward last available date
-                    const lastKey = Object.keys(multiData.dates).sort().pop();
-                    multiData.dates[todayNow] = JSON.parse(JSON.stringify(multiData.dates[lastKey]));
+                // Merge all Firebase dates into local
+                let changed = false;
+                Object.keys(fbData.dates).forEach(dateKey => {
+                    const fbDay = fbData.dates[dateKey];
+                    const localDay = multiData.dates[dateKey];
+                    // Use Firebase version if it has more groups (more data = more recent)
+                    if (!localDay ||
+                        (fbDay.groups && fbDay.groups.length > (localDay.groups || []).length)) {
+                        multiData.dates[dateKey] = fbDay;
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    // Ensure today exists
+                    if (!multiData.dates[todayNow]) {
+                        const lastKey = Object.keys(multiData.dates).sort().pop();
+                        multiData.dates[todayNow] = JSON.parse(JSON.stringify(
+                            multiData.dates[lastKey] || defaultData
+                        ));
+                    }
+                    multiData.active_date = todayNow;
+                    stockData = multiData.dates[todayNow];
+                    // Save merged result to localStorage
+                    localStorage.setItem(LS_KEY, JSON.stringify(multiData));
+                    // Refresh UI with merged data
+                    updateKPIs();
+                    renderStockCards(document.getElementById('search-bar')?.value || '');
+                    initDatePicker();
+                    renderMasterGroupTable();
+                    populateGroupDropdown();
                 }
-                multiData.active_date = todayNow;
-            } else {
-                // First time — create today's empty data in Firebase
-                multiData = {
-                    active_date: todayNow,
-                    dates: { [todayNow]: defaultData }
-                };
-                db.ref(DB_PATH).set(multiData);
             }
-            stockData = multiData.dates[multiData.active_date];
-            _fbReady = true;
-            // Refresh all UI
-            updateKPIs();
-            renderStockCards('');
-            initDatePicker();
-            renderMasterGroupTable();
-            populateGroupDropdown();
-            hideLoadingOverlay();
             setSyncStatus('synced', 'Synced ✓');
-            console.log('✅ Firebase loaded');
+            console.log('✅ Firebase sync complete');
         }).catch(e => {
-            console.error('Firebase load error:', e);
-            hideLoadingOverlay();
-            setSyncStatus('error', 'Not Connected ✗');
+            console.warn('Firebase sync failed (using localStorage):', e);
+            setSyncStatus('error', 'Cloud Offline');
         });
 
-        // ── Real-time listener: sync changes from other devices ──
-        let _skipNextUpdate = false;
+        // ── Real-time listener: live sync from other devices ──
         db.ref(DB_PATH).on('value', snapshot => {
-            if (!_fbReady) return; // skip during initial load
-            if (_skipNextUpdate) { _skipNextUpdate = false; return; }
             const fbData = snapshot.val();
             if (!fbData || !fbData.dates) return;
             const activeKey = multiData.active_date;
-            const fbJson = JSON.stringify(fbData.dates[activeKey]);
-            const localJson = JSON.stringify(multiData.dates[activeKey]);
-            if (fbJson !== localJson) {
+            const fbDay = fbData.dates[activeKey];
+            const localDay = multiData.dates[activeKey];
+            // Only update if Firebase has more groups (another device added data)
+            if (fbDay && fbDay.groups &&
+                fbDay.groups.length > (localDay?.groups?.length || 0)) {
                 Object.assign(multiData.dates, fbData.dates);
                 stockData = multiData.dates[activeKey];
+                localStorage.setItem(LS_KEY, JSON.stringify(multiData));
                 updateKPIs();
                 renderStockCards(document.getElementById('search-bar')?.value || '');
                 renderMasterGroupTable();
+                setSyncStatus('synced', 'Synced ✓');
             }
         });
 

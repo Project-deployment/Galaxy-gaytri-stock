@@ -1092,7 +1092,7 @@
             console.error('Firebase sync failed, using cached offline data:', err);
             _appReady = true;
             setAppBusy(false);
-            setSyncStatus('error', 'Offline ⚠');
+            setSyncStatus('error', 'Offline ⚠ (' + (err.code || err.message || 'Error') + ')');
 
             // Fallback render of cached data
             updateKPIs();

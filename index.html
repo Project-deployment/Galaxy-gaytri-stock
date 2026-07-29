@@ -1095,9 +1095,8 @@
                 multiData.active_date = todayNow;
                 syncStockDataReference();
                 
-                if (isNewDateCreated) {
-                    recalculateGrandTotals();
-                }
+                // Always recalculate grand totals on page load to heal any stale or zero totals in the database
+                recalculateGrandTotals();
             } else {
                 // First time ever: initialize database
                 multiData = {

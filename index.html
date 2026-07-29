@@ -574,8 +574,7 @@
 
     <!-- Top Navigation Bar -->
     <div class="top-navbar">
-        <button class="top-tab active" id="btn-top-dashboard" onclick="switchView('dashboard')"><i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Dashboard</button>
-        <button class="top-tab" id="btn-top-stock" onclick="switchView('stock')"><i data-lucide="package" style="width:16px;height:16px;"></i> Stock</button>
+        <button class="top-tab active" id="btn-top-stock" onclick="switchView('stock')"><i data-lucide="package" style="width:16px;height:16px;"></i> Stock</button>
         <button class="top-tab" id="btn-top-report" onclick="switchView('report')"><i data-lucide="clipboard-list" style="width:16px;height:16px;"></i> Report</button>
         <button class="top-tab" id="btn-top-master" onclick="switchView('master')"><i data-lucide="database" style="width:16px;height:16px;"></i> Master</button>
         
@@ -607,34 +606,10 @@
         <!-- Main Content Area -->
         <div class="main-panel">
             
-            <!-- VIEW A: DASHBOARD VIEW -->
-            <div id="view-dashboard" class="view-pane">
-                <div class="dashboard-header">
-                    <div class="dashboard-title">મુખ્ય ડેશબોર્ડ (Dashboard)</div>
-                    <div class="dashboard-date">
-                        <i data-lucide="calendar"></i>
-                        Stock Date: <span id="header-date">--</span>
-                    </div>
-                </div>
 
-                <div class="dashboard-grid">
-                    <div class="dashboard-card kapan">
-                        <div class="db-header">TOTAL KAPAN (કુલ લોટ)</div>
-                        <div class="db-value" id="kpi-lots">0</div>
-                    </div>
-                    <div class="dashboard-card pcs">
-                        <div class="db-header">TOTAL RAW PCS (કુલ નંગ)</div>
-                        <div class="db-value" id="kpi-pcs">0</div>
-                    </div>
-                    <div class="dashboard-card carats">
-                        <div class="db-header">TOTAL RAW CARATS (કુલ કેરેટ)</div>
-                        <div class="db-value" id="kpi-carats">0</div>
-                    </div>
-                </div>
-            </div>
 
             <!-- VIEW B: STOCK VIEW -->
-            <div id="view-stock" class="view-pane" style="display: none;">
+            <div id="view-stock" class="view-pane">
                 <div class="stock-controls">
                     <div class="search-wrapper">
                         <i data-lucide="search" class="search-icon"></i>
@@ -1283,8 +1258,7 @@
                 const displayD = `${parts[2]}-${parts[1]}-${parts[0]}`;
                 
                 // Update dashboard header-date
-                const headerDate = document.getElementById('header-date');
-                if (headerDate) headerDate.textContent = displayD;
+
                 
                 // Alert user
                 showCustomDialog('alert', 'તારીખ બદલાઈ (Date Switched)', `આજની તારીખ ${displayD} પર ઓટોમેટિક સ્વિચ કરવામાં આવ્યું છે જેથી જૂનો ડેટા સચવાયેલો રહે!`);
@@ -1304,9 +1278,12 @@
 
         // Update indicators in dashboard
         function updateKPIs() {
-            document.getElementById('kpi-lots').innerText = formatNumber(stockData.grand_totals.total_kapan);
-            document.getElementById('kpi-pcs').innerText = formatNumber(stockData.grand_totals.total_pcs);
-            document.getElementById('kpi-carats').innerText = formatCarat(stockData.grand_totals.total_carat);
+            const kpiLots = document.getElementById('kpi-lots');
+            const kpiPcs = document.getElementById('kpi-pcs');
+            const kpiCarats = document.getElementById('kpi-carats');
+            if (kpiLots) kpiLots.innerText = formatNumber(stockData.grand_totals.total_kapan);
+            if (kpiPcs) kpiPcs.innerText = formatNumber(stockData.grand_totals.total_pcs);
+            if (kpiCarats) kpiCarats.innerText = formatCarat(stockData.grand_totals.total_carat);
 
             // Update inline KPIs (No commas/formatting, Carat only has decimal point)
             const inlineKapan = document.getElementById('ctrl-kpi-kapan');
@@ -1544,12 +1521,7 @@
             document.querySelectorAll('.top-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.view-pane').forEach(pane => pane.style.display = 'none');
             
-            if (viewName === 'dashboard') {
-                const topDash = document.getElementById('btn-top-dashboard');
-                if (topDash) topDash.classList.add('active');
-                document.getElementById('view-dashboard').style.display = 'flex';
-                updateKPIs();
-            } else if (viewName === 'stock') {
+            if (viewName === 'stock') {
                 const topStock = document.getElementById('btn-top-stock');
                 if (topStock) topStock.classList.add('active');
                 document.getElementById('view-stock').style.display = 'flex';
@@ -1592,10 +1564,7 @@
             }
 
             // F-keys view switching
-            if (e.key === 'F3') {
-                e.preventDefault();
-                switchView('dashboard');
-            } else if (e.key === 'F4') {
+            if (e.key === 'F4') {
                 e.preventDefault();
                 switchView('report');
             } else if (e.key === 'F9') {
@@ -2556,8 +2525,7 @@
                 
                 const displayD = `${parts[2]}-${parts[1]}-${parts[0]}`;
                 // Update dashboard header-date
-                const headerDate = document.getElementById('header-date');
-                if (headerDate) headerDate.textContent = displayD;
+
                 showCustomDialog('alert', 'ડેટા લોડ (Data Loaded)', `તારીખ ${displayD} નો ડેટા લોડ થયો છે!`);
             });
         }

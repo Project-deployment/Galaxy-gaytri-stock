@@ -611,7 +611,7 @@
                 <div class="stock-controls">
                     <div class="search-wrapper">
                         <i data-lucide="search" class="search-icon"></i>
-                        <input type="text" id="search-bar" class="search-input" placeholder="કોઈ પણ કાપણ નંબર શોધો (દા.ત. 867-3)...">
+                        <input type="text" id="search-bar" autocomplete="off" class="search-input" placeholder="કોઈ પણ કાપણ નંબર શોધો (દા.ત. 867-3)...">
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn-add" id="btn-add-group" style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="plus-square"></i> Add Rough</button>
@@ -753,7 +753,7 @@
                 <button id="modal-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
             </div>
             
-            <form id="form-add-kapan" style="display: flex; flex-direction: column; gap: 12px;">
+            <form id="form-add-kapan" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; flex-direction: column; gap: 4px; position: relative;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Rough No.</label>
                     <div style="display: flex; gap: 6px;">
@@ -767,7 +767,7 @@
                         <!-- Search Box Section -->
                         <div style="padding: 6px 12px; display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
                             <label style="font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">સર્ચ કરો (Search Name)</label>
-                            <input type="text" id="group-search-input" placeholder="અહીં નંબર અથવા નામ ટાઈપ કરો..." style="padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 0.8rem; outline: none; background: #ecfdf5; color: #047857; font-weight: 600; width: 100%; transition: border-color 0.15s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#cbd5e1'">
+                            <input type="text" id="group-search-input" autocomplete="off" placeholder="અહીં નંબર અથવા નામ ટાઈપ કરો..." style="padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 0.8rem; outline: none; background: #ecfdf5; color: #047857; font-weight: 600; width: 100%; transition: border-color 0.15s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#cbd5e1'">
                         </div>
 
                         <!-- Scrollable List -->
@@ -810,7 +810,7 @@
                 <button id="modal-group-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
             </div>
             
-            <form id="form-add-group" style="display: flex; flex-direction: column; gap: 12px;">
+            <form id="form-add-group" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">New Rough No.</label>
                     <input type="text" id="input-group-name" placeholder="દા.ત. 876  CLIV 5-3 અથવા 876" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
@@ -836,7 +836,7 @@
             </div>
             <!-- Input container for Prompt -->
             <div id="dialog-input-container" style="display: none;">
-                <input type="text" id="dialog-prompt-input" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; margin-top: 4px; background: #ffffff;">
+                <input type="text" id="dialog-prompt-input" autocomplete="off" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; margin-top: 4px; background: #ffffff;">
             </div>
             <div id="dialog-footer" style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #cbd5e1; padding-top: 12px;">
                 <button id="dialog-btn-cancel" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">રદ કરો (Cancel)</button>
@@ -1883,6 +1883,37 @@
         const selectGroup = document.getElementById('input-group');
         const modalError = document.getElementById('modal-error');
 
+        // Instant validation for Kapan input based on selected group prefix
+        const inputKapan = document.getElementById('input-kapan');
+        function validateKapanInstant() {
+            if (!inputKapan || !selectGroup || !modalError) return;
+            const selectedGroupName = selectGroup.value;
+            const kapan = inputKapan.value.trim();
+            const submitBtn = formAdd.querySelector('button[type="submit"]');
+
+            if (!selectedGroupName || !kapan) {
+                modalError.style.display = 'none';
+                inputKapan.style.borderColor = '#cbd5e1';
+                if (submitBtn) submitBtn.disabled = false;
+                return;
+            }
+
+            const groupPrefix = selectedGroupName.split(' ')[0].trim();
+            if (!kapan.toLowerCase().startsWith(groupPrefix.toLowerCase())) {
+                modalError.innerHTML = '⚠️ આ ગ્રુપમાં માત્ર <span style="color:#002d62;font-weight:700;">' + groupPrefix + '</span> થી શરૂ થતો જ કાપણ નંબર ઉમેરી શકાશે!';
+                modalError.style.display = 'block';
+                inputKapan.style.borderColor = '#dc2626';
+                if (submitBtn) submitBtn.disabled = true;
+            } else {
+                modalError.style.display = 'none';
+                inputKapan.style.borderColor = '#cbd5e1';
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        }
+        if (inputKapan) {
+            inputKapan.addEventListener('input', validateKapanInstant);
+        }
+
         // Search group dropdown variables
         const groupSearchMenu = document.getElementById('group-search-menu');
         const groupSearchInput = document.getElementById('group-search-input');
@@ -1959,6 +1990,7 @@
                 itemDiv.onclick = () => {
                     inputGroup.value = g.name;
                     closeGroupSearchMenu();
+                    validateKapanInstant();
                     setTimeout(() => {
                         const kInput = document.getElementById('input-kapan');
                         if (kInput) kInput.focus();
@@ -2003,6 +2035,7 @@
                 modalError.style.display = 'none';
                 inputGroup.value = groupName;
                 closeGroupSearchMenu(); // Close search party dropdown just in case
+                validateKapanInstant();
                 
                 // Focus on the Kapan input after modal animation/display
                 setTimeout(() => {
@@ -2023,6 +2056,12 @@
                 modalError.style.display = 'none';
                 
                 if (inputGroup) inputGroup.value = '';
+                if (inputKapan) inputKapan.value = '';
+                const inputPcs = document.getElementById('input-pcs');
+                if (inputPcs) inputPcs.value = '';
+                const inputCarat = document.getElementById('input-carat');
+                if (inputCarat) inputCarat.value = '';
+                validateKapanInstant();
                 
                 // Automatically open ERP-style Search Party menu
                 openGroupSearchMenu();

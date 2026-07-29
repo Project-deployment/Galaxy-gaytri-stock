@@ -1082,19 +1082,22 @@
                 multiData = fbData;
                 
                 // Ensure today's date slot exists
+                let isNewDateCreated = false;
                 if (!multiData.dates[todayNow]) {
                     const sorted = Object.keys(multiData.dates).sort();
                     const last = sorted[sorted.length - 1];
                     const cloned = JSON.parse(JSON.stringify(multiData.dates[last] || defaultData));
                     const [y, mo, da] = todayNow.split('-');
                     cloned.date = `${da}-${mo}-${y}`;
-                    cloned.grand_totals = { total_kapan: 0, total_pcs: 0, total_carat: 0 };
                     multiData.dates[todayNow] = cloned;
-                    
-                    // Save today's slot to Firebase
-                    db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)));
+                    isNewDateCreated = true;
                 }
                 multiData.active_date = todayNow;
+                syncStockDataReference();
+                
+                if (isNewDateCreated) {
+                    recalculateGrandTotals();
+                }
             } else {
                 // First time ever: initialize database
                 multiData = {
@@ -1144,15 +1147,14 @@
             const fbData = snapshot.val();
             if (!fbData || !fbData.dates) return;
             
-            const activeKey = multiData.active_date;
-            const fbJson = JSON.stringify(fbData.dates[activeKey]);
-            const localJson = JSON.stringify(multiData.dates[activeKey]);
+            // Compare the entire dates data instead of just the active date
+            const fbDatesJson = JSON.stringify(fbData.dates);
+            const localDatesJson = JSON.stringify(multiData.dates);
 
-            if (fbJson !== localJson) {
+            if (fbDatesJson !== localDatesJson) {
                 const localActiveDate = multiData.active_date;
-                // Overwrite with newer remote updates
-                multiData = fbData;
-                multiData.active_date = localActiveDate; // Restore local active date to prevent hijack-switching
+                // Overwrite dates with newer remote updates
+                multiData.dates = fbData.dates;
                 syncStockDataReference();
 
                 // Sync remote updates into local storage
@@ -1201,19 +1203,26 @@
             const todayKey = getTodayKey();
             if (multiData.active_date === todayKey) return; // already on today
 
-            saveToLocal(); // save current date first
-
+            let isNewDateCreated = false;
             if (!multiData.dates[todayKey]) {
                 // Create today's date entry by cloning closest previous date
                 const cloned = getClonedDataForDate(todayKey);
                 const [y, mo, da] = todayKey.split('-');
                 cloned.date = `${da}-${mo}-${y}`;
                 multiData.dates[todayKey] = cloned;
+                isNewDateCreated = true;
             }
 
             multiData.active_date = todayKey;
             syncStockDataReference();
-            saveToLocal();
+
+            if (isNewDateCreated) {
+                recalculateGrandTotals(); // This recalculates and saves to Firebase/LocalStorage
+            } else {
+                try {
+                    localStorage.setItem(LS_KEY, JSON.stringify(multiData));
+                } catch(e) {}
+            }
 
             // Sync date picker UI
             const dp = document.getElementById('header-date-picker');

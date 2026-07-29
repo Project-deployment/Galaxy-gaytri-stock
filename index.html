@@ -1267,13 +1267,16 @@
             document.getElementById('kpi-carats').innerText = formatCarat(stockData.grand_totals.total_carat);
         }
 
-        // Recalculate Grand Totals dynamically in JS
-        function recalculateGrandTotals() {
+        // Recalculate Grand Totals dynamically for a specific date in JS
+        function recalculateTotalsForDate(dateKey) {
+            const dayData = multiData.dates[dateKey];
+            if (!dayData) return;
+
             let totalLots = 0;
             let totalPcs = 0;
             let totalCarats = 0.0;
 
-            stockData.groups.forEach(group => {
+            dayData.groups.forEach(group => {
                 let groupPcs = 0;
                 let groupCarat = 0.0;
                 
@@ -1291,12 +1294,16 @@
                 totalCarats += groupCarat;
             });
 
-            stockData.grand_totals = {
+            dayData.grand_totals = {
                 "total_kapan": totalLots,
                 "total_pcs": totalPcs,
                 "total_carat": Number(totalCarats.toFixed(2))
             };
+        }
 
+        // Recalculate Grand Totals dynamically in JS
+        function recalculateGrandTotals() {
+            recalculateTotalsForDate(multiData.active_date);
             saveToLocal();
             updateKPIs();
         }
@@ -1649,8 +1656,11 @@
             const confirmDelete = await showCustomDialog('confirm', 'કાપણ કાઢી નાખો (Delete)', `શું તમે ખરેખર "${kapanName}" કાપણ કાઢી નાખવા માંગો છો?`);
             if (!confirmDelete) return;
 
+            const isMistake = await showCustomDialog('confirm', 'ભૂલથી ઉમેરેલ છે? (Delete as Mistake)', `શું આ કાપણ ભૂલથી ઉમેરાયેલ છે? \n\n(હા = રીપોર્ટમાં ન બતાવો / Delete from yesterday too \nના = જાવક / Normal issue)`);
+
             const group = stockData.groups.find(g => g.name === groupName);
             if (group) {
+                // Delete from today
                 group.items = group.items.filter(item => item.kapan !== kapanName);
                 
                 // Recalculate Serial numbers just in case
@@ -1661,9 +1671,38 @@
                     }
                 });
 
+                if (isMistake) {
+                    // Delete from previous date's stock too so it doesn't show in today's OUT report
+                    const sortedDates = Object.keys(multiData.dates).sort();
+                    const currentIndex = sortedDates.indexOf(multiData.active_date);
+                    if (currentIndex > 0) {
+                        const prevD = sortedDates[currentIndex - 1];
+                        const prevData = multiData.dates[prevD];
+                        if (prevData && prevData.groups) {
+                            const prevGroup = prevData.groups.find(g => g.name === groupName);
+                            if (prevGroup) {
+                                prevGroup.items = prevGroup.items.filter(item => item.kapan !== kapanName);
+                                let prevCounter = 1;
+                                prevGroup.items.forEach(item => {
+                                    if (!item.is_subtotal) {
+                                        item.s_no = String(prevCounter++);
+                                    }
+                                });
+                                // Recalculate totals for previous date in memory
+                                recalculateTotalsForDate(prevD);
+                            }
+                        }
+                    }
+                }
+
                 recalculateGrandTotals(); // Updates, saves to LocalStorage, and refreshes KPIs
                 renderStockCards(document.getElementById('search-bar').value);
-                await showCustomDialog('alert', 'સફળ (Success)', "કાપણ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું છે!");
+                
+                if (isMistake) {
+                    await showCustomDialog('alert', 'સફળ (Success)', "કાપણ ભૂલથી ઉમેરેલ તરીકે કાઢી નાખવામાં આવ્યું છે!");
+                } else {
+                    await showCustomDialog('alert', 'સફળ (Success)', "કાપણ જાવક તરીકે સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું છે!");
+                }
             }
         }
 
@@ -1728,10 +1767,13 @@
             const confirmDelete = await showCustomDialog('confirm', 'બલ્ક ડીલીટ (Bulk Delete)', `શું તમે ખરેખર પસંદ કરેલા ${checkedRows.length} કાપણ કાયમ માટે કાઢી નાખવા માંગો છો?`);
             if (!confirmDelete) return;
 
+            const isMistake = await showCustomDialog('confirm', 'ભૂલથી ઉમેરેલ છે? (Delete as Mistake)', `શું આ તમામ કાપણ ભૂલથી ઉમેરાયેલ છે? \n\n(હા = રીપોર્ટમાં ન બતાવો / Delete from yesterday too \nના = જાવક / Normal issue)`);
+
             const kapansToDelete = checkedRows.map(row => row.dataset.kapan);
 
             const group = stockData.groups.find(g => g.name === groupName);
             if (group) {
+                // Delete from today
                 group.items = group.items.filter(item => item.is_subtotal || !kapansToDelete.includes(item.kapan));
                 
                 // Recalculate Serial numbers
@@ -1742,9 +1784,38 @@
                     }
                 });
 
+                if (isMistake) {
+                    // Delete from previous date's stock too
+                    const sortedDates = Object.keys(multiData.dates).sort();
+                    const currentIndex = sortedDates.indexOf(multiData.active_date);
+                    if (currentIndex > 0) {
+                        const prevD = sortedDates[currentIndex - 1];
+                        const prevData = multiData.dates[prevD];
+                        if (prevData && prevData.groups) {
+                            const prevGroup = prevData.groups.find(g => g.name === groupName);
+                            if (prevGroup) {
+                                prevGroup.items = prevGroup.items.filter(item => item.is_subtotal || !kapansToDelete.includes(item.kapan));
+                                let prevCounter = 1;
+                                prevGroup.items.forEach(item => {
+                                    if (!item.is_subtotal) {
+                                        item.s_no = String(prevCounter++);
+                                    }
+                                });
+                                // Recalculate totals for previous date in memory
+                                recalculateTotalsForDate(prevD);
+                            }
+                        }
+                    }
+                }
+
                 recalculateGrandTotals(); // Recalculates, saves to LocalStorage, and updates view
                 renderStockCards(document.getElementById('search-bar') ? document.getElementById('search-bar').value : '');
-                await showCustomDialog('alert', 'સફળ (Success)', `${kapansToDelete.length} કાપણ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યા છે!`);
+                
+                if (isMistake) {
+                    await showCustomDialog('alert', 'સફળ (Success)', "પસંદ કરેલા કાપણ ભૂલથી ઉમેરેલ તરીકે કાઢી નાખવામાં આવ્યા છે!");
+                } else {
+                    await showCustomDialog('alert', 'સફળ (Success)', "પસંદ કરેલા કાપણ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યા છે!");
+                }
             }
         }
 

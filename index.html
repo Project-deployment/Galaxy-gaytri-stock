@@ -262,8 +262,34 @@
         .search-wrapper {
             position: relative;
             flex: 1;
-            min-width: 250px;
-            max-width: 450px;
+            min-width: 150px;
+            max-width: 250px;
+        }
+
+        /* ── Inline Controls KPI Container ── */
+        .controls-kpi-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-left: 10px;
+            margin-right: auto;
+            flex-wrap: wrap;
+        }
+        .controls-kpi-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        .controls-kpi-val {
+            color: var(--accent-navy);
+            font-weight: 800;
         }
 
         .search-icon {
@@ -612,6 +638,21 @@
                     <div class="search-wrapper">
                         <i data-lucide="search" class="search-icon"></i>
                         <input type="text" id="search-bar" autocomplete="off" class="search-input" placeholder="કોઈ પણ કાપણ નંબર શોધો (દા.ત. 867-3)...">
+                    </div>
+                    <!-- Dynamic Inline KPIs -->
+                    <div class="controls-kpi-container">
+                        <div class="controls-kpi-item">
+                            <span>TOTAL KAPAN:</span>
+                            <span id="ctrl-kpi-kapan" class="controls-kpi-val">0</span>
+                        </div>
+                        <div class="controls-kpi-item">
+                            <span>TOTAL RAW PCS:</span>
+                            <span id="ctrl-kpi-pcs" class="controls-kpi-val">0</span>
+                        </div>
+                        <div class="controls-kpi-item">
+                            <span>TOTAL RAW CARATS:</span>
+                            <span id="ctrl-kpi-carats" class="controls-kpi-val">0.00</span>
+                        </div>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn-add" id="btn-add-group" style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="plus-square"></i> Add Rough</button>
@@ -1265,6 +1306,15 @@
             document.getElementById('kpi-lots').innerText = formatNumber(stockData.grand_totals.total_kapan);
             document.getElementById('kpi-pcs').innerText = formatNumber(stockData.grand_totals.total_pcs);
             document.getElementById('kpi-carats').innerText = formatCarat(stockData.grand_totals.total_carat);
+
+            // Update inline KPIs (No commas/formatting, Carat only has decimal point)
+            const inlineKapan = document.getElementById('ctrl-kpi-kapan');
+            const inlinePcs = document.getElementById('ctrl-kpi-pcs');
+            const inlineCarats = document.getElementById('ctrl-kpi-carats');
+            
+            if (inlineKapan) inlineKapan.innerText = Math.round(stockData.grand_totals.total_kapan || 0).toString();
+            if (inlinePcs) inlinePcs.innerText = Math.round(stockData.grand_totals.total_pcs || 0).toString();
+            if (inlineCarats) inlineCarats.innerText = (stockData.grand_totals.total_carat || 0).toFixed(2);
         }
 
         // Recalculate Grand Totals dynamically for a specific date in JS

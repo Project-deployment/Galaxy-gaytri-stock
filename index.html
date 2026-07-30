@@ -453,6 +453,22 @@
             font-variant-numeric: tabular-nums;
         }
 
+        /* ── Compact Master View CSS ── */
+        .master-table th, .master-table td {
+            padding: 3px 6px !important;
+            font-size: 0.78rem !important;
+        }
+        .master-table td button.btn-compact {
+            padding: 2px 6px !important;
+            font-size: 0.72rem !important;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
         .col-kapan {
             font-weight: 600;
             color: var(--accent-navy);
@@ -732,29 +748,59 @@
             </div>
 
             <!-- VIEW C: MASTER VIEW -->
-            <div id="view-master" class="view-pane" style="display: none;">
-                <div class="stock-controls">
-                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;"><i data-lucide="database"></i> ગ્રુપ માસ્ટર મેનેજર (Group Master)</div>
-                    <div>
-                        <button class="btn-add" onclick="openAddGroupModal()" style="background: #002d62; border: 1px solid #cbd5e1; color: white; pointer-events: auto; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="plus-square"></i> Add Rough</button>
+            <div id="view-master" class="view-pane" style="display: none; flex-direction: column; gap: 16px;">
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;">
+                    
+                    <!-- Left Column: Group Master (42% width) -->
+                    <div style="flex: 1.2; min-width: 320px; display: flex; flex-direction: column; gap: 10px;">
+                        <div class="stock-controls" style="padding: 4px 10px;">
+                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;"><i data-lucide="folder"></i> ગ્રુપ માસ્ટર (Group Master)</div>
+                            <button class="btn-add btn-compact" onclick="openAddGroupModal()" style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px;"><i data-lucide="plus-square" style="width:12px;height:12px;"></i> Add Rough</button>
+                        </div>
+                        <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+                            <table class="stock-table master-table" id="master-group-table" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>ગ્રુપ (Group)</th>
+                                        <th style="text-align: right;">લોટ (Lots)</th>
+                                        <th style="text-align: right;">નંગ (Pcs)</th>
+                                        <th style="text-align: right;">કેરેટ (Carat)</th>
+                                        <th style="text-align: center;">ક્રિયાઓ (Actions)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="master-group-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
-                <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 12px; box-shadow: var(--shadow-md); overflow: hidden;">
-                    <table class="stock-table" id="master-group-table" style="width: 100%;">
-                        <thead>
-                            <tr>
-                                <th>ગ્રુપનું નામ (Group Name)</th>
-                                <th style="text-align: right;">કુલ લોટ (Total Lots)</th>
-                                <th style="text-align: right;">કુલ નંગ (Total Pcs)</th>
-                                <th style="text-align: right;">કુલ કેરેટ (Total Carats)</th>
-                                <th style="text-align: center;">ક્રિયાઓ (Actions)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="master-group-tbody">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
+                    <!-- Right Column: Kapan Master (58% width) -->
+                    <div style="flex: 1.8; min-width: 450px; display: flex; flex-direction: column; gap: 10px;">
+                        <div class="stock-controls" style="padding: 4px 10px;">
+                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;"><i data-lucide="hash"></i> કાપણ માસ્ટર (Kapan Master)</div>
+                            <input type="text" id="kapan-master-search" autocomplete="off" class="search-input" placeholder="કાપણ નંબર શોધો (Search Kapan)..." style="max-width: 170px; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--card-border); height: 26px; line-height: 1;">
+                        </div>
+                        <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+                            <div style="max-height: 460px; overflow-y: auto;">
+                                <table class="stock-table master-table" id="master-kapan-table" style="width: 100%;">
+                                    <thead style="position: sticky; top: 0; z-index: 5;">
+                                        <tr>
+                                            <th>ગ્રુપ (Group)</th>
+                                            <th>કાપણ (Kapan)</th>
+                                            <th style="text-align: right;">નંગ (Pcs)</th>
+                                            <th style="text-align: right;">કેરેટ (Carat)</th>
+                                            <th style="text-align: center;">ક્રિયાઓ (Actions)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="master-kapan-tbody">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -859,6 +905,34 @@
                 <button id="dialog-btn-cancel" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">રદ કરો (Cancel)</button>
                 <button id="dialog-btn-ok" style="background: var(--accent-navy); border: none; color: white; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">ઠીક છે (OK)</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Kapan Modal Dialog -->
+    <div id="modal-edit-kapan" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+        <div id="modal-edit-kapan-content" style="background: white; border: 1px solid var(--card-border); padding: 20px; width: 90%; max-width: 380px; border-radius: 12px; box-shadow: var(--shadow-lg); font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; gap: 14px; position: relative;">
+            <button id="modal-edit-kapan-close" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-secondary);"><i data-lucide="x"></i></button>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px;">
+                <i data-lucide="edit-3"></i> કાપણમાં સુધારો (Edit Kapan)
+            </div>
+            <form id="form-edit-kapan" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px; margin-top: 4px;">
+                <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">કાપણ નંબર (Kapan No.)</label>
+                    <input type="text" id="edit-input-kapan-name" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">નંગ (New Pieces) <span style="color:#dc2626">*</span></label>
+                    <input type="number" id="edit-input-pcs" required placeholder="નંગ દાખલ કરો..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">કેરેટ (New Carat) <span style="color:#dc2626">*</span></label>
+                    <input type="number" step="0.01" id="edit-input-carat" required placeholder="કેરેટ દાખલ કરો..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                </div>
+                <div id="modal-edit-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
+                <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                    <i data-lucide="check-circle"></i> સુધારો સેવ કરો (Save Changes)
+                </button>
+            </form>
         </div>
     </div>
 
@@ -1193,6 +1267,7 @@
             renderStockCards('');
             initDatePicker();
             renderMasterGroupTable();
+            renderKapanMasterTable();
             populateGroupDropdown();
             console.log("✅ Cloud load complete.");
             
@@ -1207,6 +1282,7 @@
             renderStockCards('');
             initDatePicker();
             renderMasterGroupTable();
+            renderKapanMasterTable();
             populateGroupDropdown();
         });
 
@@ -1235,6 +1311,7 @@
                 updateKPIs();
                 renderStockCards(document.getElementById('search-bar')?.value || '');
                 renderMasterGroupTable();
+            renderKapanMasterTable();
                 setSyncStatus('synced', 'Synced ✓');
                 console.log("🔄 Realtime remote updates synced.");
             }
@@ -1589,6 +1666,7 @@
                 if (topMaster) topMaster.classList.add('active');
                 document.getElementById('view-master').style.display = 'flex';
                 renderMasterGroupTable();
+            renderKapanMasterTable();
             }
         }
 
@@ -1657,11 +1735,11 @@
                     <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(groupPcs)}</td>
                     <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(groupCarat)}</td>
                     <td style="text-align: center;">
-                        <button onclick="editGroupName('${group.name}')" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-right: 6px;">
-                            <i data-lucide="edit-2" style="width:12px;height:12px;"></i> નામ બદલો (Edit)
+                        <button class="btn-compact" onclick="editGroupName('${group.name.replace(/'/g, "\\'")}')" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 4px;">
+                            <i data-lucide="edit-2" style="width:11px;height:11px;"></i> Edit
                         </button>
-                        <button onclick="deleteGroup('${group.name}')" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            <i data-lucide="trash-2" style="width:12px;height:12px;"></i> કાઢી નાખો (Delete)
+                        <button class="btn-compact" onclick="deleteGroup('${group.name.replace(/'/g, "\\'")}')" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;">
+                            <i data-lucide="trash-2" style="width:11px;height:11px;"></i> Delete
                         </button>
                     </td>
                 `;
@@ -1670,6 +1748,126 @@
 
             // Initialize icons in the table
             lucide.createIcons();
+        }
+
+        // Kapan Master Table Rendering
+        function renderKapanMasterTable(query = '') {
+            const tbody = document.getElementById('master-kapan-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const lowercaseQuery = query.toLowerCase().trim();
+
+            stockData.groups.forEach(group => {
+                group.items.forEach(item => {
+                    if (item.is_subtotal) return;
+
+                    // Apply filter if search query is active
+                    if (lowercaseQuery && 
+                        !item.kapan.toLowerCase().includes(lowercaseQuery) && 
+                        !group.name.toLowerCase().includes(lowercaseQuery)) {
+                        return;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight: 500; color: var(--text-secondary);">${group.name}</td>
+                        <td style="font-weight: 600; color: var(--accent-navy);">${item.kapan}</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(parseInt(item.pcs) || 0)}</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(parseFloat(item.carat) || 0)}</td>
+                        <td style="text-align: center;">
+                            <button class="btn-compact" onclick="openEditKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;">
+                                <i data-lucide="edit-3" style="width:11px;height:11px;"></i> બદલો (Edit)
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+
+            lucide.createIcons();
+        }
+
+        // Edit Kapan Modal Handlers
+        const modalEditKapan = document.getElementById('modal-edit-kapan');
+        const btnEditKapanClose = document.getElementById('modal-edit-kapan-close');
+        const formEditKapan = document.getElementById('form-edit-kapan');
+        const editKapanError = document.getElementById('modal-edit-error');
+
+        let targetEditGroup = '';
+        let targetEditKapan = '';
+
+        function openEditKapanModal(groupName, kapanName, currentPcs, currentCarat) {
+            targetEditGroup = groupName;
+            targetEditKapan = kapanName;
+            
+            resetModalPosition('modal-edit-kapan-content');
+            document.getElementById('edit-input-kapan-name').value = kapanName;
+            document.getElementById('edit-input-pcs').value = currentPcs;
+            document.getElementById('edit-input-carat').value = currentCarat;
+            
+            editKapanError.style.display = 'none';
+            modalEditKapan.style.display = 'flex';
+            
+            setTimeout(() => {
+                const pcsInput = document.getElementById('edit-input-pcs');
+                if (pcsInput) pcsInput.focus();
+            }, 50);
+        }
+
+        if (btnEditKapanClose) {
+            btnEditKapanClose.addEventListener('click', () => {
+                modalEditKapan.style.display = 'none';
+            });
+        }
+
+        if (formEditKapan) {
+            formEditKapan.addEventListener('submit', (e) => {
+                e.preventDefault();
+                editKapanError.style.display = 'none';
+
+                const newPcs = parseInt(document.getElementById('edit-input-pcs').value);
+                const newCarat = parseFloat(document.getElementById('edit-input-carat').value);
+
+                if (isNaN(newPcs) || newPcs < 0) {
+                    editKapanError.innerText = 'નંગ ની સંખ્યા સાચી હોવી જરૂરી છે!';
+                    editKapanError.style.display = 'block';
+                    return;
+                }
+                if (isNaN(newCarat) || newCarat < 0) {
+                    editKapanError.innerText = 'કેરેટ સાચા હોવા જરૂરી છે!';
+                    editKapanError.style.display = 'block';
+                    return;
+                }
+
+                // Update the kapan inside in-memory stockData
+                const group = stockData.groups.find(g => g.name === targetEditGroup);
+                if (group) {
+                    const item = group.items.find(it => !it.is_subtotal && it.kapan === targetEditKapan);
+                    if (item) {
+                        item.pcs = String(newPcs);
+                        item.carat = String(newCarat);
+                        
+                        // Recalculate, save to LocalStorage/Firebase and refresh all UI elements
+                        recalculateGrandTotals();
+                        renderStockCards(document.getElementById('search-bar')?.value || '');
+                        renderMasterGroupTable();
+            renderKapanMasterTable();
+                        renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
+                        
+                        modalEditKapan.style.display = 'none';
+                        showCustomDialog('alert', 'સફળ (Success)', `કાપણ "${targetEditKapan}" ના નંગ અને કેરેટ સફળતાપૂર્વક અપડેટ થઈ ગયા છે!`);
+                    }
+                }
+            });
+        }
+
+        // Bind Kapan Master search input
+        const masterSearchInput = document.getElementById('kapan-master-search');
+        if (masterSearchInput) {
+            masterSearchInput.addEventListener('input', (e) => {
+                renderKapanMasterTable(e.target.value);
+            });
         }
 
         // Edit group name
@@ -1696,6 +1894,7 @@
                 recalculateGrandTotals();
                 populateGroupDropdown();
                 renderMasterGroupTable();
+            renderKapanMasterTable();
                 await showCustomDialog('alert', 'સફળ (Success)', "ગ્રુપનું નામ સફળતાપૂર્વક બદલાઈ ગયું છે!");
             }
         }
@@ -1709,6 +1908,7 @@
             recalculateGrandTotals();
             populateGroupDropdown();
             renderMasterGroupTable();
+            renderKapanMasterTable();
             await showCustomDialog('alert', 'સફળ (Success)', "ગ્રુપ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું છે!");
         }
 
@@ -2342,7 +2542,8 @@
                 stockData.groups.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
                 recalculateGrandTotals(); // Recalculates and saves to LocalStorage
                 populateGroupDropdown();
-                renderMasterGroupTable(); // Refresh table view immediately
+                renderMasterGroupTable();
+            renderKapanMasterTable(); // Refresh table view immediately
                 
                 // Keep modal open, reset only, and refocus for consecutive entries!
                 formAddGroup.reset();
@@ -2592,9 +2793,10 @@
         const observer = new MutationObserver(() => {
             const isKapanOpen = modal && modal.style.display === 'flex';
             const isGroupOpen = modalGroup && modalGroup.style.display === 'flex';
+            const isEditKapanOpen = modalEditKapan && modalEditKapan.style.display === 'flex';
             const isDialogOpen = dialogOverlay && dialogOverlay.style.display === 'flex';
             
-            if (isKapanOpen || isGroupOpen || isDialogOpen) {
+            if (isKapanOpen || isGroupOpen || isEditKapanOpen || isDialogOpen) {
                 document.body.classList.add('modal-open');
             } else {
                 document.body.classList.remove('modal-open');
@@ -2603,6 +2805,7 @@
 
         if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
         if (modalGroup) observer.observe(modalGroup, { attributes: true, attributeFilter: ['style'] });
+        if (modalEditKapan) observer.observe(modalEditKapan, { attributes: true, attributeFilter: ['style'] });
         if (dialogOverlay) observer.observe(dialogOverlay, { attributes: true, attributeFilter: ['style'] });
     </script>
 </body>

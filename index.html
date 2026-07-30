@@ -1135,6 +1135,51 @@
         }
         let stockData = null;
 
+        // Custom comparator for Kapan numbers: Non-alphanumeric first, then Alphabetic, then Numeric
+        function compareKapanAlphabetFirst(a, b) {
+            const splitChunks = (str) => str.match(/[0-9]+|[A-Za-z]+|[^A-Za-z0-9]/g) || [];
+            const chunksA = splitChunks(a);
+            const chunksB = splitChunks(b);
+            const len = Math.min(chunksA.length, chunksB.length);
+
+            for (let i = 0; i < len; i++) {
+                const cA = chunksA[i];
+                const cB = chunksB[i];
+
+                if (cA !== cB) {
+                    const isNumA = /^[0-9]+$/.test(cA);
+                    const isNumB = /^[0-9]+$/.test(cB);
+                    const isAlphaA = /^[A-Za-z]+$/.test(cA);
+                    const isAlphaB = /^[A-Za-z]+$/.test(cB);
+
+                    // Special characters (non-alphanumeric) should come first
+                    const isSpecialA = !isNumA && !isAlphaA;
+                    const isSpecialB = !isNumB && !isAlphaB;
+
+                    if (isSpecialA && !isSpecialB) return -1;
+                    if (!isSpecialA && isSpecialB) return 1;
+                    if (isSpecialA && isSpecialB) {
+                        return cA.localeCompare(cB);
+                    }
+
+                    // Between numbers and letters, letters (alphabets) come first!
+                    if (isAlphaA && isNumB) return -1;
+                    if (isNumA && isAlphaB) return 1;
+
+                    // Both are numbers
+                    if (isNumA && isNumB) {
+                        return parseInt(cA) - parseInt(cB);
+                    }
+
+                    // Both are letters
+                    if (isAlphaA && isAlphaB) {
+                        return cA.localeCompare(cB, undefined, { sensitivity: 'base' });
+                    }
+                }
+            }
+            return chunksA.length - chunksB.length;
+        }
+
         // Bulletproof helper to safely normalize data structures and prevent undefined property crashes
         function syncStockDataReference() {
             if (!multiData || !multiData.dates || !multiData.active_date) {
@@ -1153,6 +1198,23 @@
                     dayData.groups.forEach(group => {
                         if (!group.items) group.items = [];
                         if (!group.subtotals) group.subtotals = [];
+                        
+                        // Sort group items naturally by kapan, prioritizing alphabets
+                        group.items.sort((a, b) => {
+                            if (a.is_subtotal && !b.is_subtotal) return 1;
+                            if (!a.is_subtotal && b.is_subtotal) return -1;
+                            const kapanA = a.kapan || '';
+                            const kapanB = b.kapan || '';
+                            return compareKapanAlphabetFirst(kapanA, kapanB);
+                        });
+
+                        // Re-assign serial numbers (s_no) based on sorted order
+                        let counter = 1;
+                        group.items.forEach(item => {
+                            if (!item.is_subtotal) {
+                                item.s_no = String(counter++);
+                            }
+                        });
                     });
                     // Sort the groups naturally
                     dayData.groups.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
@@ -1461,6 +1523,7 @@
 
         // Recalculate Grand Totals dynamically in JS
         function recalculateGrandTotals() {
+            syncStockDataReference();
             recalculateTotalsForDate(multiData.active_date);
             saveToLocal();
             updateKPIs();

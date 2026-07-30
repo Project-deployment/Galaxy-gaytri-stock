@@ -895,6 +895,20 @@
             return new Promise((resolve) => {
                 dialogResolve = resolve;
                 
+                // Cleanup extra buttons if they exist from previous calls
+                const extraBtn = document.getElementById('dialog-btn-extra');
+                if (extraBtn) extraBtn.remove();
+
+                // Reset default button styles
+                dialogBtnCancel.style.display = 'block';
+                dialogBtnCancel.style.background = '#f1f5f9';
+                dialogBtnCancel.style.color = 'var(--text-secondary)';
+                dialogBtnCancel.innerText = 'રદ કરો (Cancel)';
+                
+                dialogBtnOk.style.display = 'block';
+                dialogBtnOk.style.background = 'var(--accent-navy)';
+                dialogBtnOk.innerText = 'ઠીક છે (OK)';
+                
                 let iconHtml = '';
                 if (type === 'alert') {
                     iconHtml = '<i data-lucide="info" style="width:18px;height:18px;color:#2563eb;"></i>';
@@ -915,6 +929,30 @@
                     dialogPromptInput.value = defaultValue;
                     dialogBtnOk.style.background = '#002d62';
                     dialogBtnOk.innerText = 'સેવ કરો (Save)';
+                } else if (type === 'delete-option') {
+                    iconHtml = '<i data-lucide="trash-2" style="width:18px;height:18px;color:#dc2626;"></i>';
+                    dialogInputContainer.style.display = 'none';
+                    
+                    // Button 1: Normal OUT
+                    dialogBtnOk.innerText = 'જાવક કરો (Normal OUT)';
+                    dialogBtnOk.style.background = '#d97706'; // Dark amber color for warning/OUT
+                    
+                    // Button 2: Delete Mistake (Extra Button)
+                    const btnMistake = document.createElement('button');
+                    btnMistake.id = 'dialog-btn-extra';
+                    btnMistake.style.cssText = 'background: #dc2626; border: none; color: white; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;';
+                    btnMistake.innerText = 'ભૂલથી ઉમેરેલ (Delete Mistake)';
+                    
+                    btnMistake.addEventListener('click', () => {
+                        dialogOverlay.style.display = 'none';
+                        const resolveTemp = dialogResolve;
+                        dialogResolve = null;
+                        btnMistake.remove();
+                        resolveTemp('mistake');
+                    });
+                    
+                    // Insert before the OK button in the footer
+                    dialogBtnOk.parentNode.insertBefore(btnMistake, dialogBtnOk);
                 }
 
                 dialogHeader.innerHTML = `${iconHtml} <span>${title}</span>`;
@@ -935,9 +973,17 @@
                 const resolveTemp = dialogResolve;
                 dialogResolve = null;
                 
+                // Cleanup extra button if exists
+                const extraBtn = document.getElementById('dialog-btn-extra');
+                if (extraBtn) extraBtn.remove();
+                
                 const isPrompt = dialogInputContainer.style.display === 'block';
+                const isDeleteOption = dialogBtnOk.innerText.includes('Normal OUT');
+                
                 if (isPrompt) {
                     resolveTemp(dialogPromptInput.value.trim());
+                } else if (isDeleteOption) {
+                    resolveTemp('out');
                 } else {
                     resolveTemp(true);
                 }
@@ -949,6 +995,10 @@
                 dialogOverlay.style.display = 'none';
                 const resolveTemp = dialogResolve;
                 dialogResolve = null;
+                
+                // Cleanup extra button if exists
+                const extraBtn = document.getElementById('dialog-btn-extra');
+                if (extraBtn) extraBtn.remove();
                 
                 const isPrompt = dialogInputContainer.style.display === 'block';
                 if (isPrompt) {
@@ -1673,10 +1723,10 @@
 
         // Delete individual Kapan (lot)
         async function deleteKapan(groupName, kapanName) {
-            const confirmDelete = await showCustomDialog('confirm', 'કાપણ કાઢી નાખો (Delete)', `શું તમે ખરેખર "${kapanName}" કાપણ કાઢી નાખવા માંગો છો?`);
-            if (!confirmDelete) return;
+            const action = await showCustomDialog('delete-option', 'કાપણ નીકાળો (Remove Kapan)', `તમે "${kapanName}" કાપણને કઈ રીતે નીકાળવા માંગો છો?`);
+            if (!action || action === false) return; // Cancelled
 
-            const isMistake = await showCustomDialog('confirm', 'ભૂલથી ઉમેરેલ છે? (Delete as Mistake)', `શું આ કાપણ ભૂલથી ઉમેરાયેલ છે? \n\n(હા = રીપોર્ટમાં ન બતાવો / Delete from yesterday too \nના = જાવક / Normal issue)`);
+            const isMistake = (action === 'mistake');
 
             const group = stockData.groups.find(g => g.name === groupName);
             if (group) {
@@ -1784,11 +1834,10 @@
 
             if (checkedRows.length === 0) return;
 
-            const confirmDelete = await showCustomDialog('confirm', 'બલ્ક ડીલીટ (Bulk Delete)', `શું તમે ખરેખર પસંદ કરેલા ${checkedRows.length} કાપણ કાયમ માટે કાઢી નાખવા માંગો છો?`);
-            if (!confirmDelete) return;
+            const action = await showCustomDialog('delete-option', 'બલ્ક કાપણ નીકાળો (Bulk Remove)', `તમે પસંદ કરેલા ${checkedRows.length} કાપણને કઈ રીતે નીકાળવા માંગો છો?`);
+            if (!action || action === false) return; // Cancelled
 
-            const isMistake = await showCustomDialog('confirm', 'ભૂલથી ઉમેરેલ છે? (Delete as Mistake)', `શું આ તમામ કાપણ ભૂલથી ઉમેરાયેલ છે? \n\n(હા = રીપોર્ટમાં ન બતાવો / Delete from yesterday too \nના = જાવક / Normal issue)`);
-
+            const isMistake = (action === 'mistake');
             const kapansToDelete = checkedRows.map(row => row.dataset.kapan);
 
             const group = stockData.groups.find(g => g.name === groupName);

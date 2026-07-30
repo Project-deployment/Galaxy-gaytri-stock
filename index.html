@@ -420,7 +420,7 @@
             background: #f1f5f9;
             color: var(--text-secondary);
             font-weight: 700;
-            padding: 2px 6px;
+            padding: 4px 6px;
             font-size: 0.72rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -429,7 +429,7 @@
         }
 
         .stock-table td {
-            padding: 2px 6px;
+            padding: 4px 6px;
             border-bottom: 1px solid #f1f5f9;
             color: var(--text-primary);
         }
@@ -2204,13 +2204,13 @@
                     if (!item.is_subtotal) {
                         tableRows += `
                             <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${item.kapan.replace(/'/g, "\\'")}">
-                                <td style="text-align: center; width: 28px; padding: 2px 4px;">
+                                <td style="text-align: center; width: 28px; padding: 4px 4px;">
                                     <input type="checkbox" class="kapan-checkbox" onchange="updateBulkDeleteButton('${group.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transform: scale(1.1);">
                                 </td>
                                 <td class="col-kapan">${item.kapan || '-'}</td>
                                 <td class="col-num col-pcs">${formatNumber(item.pcs)}</td>
                                 <td class="col-num col-cts">${formatCarat(item.carat)}</td>
-                                <td style="text-align: center; width: 24px; padding: 2px;">
+                                <td style="text-align: center; width: 24px; padding: 4px 2px;">
                                     <button onclick="deleteKapan('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="કાપણ કાઢી નાખો">
                                         <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
                                     </button>

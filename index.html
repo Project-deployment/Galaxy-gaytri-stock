@@ -94,12 +94,12 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            height: 50px;
+            height: 40px;
             background: var(--header-bg);
             border-bottom: 1px solid var(--sidebar-border);
             display: flex;
             align-items: center;
-            padding: 0 16px;
+            padding: 0 12px;
             gap: 4px;
             overflow-x: auto;
             flex-shrink: 0;
@@ -109,14 +109,14 @@
             background: #ffffff;
             border: 1px solid #d1d5db;
             border-radius: 4px;
-            padding: 6px 14px;
-            font-size: 0.8rem;
+            padding: 4px 10px;
+            font-size: 0.78rem;
             font-weight: 700;
             color: #374151;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             white-space: nowrap;
             text-transform: uppercase;
             transition: all 0.15s;
@@ -143,14 +143,14 @@
         /* Main Workspace Panel */
         .main-panel {
             flex: 1;
-            padding: 24px;
+            padding: 10px 14px;
             background: var(--bg-color);
         }
 
         .view-pane {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 8px;
             height: 100%;
         }
 
@@ -159,7 +159,7 @@
             background: #ffffff;
             border: 1px solid var(--card-border);
             border-radius: 12px;
-            padding: 16px 24px;
+            padding: 10px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -167,7 +167,7 @@
         }
 
         .dashboard-title {
-            font-size: 1.4rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--accent-navy);
         }
@@ -175,14 +175,14 @@
         .dashboard-date {
             background: #f8fafc;
             border: 1px solid var(--card-border);
-            padding: 6px 14px;
+            padding: 4px 10px;
             border-radius: 9999px;
-            font-size: 0.9rem;
+            font-size: 0.82rem;
             font-weight: 600;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .dashboard-date span {
@@ -191,21 +191,21 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
         }
 
         .dashboard-card {
             background: #ffffff;
             border: 1px solid var(--card-border);
-            border-radius: 16px;
+            border-radius: 12px;
             box-shadow: var(--shadow-md);
-            padding: 30px 24px;
+            padding: 12px 16px;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 6px;
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
@@ -228,7 +228,7 @@
         .dashboard-card.carats::before { background: var(--accent-cyan); }
 
         .db-header {
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: var(--text-secondary);
             text-transform: uppercase;
@@ -236,7 +236,7 @@
         }
 
         .db-value {
-            font-size: 2.6rem;
+            font-size: 2.0rem;
             font-weight: 800;
             color: var(--text-primary);
             line-height: 1.1;
@@ -245,16 +245,16 @@
         /* Stock View Styles */
         .stock-controls {
             position: sticky;
-            top: 50px;
+            top: 40px;
             z-index: 990;
             background: #ffffff;
             border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 6px 12px;
+            border-radius: 8px;
+            padding: 4px 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 20px;
+            gap: 12px;
             flex-wrap: wrap;
             box-shadow: var(--shadow-sm);
         }
@@ -270,8 +270,8 @@
         .controls-kpi-container {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.9rem;
+            gap: 8px;
+            font-size: 0.82rem;
             font-weight: 700;
             color: var(--text-secondary);
             margin-left: 10px;
@@ -281,21 +281,21 @@
         .controls-kpi-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            padding: 4px 10px;
-            border-radius: 6px;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
         .controls-kpi-val {
             color: #dc2626; /* Red color for numbers */
             font-weight: 800;
-            font-size: 1.05rem; /* Larger font size for numbers */
+            font-size: 0.95rem; /* Larger font size for numbers */
         }
 
         .search-icon {
             position: absolute;
-            left: 12px;
+            left: 8px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-secondary);
@@ -305,10 +305,10 @@
             width: 100%;
             background: #f8fafc;
             border: 1px solid var(--card-border);
-            padding: 6px 12px 6px 36px;
-            border-radius: 8px;
+            padding: 4px 8px 4px 28px;
+            border-radius: 6px;
             color: var(--text-primary);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             outline: none;
             font-family: inherit;
         }
@@ -322,14 +322,14 @@
             background: var(--accent-navy);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 0.9rem;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.82rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
             font-family: inherit;
             transition: opacity 0.15s;
         }
@@ -342,7 +342,7 @@
         .stock-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            gap: 8px;
         }
 
         @media (max-width: 1400px) {
@@ -367,7 +367,7 @@
             background: #ffffff;
             border: 1px solid var(--card-border);
             box-shadow: var(--shadow-md);
-            border-radius: 12px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -380,7 +380,7 @@
         }
 
         .card-header-bar {
-            padding: 6px 12px;
+            padding: 4px 8px;
             background: var(--accent-navy);
             display: flex;
             justify-content: space-between;
@@ -389,7 +389,7 @@
         }
 
         .group-title {
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             font-weight: 700;
             color: #ffffff;
         }
@@ -411,7 +411,7 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
         .stock-table th {
@@ -420,8 +420,8 @@
             background: #f1f5f9;
             color: var(--text-secondary);
             font-weight: 700;
-            padding: 4px 10px;
-            font-size: 0.75rem;
+            padding: 2px 6px;
+            font-size: 0.72rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 2px solid var(--card-border);
@@ -429,7 +429,7 @@
         }
 
         .stock-table td {
-            padding: 4px 10px;
+            padding: 2px 6px;
             border-bottom: 1px solid #f1f5f9;
             color: var(--text-primary);
         }
@@ -540,17 +540,17 @@
         #sync-indicator {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.75rem;
+            gap: 4px;
+            font-size: 0.72rem;
             font-weight: 700;
-            padding: 6px 12px;
+            padding: 3px 8px;
             border-radius: 20px;
             border: 1.5px solid transparent;
             transition: all 0.3s ease;
             white-space: nowrap;
             cursor: default;
             user-select: none;
-            margin-left: 10px;
+            margin-left: 8px;
         }
         #sync-indicator.synced {
             background: #f0fdf4 !important;
@@ -2254,7 +2254,13 @@
             }
         }
         if (inputKapan) {
-            inputKapan.addEventListener('input', validateKapanInstant);
+            inputKapan.addEventListener('input', (e) => {
+                const start = e.target.selectionStart;
+                const end = e.target.selectionEnd;
+                e.target.value = e.target.value.toUpperCase();
+                e.target.setSelectionRange(start, end);
+                validateKapanInstant();
+            });
         }
 
         // Search group dropdown variables
@@ -2565,13 +2571,13 @@
                 
 
                 const selectedGroupName = selectGroup.value;
-                const kapan = document.getElementById('input-kapan').value.trim();
+                const kapan = document.getElementById('input-kapan').value.trim().toUpperCase();
                 const pcsVal = document.getElementById('input-pcs').value.trim();
                 const caratVal = document.getElementById('input-carat').value.trim();
 
-                // 1. Kapan No. Validation (Only numbers and dashes)
-                if (!/^[0-9\-]+$/.test(kapan)) {
-                    modalError.innerHTML = '⚠️ કાપણ નંબરમાં ફક્ત <span style="color:#002d62;font-weight:700;">આંકડા (0-9)</span> અને <span style="color:#002d62;font-weight:700;">ડેશ (-)</span> જ લખી શકાશે! (દા.ત. 867-13)';
+                // 1. Kapan No. Validation (Alphabets, numbers and dashes)
+                if (!/^[A-Z0-9\-]+$/.test(kapan)) {
+                    modalError.innerHTML = '⚠️ કાપણ નંબરમાં ફક્ત <span style="color:#002d62;font-weight:700;">આંકડા (0-9)</span>, <span style="color:#002d62;font-weight:700;">અક્ષરો (A-Z)</span> અને <span style="color:#002d62;font-weight:700;">ડેશ (-)</span> જ લખી શકાશે! (દા.ત. 867-13A)';
                     modalError.style.display = 'block';
                     const inputK = document.getElementById('input-kapan');
                     if (inputK) { inputK.focus(); inputK.select(); }

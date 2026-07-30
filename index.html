@@ -934,14 +934,17 @@
                     dialogInputContainer.style.display = 'none';
                     
                     // Button 1: Normal OUT
-                    dialogBtnOk.innerText = 'જાવક કરો (Normal OUT)';
+                    dialogBtnOk.innerText = 'Out';
                     dialogBtnOk.style.background = '#d97706'; // Dark amber color for warning/OUT
                     
-                    // Button 2: Delete Mistake (Extra Button)
+                    // Button 2: Cancel (Grey)
+                    dialogBtnCancel.innerText = 'Cancel';
+                    
+                    // Button 3: Delete Mistake (Extra Button)
                     const btnMistake = document.createElement('button');
                     btnMistake.id = 'dialog-btn-extra';
                     btnMistake.style.cssText = 'background: #dc2626; border: none; color: white; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;';
-                    btnMistake.innerText = 'ભૂલથી ઉમેરેલ (Delete Mistake)';
+                    btnMistake.innerText = 'Delete';
                     
                     btnMistake.addEventListener('click', () => {
                         dialogOverlay.style.display = 'none';
@@ -978,7 +981,7 @@
                 if (extraBtn) extraBtn.remove();
                 
                 const isPrompt = dialogInputContainer.style.display === 'block';
-                const isDeleteOption = dialogBtnOk.innerText.includes('Normal OUT');
+                const isDeleteOption = dialogBtnOk.innerText === 'Out';
                 
                 if (isPrompt) {
                     resolveTemp(dialogPromptInput.value.trim());

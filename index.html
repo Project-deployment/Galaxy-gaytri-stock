@@ -99,7 +99,7 @@
             border-bottom: 1px solid var(--sidebar-border);
             display: flex;
             align-items: center;
-            padding: 0 12px;
+            padding: 0 1cm;
             gap: 4px;
             overflow-x: auto;
             flex-shrink: 0;
@@ -143,7 +143,7 @@
         /* Main Workspace Panel */
         .main-panel {
             flex: 1;
-            padding: 10px 14px;
+            padding: 10px 1cm;
             background: var(--bg-color);
         }
 
@@ -411,7 +411,7 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.8rem;
+            font-size: 13px;
         }
 
         .stock-table th {
@@ -421,7 +421,7 @@
             color: var(--text-secondary);
             font-weight: 700;
             padding: 4px 6px;
-            font-size: 0.72rem;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 2px solid var(--card-border);
@@ -597,15 +597,15 @@
         <!-- Date selection dropdown/picker in navbar -->
         <div style="margin-left: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">
             <i data-lucide="calendar" style="width:16px;height:16px;color:var(--accent-navy);"></i>
-            તારીખ (Date):
+            Date:
             <input type="date" id="header-date-picker" min="2020-01-01" max="2035-12-31" style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
         </div>
 
 
         
         <!-- Backup & Restore Buttons -->
-        <button class="top-tab" onclick="downloadBackup()" style="margin-left: auto; border-color: #059669; color: #059669;"><i data-lucide="download" style="width:16px;height:16px;"></i> બેકઅપ ડાઉનલોડ (Backup)</button>
-        <button class="top-tab" onclick="triggerRestore()" style="border-color: #0891b2; color: #0891b2;"><i data-lucide="upload" style="width:16px;height:16px;"></i> બેકઅપ લોડ (Restore)</button>
+        <button class="top-tab" onclick="downloadBackup()" style="margin-left: auto; border-color: #059669; color: #059669;"><i data-lucide="download" style="width:16px;height:16px;"></i> Backup</button>
+        <button class="top-tab" onclick="triggerRestore()" style="border-color: #0891b2; color: #0891b2;"><i data-lucide="upload" style="width:16px;height:16px;"></i> Restore</button>
         <input type="file" id="file-restore" style="display: none;" accept=".json" onchange="restoreBackup(event)">
 
         <!-- Cloud Sync Indicator -->
@@ -629,7 +629,7 @@
                 <div class="stock-controls">
                     <div class="search-wrapper">
                         <i data-lucide="search" class="search-icon"></i>
-                        <input type="text" id="search-bar" autocomplete="off" class="search-input" placeholder="કોઈ પણ કાપણ નંબર શોધો (દા.ત. 867-3)...">
+                        <input type="text" id="search-bar" autocomplete="off" class="search-input" placeholder="Search Kapan No (e.g. 867-3)...">
                     </div>
                     <!-- Dynamic Inline KPIs -->
                     <div class="controls-kpi-container">
@@ -658,7 +658,7 @@
 
                 <div id="no-results" class="no-results-msg" style="display: none;">
                     <i data-lucide="search" class="no-results-icon" style="width: 48px; height: 48px; opacity:0.5;"></i>
-                    <p>મેળ ખાતો કોઈ કાપણ નંબર મળ્યો નથી.</p>
+                    <p>No matching Kapan number found.</p>
                 </div>
             </div>
 
@@ -754,18 +754,18 @@
                     <!-- Left Column: Group Master (42% width) -->
                     <div style="flex: 1.2; min-width: 320px; display: flex; flex-direction: column; gap: 10px;">
                         <div class="stock-controls" style="padding: 4px 10px;">
-                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;"><i data-lucide="folder"></i> ગ્રુપ માસ્ટર (Group Master)</div>
+                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;"><i data-lucide="folder"></i> Group Master</div>
                             <button class="btn-add btn-compact" onclick="openAddGroupModal()" style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px;"><i data-lucide="plus-square" style="width:12px;height:12px;"></i> Add Rough</button>
                         </div>
                         <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
                             <table class="stock-table master-table" id="master-group-table" style="width: 100%;">
                                 <thead>
                                     <tr>
-                                        <th>ગ્રુપ (Group)</th>
-                                        <th style="text-align: right;">લોટ (Lots)</th>
-                                        <th style="text-align: right;">નંગ (Pcs)</th>
-                                        <th style="text-align: right;">કેરેટ (Carat)</th>
-                                        <th style="text-align: center;">ક્રિયાઓ (Actions)</th>
+                                        <th>Group</th>
+                                        <th style="text-align: right;">Lots</th>
+                                        <th style="text-align: right;">Pcs</th>
+                                        <th style="text-align: right;">Carat</th>
+                                        <th style="text-align: center;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="master-group-tbody">
@@ -778,19 +778,20 @@
                     <!-- Right Column: Kapan Master (58% width) -->
                     <div style="flex: 1.8; min-width: 450px; display: flex; flex-direction: column; gap: 10px;">
                         <div class="stock-controls" style="padding: 4px 10px;">
-                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;"><i data-lucide="hash"></i> કાપણ માસ્ટર (Kapan Master)</div>
-                            <input type="text" id="kapan-master-search" autocomplete="off" class="search-input" placeholder="કાપણ નંબર શોધો (Search Kapan)..." style="max-width: 170px; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--card-border); height: 26px; line-height: 1;">
+                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;"><i data-lucide="hash"></i> Kapan Master</div>
+                            <input type="text" id="kapan-master-search" autocomplete="off" class="search-input" placeholder="Search Kapan..." style="max-width: 170px; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--card-border); height: 26px; line-height: 1;">
                         </div>
                         <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
                             <div style="max-height: 460px; overflow-y: auto;">
                                 <table class="stock-table master-table" id="master-kapan-table" style="width: 100%;">
                                     <thead style="position: sticky; top: 0; z-index: 5;">
                                         <tr>
-                                            <th>ગ્રુપ (Group)</th>
-                                            <th>કાપણ (Kapan)</th>
-                                            <th style="text-align: right;">નંગ (Pcs)</th>
-                                            <th style="text-align: right;">કેરેટ (Carat)</th>
-                                            <th style="text-align: center;">ક્રિયાઓ (Actions)</th>
+                                            <th>Group</th>
+                                            <th style="text-align: left; width: 45px;">Date</th>
+                                            <th>Kapan</th>
+                                            <th style="text-align: right;">Pcs</th>
+                                            <th style="text-align: right;">Carat</th>
+                                            <th style="text-align: center;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="master-kapan-tbody">
@@ -820,7 +821,7 @@
                 <div style="display: flex; flex-direction: column; gap: 4px; position: relative;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Rough No.</label>
                     <div style="display: flex; gap: 6px;">
-                        <input type="text" id="input-group" placeholder="ગ્રુપ સિલેક્ટ કરો..." readonly required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: #f8fafc; cursor: pointer; flex: 1;">
+                        <input type="text" id="input-group" placeholder="Select Group..." readonly required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: #f8fafc; cursor: pointer; flex: 1;">
                         <button type="button" id="btn-open-group-search" style="padding: 8px 10px; background: var(--accent-navy); border: none; color: white; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
                     </div>
 
@@ -829,15 +830,15 @@
                         
                         <!-- Search Box Section -->
                         <div style="padding: 6px 12px; display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
-                            <label style="font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">સર્ચ કરો (Search Name)</label>
-                            <input type="text" id="group-search-input" autocomplete="off" placeholder="અહીં નંબર અથવા નામ ટાઈપ કરો..." style="padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 0.8rem; outline: none; background: #ecfdf5; color: #047857; font-weight: 600; width: 100%; transition: border-color 0.15s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#cbd5e1'">
+                            <label style="font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Search Name</label>
+                            <input type="text" id="group-search-input" autocomplete="off" placeholder="Type name/number here..." style="padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 0.8rem; outline: none; background: #ecfdf5; color: #047857; font-weight: 600; width: 100%; transition: border-color 0.15s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#cbd5e1'">
                         </div>
 
                         <!-- Scrollable List -->
                         <div id="group-search-list" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; background: #ffffff;">
                             <!-- Add New Party Button -->
                             <div id="btn-add-new-party-row" style="padding: 4px 12px; font-size: 0.75rem; font-weight: 700; color: #10b981; border-bottom: 1px solid #cbd5e1; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'">
-                                <i data-lucide="plus" style="width:12px;height:12px;color:#10b981;"></i> + નવું ગ્રુપ ઉમેરો (Add New Party)
+                                <i data-lucide="plus" style="width:12px;height:12px;color:#10b981;"></i> + Add New Group
                             </div>
                             <!-- List items will be rendered dynamically -->
                         </div>
@@ -845,21 +846,21 @@
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Kapan No.</label>
-                    <input type="text" id="input-kapan" placeholder="દા.ત. 867-15" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                    <input type="text" id="input-kapan" placeholder="e.g. 867-15" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">કાચા નંગ (Raw Pieces)</label>
-                    <input type="number" id="input-pcs" placeholder="દા.ત. 1500" required min="0" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Raw Pieces</label>
+                    <input type="number" id="input-pcs" placeholder="e.g. 1500" required min="0" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">કાચા કેરેટ (Raw Carat)</label>
-                    <input type="number" id="input-carat" placeholder="દા.ત. 75.50" step="0.01" required min="0" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Raw Carat</label>
+                    <input type="number" id="input-carat" placeholder="e.g. 75.50" step="0.01" required min="0" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
                 
                 <div id="modal-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
                 
                 <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
-                    <i data-lucide="check-circle"></i> સેવ કરો (Save to Local Database)
+                    <i data-lucide="check-circle"></i> Save
                 </button>
             </form>
         </div>
@@ -876,13 +877,13 @@
             <form id="form-add-group" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">New Rough No.</label>
-                    <input type="text" id="input-group-name" placeholder="દા.ત. 876  CLIV 5-3 અથવા 876" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                    <input type="text" id="input-group-name" placeholder="e.g. 876 CLIV 5-3 or 876" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
                 
                 <div id="modal-group-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
                 
                 <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
-                    <i data-lucide="check-circle"></i> ગ્રુપ સેવ કરો (Save Group)
+                    <i data-lucide="check-circle"></i> Save Group
                 </button>
             </form>
         </div>
@@ -902,8 +903,8 @@
                 <input type="text" id="dialog-prompt-input" autocomplete="off" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; margin-top: 4px; background: #ffffff;">
             </div>
             <div id="dialog-footer" style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #cbd5e1; padding-top: 12px;">
-                <button id="dialog-btn-cancel" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">રદ કરો (Cancel)</button>
-                <button id="dialog-btn-ok" style="background: var(--accent-navy); border: none; color: white; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">ઠીક છે (OK)</button>
+                <button id="dialog-btn-cancel" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">Cancel</button>
+                <button id="dialog-btn-ok" style="background: var(--accent-navy); border: none; color: white; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">OK</button>
             </div>
         </div>
     </div>
@@ -913,24 +914,24 @@
         <div id="modal-edit-kapan-content" style="background: white; border: 1px solid var(--card-border); padding: 20px; width: 90%; max-width: 380px; border-radius: 12px; box-shadow: var(--shadow-lg); font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; gap: 14px; position: relative;">
             <button id="modal-edit-kapan-close" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-secondary);"><i data-lucide="x"></i></button>
             <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px;">
-                <i data-lucide="edit-3"></i> કાપણમાં સુધારો (Edit Kapan)
+                <i data-lucide="edit-3"></i> Edit Kapan
             </div>
             <form id="form-edit-kapan" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px; margin-top: 4px;">
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">કાપણ નંબર (Kapan No.)</label>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">Kapan No.</label>
                     <input type="text" id="edit-input-kapan-name" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">નંગ (New Pieces) <span style="color:#dc2626">*</span></label>
-                    <input type="number" id="edit-input-pcs" required placeholder="નંગ દાખલ કરો..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New Pieces <span style="color:#dc2626">*</span></label>
+                    <input type="number" id="edit-input-pcs" required placeholder="Enter pieces..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">કેરેટ (New Carat) <span style="color:#dc2626">*</span></label>
-                    <input type="number" step="0.01" id="edit-input-carat" required placeholder="કેરેટ દાખલ કરો..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New Carat <span style="color:#dc2626">*</span></label>
+                    <input type="number" step="0.01" id="edit-input-carat" required placeholder="Enter carat..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
                 </div>
                 <div id="modal-edit-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
                 <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
-                    <i data-lucide="check-circle"></i> સુધારો સેવ કરો (Save Changes)
+                    <i data-lucide="check-circle"></i> Save Changes
                 </button>
             </form>
         </div>
@@ -977,11 +978,11 @@
                 dialogBtnCancel.style.display = 'block';
                 dialogBtnCancel.style.background = '#f1f5f9';
                 dialogBtnCancel.style.color = 'var(--text-secondary)';
-                dialogBtnCancel.innerText = 'રદ કરો (Cancel)';
+                dialogBtnCancel.innerText = 'Cancel';
                 
                 dialogBtnOk.style.display = 'block';
                 dialogBtnOk.style.background = 'var(--accent-navy)';
-                dialogBtnOk.innerText = 'ઠીક છે (OK)';
+                dialogBtnOk.innerText = 'OK';
                 
                 let iconHtml = '';
                 if (type === 'alert') {
@@ -989,20 +990,20 @@
                     dialogBtnCancel.style.display = 'none';
                     dialogInputContainer.style.display = 'none';
                     dialogBtnOk.style.background = '#002d62';
-                    dialogBtnOk.innerText = 'ઠીક છે (OK)';
+                    dialogBtnOk.innerText = 'OK';
                 } else if (type === 'confirm') {
                     iconHtml = '<i data-lucide="help-circle" style="width:18px;height:18px;color:#dc2626;"></i>';
                     dialogBtnCancel.style.display = 'block';
                     dialogInputContainer.style.display = 'none';
                     dialogBtnOk.style.background = '#dc2626';
-                    dialogBtnOk.innerText = 'હા (OK)';
+                    dialogBtnOk.innerText = 'OK';
                 } else if (type === 'prompt') {
                     iconHtml = '<i data-lucide="edit-2" style="width:18px;height:18px;color:#002d62;"></i>';
                     dialogBtnCancel.style.display = 'block';
                     dialogInputContainer.style.display = 'block';
                     dialogPromptInput.value = defaultValue;
                     dialogBtnOk.style.background = '#002d62';
-                    dialogBtnOk.innerText = 'સેવ કરો (Save)';
+                    dialogBtnOk.innerText = 'Save';
                 } else if (type === 'delete-option') {
                     iconHtml = '<i data-lucide="trash-2" style="width:18px;height:18px;color:#dc2626;"></i>';
                     dialogInputContainer.style.display = 'none';
@@ -1093,6 +1094,14 @@
                 String(n.getMonth() + 1).padStart(2, '0') + '-' +
                 String(n.getDate()).padStart(2, '0');
         })();
+
+        function getTodayFormatted() {
+            const d = new Date();
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
 
         // ════════════════════════════════════════════════════════
         // DATA ARCHITECTURE: LocalStorage (Primary) + Firebase (Authoritative Sync)
@@ -1453,7 +1462,7 @@
 
                 
                 // Alert user
-                showCustomDialog('alert', 'તારીખ બદલાઈ (Date Switched)', `આજની તારીખ ${displayD} પર ઓટોમેટિક સ્વિચ કરવામાં આવ્યું છે જેથી જૂનો ડેટા સચવાયેલો રહે!`);
+                showCustomDialog('alert', 'Date Switched', `Date automatically switched to ${displayD} to preserve old data!`);
             }
         }
 
@@ -1833,14 +1842,16 @@
                     }
 
                     const tr = document.createElement('tr');
+                    const itemDate = item.date ? item.date.substring(0, 5) : (stockData.date ? stockData.date.substring(0, 5) : '-');
                     tr.innerHTML = `
                         <td style="font-weight: 500; color: var(--text-secondary);">${group.name}</td>
+                        <td style="text-align: left; font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${itemDate}</td>
                         <td style="font-weight: 600; color: var(--accent-navy);">${item.kapan}</td>
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(parseInt(item.pcs) || 0)}</td>
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(parseFloat(item.carat) || 0)}</td>
                         <td style="text-align: center;">
                             <button class="btn-compact" onclick="openEditKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;">
-                                <i data-lucide="edit-3" style="width:11px;height:11px;"></i> બદલો (Edit)
+                                <i data-lucide="edit-3" style="width:11px;height:11px;"></i> Edit
                             </button>
                         </td>
                     `;
@@ -1919,7 +1930,7 @@
                         renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
                         
                         modalEditKapan.style.display = 'none';
-                        showCustomDialog('alert', 'સફળ (Success)', `કાપણ "${targetEditKapan}" ના નંગ અને કેરેટ સફળતાપૂર્વક અપડેટ થઈ ગયા છે!`);
+                        showCustomDialog('alert', 'Success', `Kapan "${targetEditKapan}" pieces and carat successfully updated!`);
                     }
                 }
             });
@@ -1935,18 +1946,18 @@
 
         // Edit group name
         async function editGroupName(oldName) {
-            const newName = await showCustomDialog('prompt', 'નામ બદલો (Rename)', `"${oldName}" ગ્રુપનું નવું નામ આપો:`, oldName);
+            const newName = await showCustomDialog('prompt', 'Rename', `Enter new name for group "${oldName}":`, oldName);
             if (newName === null) return;
             const trimmed = newName.trim();
             if (!trimmed) {
-                await showCustomDialog('alert', 'ભૂલ (Error)', "ગ્રુપનું નામ ખાલી હોઈ શકે નહીં!");
+                await showCustomDialog('alert', 'Error', "Group name cannot be empty!");
                 return;
             }
 
             if (trimmed.toLowerCase() !== oldName.toLowerCase()) {
                 const exists = stockData.groups.some(g => g.name.toLowerCase() === trimmed.toLowerCase());
                 if (exists) {
-                    await showCustomDialog('alert', 'ભૂલ (Error)', "આ ગ્રુપ નામ પહેલેથી જ અસ્તિત્વમાં છે!");
+                    await showCustomDialog('alert', 'Error', "This group name already exists!");
                     return;
                 }
             }
@@ -1958,13 +1969,13 @@
                 populateGroupDropdown();
                 renderMasterGroupTable();
             renderKapanMasterTable();
-                await showCustomDialog('alert', 'સફળ (Success)', "ગ્રુપનું નામ સફળતાપૂર્વક બદલાઈ ગયું છે!");
+                await showCustomDialog('alert', 'Success', "Group name successfully updated!");
             }
         }
 
         // Delete group
         async function deleteGroup(groupName) {
-            const confirmDelete = await showCustomDialog('confirm', 'ગ્રુપ કાઢી નાખો (Delete)', `શું તમે ખરેખર "${groupName}" ગ્રુપ અને તેની અંદરના તમામ લોટ્સ કાઢી નાખવા માંગો છો? આ ક્રિયા પાછી ખેંચી શકાશે નહીં.`);
+            const confirmDelete = await showCustomDialog('confirm', 'Delete Group', `Are you sure you want to delete group "${groupName}" and all its lots? This action cannot be undone.`);
             if (!confirmDelete) return;
 
             stockData.groups = stockData.groups.filter(g => g.name !== groupName);
@@ -1972,7 +1983,7 @@
             populateGroupDropdown();
             renderMasterGroupTable();
             renderKapanMasterTable();
-            await showCustomDialog('alert', 'સફળ (Success)', "ગ્રુપ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું છે!");
+            await showCustomDialog('alert', 'Success', "Group successfully deleted!");
         }
 
         // Helper to open modal
@@ -1989,7 +2000,7 @@
 
         // Delete individual Kapan (lot)
         async function deleteKapan(groupName, kapanName) {
-            const action = await showCustomDialog('delete-option', 'કાપણ નીકાળો (Remove Kapan)', `તમે "${kapanName}" કાપણને કઈ રીતે નીકાળવા માંગો છો?`);
+            const action = await showCustomDialog('delete-option', 'Remove Kapan', `How do you want to remove kapan "${kapanName}"?`);
             if (!action || action === false) return; // Cancelled
 
             const isMistake = (action === 'mistake');
@@ -2035,9 +2046,9 @@
                 renderStockCards(document.getElementById('search-bar').value);
                 
                 if (isMistake) {
-                    await showCustomDialog('alert', 'સફળ (Success)', "કાપણ ભૂલથી ઉમેરેલ તરીકે કાઢી નાખવામાં આવ્યું છે!");
+                    await showCustomDialog('alert', 'Success', "Kapan removed as added by mistake!");
                 } else {
-                    await showCustomDialog('alert', 'સફળ (Success)', "કાપણ જાવક તરીકે સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું છે!");
+                    await showCustomDialog('alert', 'Success', "Kapan successfully dispatched/removed!");
                 }
             }
         }
@@ -2100,7 +2111,7 @@
 
             if (checkedRows.length === 0) return;
 
-            const action = await showCustomDialog('delete-option', 'બલ્ક કાપણ નીકાળો (Bulk Remove)', `તમે પસંદ કરેલા ${checkedRows.length} કાપણને કઈ રીતે નીકાળવા માંગો છો?`);
+            const action = await showCustomDialog('delete-option', 'Bulk Remove', `How do you want to remove the selected ${checkedRows.length} kapans?`);
             if (!action || action === false) return; // Cancelled
 
             const isMistake = (action === 'mistake');
@@ -2147,9 +2158,9 @@
                 renderStockCards(document.getElementById('search-bar') ? document.getElementById('search-bar').value : '');
                 
                 if (isMistake) {
-                    await showCustomDialog('alert', 'સફળ (Success)', "પસંદ કરેલા કાપણ ભૂલથી ઉમેરેલ તરીકે કાઢી નાખવામાં આવ્યા છે!");
+                    await showCustomDialog('alert', 'Success', "Selected kapans removed as added by mistake!");
                 } else {
-                    await showCustomDialog('alert', 'સફળ (Success)', "પસંદ કરેલા કાપણ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યા છે!");
+                    await showCustomDialog('alert', 'Success', "Selected kapans successfully dispatched/removed!");
                 }
             }
         }
@@ -2202,16 +2213,18 @@
                 let tableRows = '';
                 matchedItems.forEach(item => {
                     if (!item.is_subtotal) {
+                        const itemDate = item.date ? item.date.substring(0, 5) : (stockData.date ? stockData.date.substring(0, 5) : '-');
                         tableRows += `
                             <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${item.kapan.replace(/'/g, "\\'")}">
                                 <td style="text-align: center; width: 28px; padding: 4px 4px;">
                                     <input type="checkbox" class="kapan-checkbox" onchange="updateBulkDeleteButton('${group.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transform: scale(1.1);">
                                 </td>
+                                <td class="col-date" style="text-align: left; font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${itemDate}</td>
                                 <td class="col-kapan">${item.kapan || '-'}</td>
-                                <td class="col-num col-pcs">${formatNumber(item.pcs)}</td>
-                                <td class="col-num col-cts">${formatCarat(item.carat)}</td>
+                                <td class="col-num col-pcs" style="text-align: right;">${formatNumber(item.pcs)}</td>
+                                <td class="col-num col-cts" style="text-align: right;">${formatCarat(item.carat)}</td>
                                 <td style="text-align: center; width: 24px; padding: 4px 2px;">
-                                    <button onclick="deleteKapan('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="કાપણ કાઢી નાખો">
+                                    <button onclick="deleteKapan('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Delete Kapan">
                                         <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
                                     </button>
                                 </td>
@@ -2224,9 +2237,10 @@
                     tableRows += `
                         <tr class="subtotal-row">
                             <td></td>
+                            <td></td>
                             <td class="col-kapan subtotal-label">${subLabel}</td>
-                            <td class="col-num col-pcs">${formatNumber(subPcs)}</td>
-                            <td class="col-num col-cts">${formatCarat(subCarat)}</td>
+                            <td class="col-num col-pcs" style="text-align: right;">${formatNumber(subPcs)}</td>
+                            <td class="col-num col-cts" style="text-align: right;">${formatCarat(subCarat)}</td>
                             <td></td>
                         </tr>
                     `;
@@ -2236,13 +2250,13 @@
                     <div class="card-header-bar" id="card-header-${safeId}">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <div class="group-title">${group.name}</div>
-                            <button onclick="openAddKapanForGroup('${group.name.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" title="આ ગ્રુપમાં Kapan ઉમેરો">
+                            <button onclick="openAddKapanForGroup('${group.name.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" title="Add Kapan to Group">
                                 <i data-lucide="plus-circle" style="width:16px;height:16px;"></i>
                             </button>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <button class="btn-bulk-delete" id="btn-bulk-delete-${safeId}" onclick="performBulkDelete('${group.name.replace(/'/g, "\\'")}')" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
-                                <i data-lucide="trash-2" style="width:12px;height:12px;"></i> કાઢી નાખો (<span class="bulk-count">0</span>)
+                                <i data-lucide="trash-2" style="width:12px;height:12px;"></i> Delete (<span class="bulk-count">0</span>)
                             </button>
                             <div class="group-badge-summary">${matchedItems.filter(i => !i.is_subtotal).length} Lots</div>
                         </div>
@@ -2254,9 +2268,10 @@
                                     <th style="width: 28px; text-align: center; padding: 2px 4px;">
                                         <input type="checkbox" class="select-all-kapan" onchange="toggleSelectAllKapan(this, '${group.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transform: scale(1.1);">
                                     </th>
-                                    <th>Kapan</th>
-                                    <th style="text-align: right;">Pcs (નંગ)</th>
-                                    <th style="text-align: right;">Carat (કેરેટ)</th>
+                                    <th style="text-align: left; width: 55px; white-space: nowrap;">Date</th>
+                                    <th style="text-align: left; width: 75px;">Kapan</th>
+                                    <th style="text-align: right; width: 65px;">PCS</th>
+                                    <th style="text-align: right; width: 75px;">CARAT</th>
                                     <th style="width: 24px;"></th>
                                 </tr>
                             </thead>
@@ -2705,6 +2720,7 @@
                     kapan: kapan,
                     pcs: pcs,
                     carat: carat,
+                    date: getTodayFormatted(),
                     is_subtotal: false
                 };
 
@@ -2759,7 +2775,7 @@
                         populateGroupDropdown();
                         initDatePicker();
                         renderStockCards();
-                        await showCustomDialog('alert', 'સફળ (Success)', "બધા જ દિવસોનો ડેટા સક્સેસફુલી લોડ થઈ ગયો છે!");
+                        await showCustomDialog('alert', 'Success', "All days' data successfully loaded!");
                         window.location.reload();
                     } else {
                         if (parsedData && parsedData.groups) {
@@ -2775,14 +2791,14 @@
                             populateGroupDropdown();
                             initDatePicker();
                             renderStockCards();
-                            await showCustomDialog('alert', 'સફળ (Success)', "જૂનો બેકઅપ સફળતાપૂર્વક લોડ થઈ ગયો છે!");
+                            await showCustomDialog('alert', 'Success', "Backup successfully loaded!");
                             window.location.reload();
                         } else {
-                            await showCustomDialog('alert', 'ભૂલ (Error)', "ખોટી બેકઅપ ફાઇલ! કૃપા કરીને સાચી ફાઇલ અપલોડ કરો.");
+                            await showCustomDialog('alert', 'Error', "Invalid backup file! Please upload a valid JSON file.");
                         }
                     }
                 } catch(err) {
-                    await showCustomDialog('alert', 'ભૂલ (Error)', "ફાઈલ વાંચવામાં ભૂલ આવી છે!");
+                    await showCustomDialog('alert', 'Error', "Error reading backup file!");
                 }
             };
             reader.readAsText(file);
@@ -2811,13 +2827,13 @@
                 // Validate date range to prevent typos like year 212026
                 const parts = newDate.split('-');
                 if (parts.length !== 3 || parts[0].length !== 4) {
-                    showCustomDialog('alert', 'ખોટી તારીખ (Invalid Date)', 'કૃપા કરીને સાચી તારીખ અને વર્ષ દાખલ કરો!');
+                    showCustomDialog('alert', 'Invalid Date', 'Please enter a valid date and year!');
                     datePicker.value = multiData.active_date;
                     return;
                 }
                 const year = parseInt(parts[0]);
                 if (year < 2020 || year > 2035) {
-                    showCustomDialog('alert', 'ખોટી તારીખ (Invalid Date)', 'વર્ષ ૨૦૨૦ અને ૨૦૩૫ ની વચ્ચે હોવું જોઈએ!');
+                    showCustomDialog('alert', 'Invalid Date', 'Year must be between 2020 and 2035!');
                     datePicker.value = multiData.active_date;
                     return;
                 }
@@ -2848,7 +2864,7 @@
                 const displayD = `${parts[2]}-${parts[1]}-${parts[0]}`;
                 // Update dashboard header-date
 
-                showCustomDialog('alert', 'ડેટા લોડ (Data Loaded)', `તારીખ ${displayD} નો ડેટા લોડ થયો છે!`);
+                showCustomDialog('alert', 'Data Loaded', `Data loaded for date ${displayD}!`);
             });
         }
 

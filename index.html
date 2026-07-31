@@ -788,6 +788,7 @@
                                         <tr>
                                             <th>Group</th>
                                             <th style="text-align: left; width: 45px;">Date</th>
+                                            <th style="text-align: center; width: 45px; white-space: nowrap;">Days</th>
                                             <th>Kapan</th>
                                             <th style="text-align: right;">Pcs</th>
                                             <th style="text-align: right;">Carat</th>
@@ -1294,6 +1295,7 @@
 
             if (fbData && fbData.dates) {
                 // Firebase is the authoritative copy, load it
+                migrateOldEntries(fbData.dates);
                 multiData = fbData;
                 
                 // Ensure today's date slot exists
@@ -1363,6 +1365,7 @@
             const fbData = snapshot.val();
             if (!fbData || !fbData.dates) return;
             
+            migrateOldEntries(fbData.dates);
             // Compare the entire dates data instead of just the active date
             const fbDatesJson = JSON.stringify(fbData.dates);
             const localDatesJson = JSON.stringify(multiData.dates);
@@ -1475,6 +1478,98 @@
         function formatCarat(num) {
             if (num === null || num === undefined || isNaN(num)) return '-';
             return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function parseDMYDate(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            }
+            return null;
+        }
+
+        function calculateDaysInProcess(entryDateFormatted, activeDateKey) {
+            const entryDate = parseDMYDate(entryDateFormatted);
+            if (!entryDate) return 0;
+            
+            const activeParts = activeDateKey.split('-');
+            const activeDate = new Date(parseInt(activeParts[0]), parseInt(activeParts[1]) - 1, parseInt(activeParts[2]));
+            
+            entryDate.setHours(0,0,0,0);
+            activeDate.setHours(0,0,0,0);
+            
+            const diffTime = activeDate - entryDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays >= 0 ? diffDays : 0;
+        }
+
+        let migrationPerformed = false;
+        function migrateOldEntries(fbDates) {
+            if (migrationPerformed) return;
+            
+            let hasUpdates = false;
+            const dateKeys = Object.keys(fbDates).sort();
+            const earliestDatesMap = {};
+            
+            dateKeys.forEach(dateKey => {
+                const dayData = fbDates[dateKey];
+                if (dayData && dayData.groups) {
+                    dayData.groups.forEach(group => {
+                        const gName = group.name;
+                        if (!earliestDatesMap[gName]) {
+                            earliestDatesMap[gName] = {};
+                        }
+                        if (group.items) {
+                            group.items.forEach(item => {
+                                if (item.is_subtotal) return;
+                                const kNo = (item.kapan || "").toUpperCase();
+                                if (kNo) {
+                                    if (item.date) {
+                                        const parts = item.date.split('-');
+                                        const itemYMD = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : dateKey;
+                                        if (!earliestDatesMap[gName][kNo] || itemYMD < earliestDatesMap[gName][kNo]) {
+                                            earliestDatesMap[gName][kNo] = itemYMD;
+                                        }
+                                    } else {
+                                        if (!earliestDatesMap[gName][kNo]) {
+                                            earliestDatesMap[gName][kNo] = dateKey;
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            
+            dateKeys.forEach(dateKey => {
+                const dayData = fbDates[dateKey];
+                if (dayData && dayData.groups) {
+                    dayData.groups.forEach(group => {
+                        const gName = group.name;
+                        if (group.items) {
+                            group.items.forEach(item => {
+                                if (item.is_subtotal) return;
+                                const kNo = (item.kapan || "").toUpperCase();
+                                const correctYMD = earliestDatesMap[gName][kNo] || dateKey;
+                                const parts = correctYMD.split('-');
+                                const correctDMY = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                                
+                                if (!item.date || item.date !== correctDMY) {
+                                    item.date = correctDMY;
+                                    hasUpdates = true;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            
+            if (hasUpdates) {
+                migrationPerformed = true;
+                db.ref(DB_PATH + '/dates').set(fbDates);
+            }
         }
 
         // Update indicators in dashboard
@@ -1843,9 +1938,12 @@
 
                     const tr = document.createElement('tr');
                     const itemDate = item.date ? item.date.substring(0, 5) : (stockData.date ? stockData.date.substring(0, 5) : '-');
+                    const days = calculateDaysInProcess(item.date || stockData.date, multiData.active_date);
+                    const dayColor = days > 10 ? 'var(--accent-red, #dc2626)' : (days > 5 ? '#f97316' : '#059669');
                     tr.innerHTML = `
                         <td style="font-weight: 500; color: var(--text-secondary);">${group.name}</td>
                         <td style="text-align: left; font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${itemDate}</td>
+                        <td style="text-align: center; font-size: 11px; font-weight: 700; color: ${dayColor}; white-space: nowrap;">${days} d</td>
                         <td style="font-weight: 600; color: var(--accent-navy);">${item.kapan}</td>
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(parseInt(item.pcs) || 0)}</td>
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(parseFloat(item.carat) || 0)}</td>
@@ -2214,12 +2312,15 @@
                 matchedItems.forEach(item => {
                     if (!item.is_subtotal) {
                         const itemDate = item.date ? item.date.substring(0, 5) : (stockData.date ? stockData.date.substring(0, 5) : '-');
+                        const days = calculateDaysInProcess(item.date || stockData.date, multiData.active_date);
+                        const dayColor = days > 10 ? 'var(--accent-red, #dc2626)' : (days > 5 ? '#f97316' : '#059669');
                         tableRows += `
                             <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${item.kapan.replace(/'/g, "\\'")}">
                                 <td style="text-align: center; width: 28px; padding: 4px 4px;">
                                     <input type="checkbox" class="kapan-checkbox" onchange="updateBulkDeleteButton('${group.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transform: scale(1.1);">
                                 </td>
                                 <td class="col-date" style="text-align: left; font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${itemDate}</td>
+                                <td class="col-days" style="text-align: center; font-size: 11px; font-weight: 700; color: ${dayColor}; white-space: nowrap;">${days} d</td>
                                 <td class="col-kapan">${item.kapan || '-'}</td>
                                 <td class="col-num col-pcs" style="text-align: right;">${formatNumber(item.pcs)}</td>
                                 <td class="col-num col-cts" style="text-align: right;">${formatCarat(item.carat)}</td>
@@ -2236,6 +2337,7 @@
                 if (showSubtotal) {
                     tableRows += `
                         <tr class="subtotal-row">
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td class="col-kapan subtotal-label">${subLabel}</td>
@@ -2269,6 +2371,7 @@
                                         <input type="checkbox" class="select-all-kapan" onchange="toggleSelectAllKapan(this, '${group.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transform: scale(1.1);">
                                     </th>
                                     <th style="text-align: left; width: 55px; white-space: nowrap;">Date</th>
+                                    <th style="text-align: center; width: 45px; white-space: nowrap;">Days</th>
                                     <th style="text-align: left; width: 75px;">Kapan</th>
                                     <th style="text-align: right; width: 65px;">PCS</th>
                                     <th style="text-align: right; width: 75px;">CARAT</th>
@@ -2601,7 +2704,6 @@
         if (formAddGroup) {
             formAddGroup.addEventListener('submit', (e) => {
                 e.preventDefault();
-                ensureActiveDateIsToday(); // Auto-switch to today!
                 modalGroupError.style.display = 'none';
                 
 
@@ -2644,7 +2746,6 @@
         if (formAdd) {
             formAdd.addEventListener('submit', (e) => {
                 e.preventDefault();
-                ensureActiveDateIsToday(); // Auto-switch to today!
                 modalError.style.display = 'none';
                 
 
@@ -2715,12 +2816,15 @@
 // Determine new Serial number (items count + 1)
                 const newSno = String(group.items.filter(item => !item.is_subtotal).length + 1);
 
+                const activeParts = multiData.active_date.split('-');
+                const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
+
                 const newItem = {
                     s_no: newSno,
                     kapan: kapan,
                     pcs: pcs,
                     carat: carat,
-                    date: getTodayFormatted(),
+                    date: entryDateFormatted,
                     is_subtotal: false
                 };
 

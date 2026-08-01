@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="gu">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ગેલેક્ષી STOCK (ગાયત્રી) - ERP Stock System</title>
+    <title>ગેલેક્ષી STOCK (ગાયત્રી) </title>
     <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -29,17 +31,19 @@
         const DB_PATH = 'galaxy_stock';
     </script>
 
-    
+
     <style>
         :root {
-            --bg-color: #faf6f4; /* Cream background from screenshot */
+            --bg-color: #faf6f4;
+            /* Cream background from screenshot */
             --header-bg: #ffffff;
             --card-bg: #ffffff;
             --card-border: #cbd5e1;
             --card-hover-border: #94a3b8;
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --accent-navy: #002d62; /* Navy blue from ERP */
+            --accent-navy: #002d62;
+            /* Navy blue from ERP */
             --accent-blue: #2563eb;
             --accent-emerald: #059669;
             --accent-cyan: #0891b2;
@@ -48,8 +52,8 @@
             --subtotal-bg: #ecfdf5;
             --subtotal-border: #a7f3d0;
             --subtotal-text: #047857;
-            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             --sidebar-border: #c0c0c0;
         }
 
@@ -78,13 +82,16 @@
             width: 8px;
             height: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: #f1f5f9;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
@@ -211,7 +218,7 @@
 
         .dashboard-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06);
         }
 
         .dashboard-card::before {
@@ -223,9 +230,17 @@
             height: 100%;
         }
 
-        .dashboard-card.kapan::before { background: var(--accent-navy); }
-        .dashboard-card.pcs::before { background: var(--accent-emerald); }
-        .dashboard-card.carats::before { background: var(--accent-cyan); }
+        .dashboard-card.kapan::before {
+            background: var(--accent-navy);
+        }
+
+        .dashboard-card.pcs::before {
+            background: var(--accent-emerald);
+        }
+
+        .dashboard-card.carats::before {
+            background: var(--accent-cyan);
+        }
 
         .db-header {
             font-size: 0.85rem;
@@ -278,6 +293,7 @@
             margin-right: auto;
             flex-wrap: wrap;
         }
+
         .controls-kpi-item {
             display: flex;
             align-items: center;
@@ -287,10 +303,13 @@
             padding: 2px 6px;
             border-radius: 4px;
         }
+
         .controls-kpi-val {
-            color: #dc2626; /* Red color for numbers */
+            color: #dc2626;
+            /* Red color for numbers */
             font-weight: 800;
-            font-size: 0.95rem; /* Larger font size for numbers */
+            font-size: 0.95rem;
+            /* Larger font size for numbers */
         }
 
         .search-icon {
@@ -454,10 +473,12 @@
         }
 
         /* ── Compact Master View CSS ── */
-        .master-table th, .master-table td {
+        .master-table th,
+        .master-table td {
             padding: 3px 6px !important;
             font-size: 0.78rem !important;
         }
+
         .master-table td button.btn-compact {
             padding: 2px 6px !important;
             font-size: 0.72rem !important;
@@ -523,7 +544,7 @@
             line-height: 1.5;
         }
 
-                .no-results-msg {
+        .no-results-msg {
             grid-column: 1 / -1;
             padding: 60px;
             text-align: center;
@@ -552,21 +573,25 @@
             user-select: none;
             margin-left: 8px;
         }
+
         #sync-indicator.synced {
             background: #f0fdf4 !important;
             border-color: #86efac !important;
             color: #16a34a !important;
         }
+
         #sync-indicator.syncing {
             background: #fefce8 !important;
             border-color: #fde047 !important;
             color: #ca8a04 !important;
         }
+
         #sync-indicator.error {
             background: #fef2f2 !important;
             border-color: #fca5a5 !important;
             color: #dc2626 !important;
         }
+
         #sync-indicator .sync-dot {
             width: 8px;
             height: 8px;
@@ -574,15 +599,32 @@
             flex-shrink: 0;
             transition: background 0.3s;
         }
-        #sync-indicator.synced .sync-dot { background: #22c55e !important; }
+
+        #sync-indicator.synced .sync-dot {
+            background: #22c55e !important;
+        }
+
         #sync-indicator.syncing .sync-dot {
             background: #eab308 !important;
             animation: syncpulse 0.8s ease-in-out infinite;
         }
-        #sync-indicator.error .sync-dot { background: #ef4444 !important; }
+
+        #sync-indicator.error .sync-dot {
+            background: #ef4444 !important;
+        }
+
         @keyframes syncpulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.7); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.4;
+                transform: scale(0.7);
+            }
         }
 
         /* Department Sub-navbar Styles */
@@ -597,6 +639,7 @@
             align-items: center;
             height: 28px;
         }
+
         .dept-tab {
             background: transparent;
             border: none;
@@ -614,10 +657,12 @@
             transition: all 0.15s;
             text-transform: uppercase;
         }
+
         .dept-tab:hover {
             background: #f1f5f9;
             color: var(--text-primary);
         }
+
         .dept-tab.active {
             background: var(--accent-navy);
             color: #ffffff;
@@ -633,38 +678,91 @@
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
-        .badge-dept.rough { background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
-        .badge-dept.ap-ok { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-        .badge-dept.four-p { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
-        .badge-dept.rt { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-        .badge-dept.ra { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
-        .badge-dept.loting { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-        .badge-dept.khata { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-        .badge-dept.final-polish { background: #ccfbf1; color: #0f766e; border: 1px solid #99f6e4; }
+
+        .badge-dept.rough {
+            background: #e2e8f0;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .badge-dept.ap-ok {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .badge-dept.four-p {
+            background: #f3e8ff;
+            color: #6b21a8;
+            border: 1px solid #e9d5ff;
+        }
+
+        .badge-dept.rt {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .badge-dept.ra {
+            background: #ffedd5;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+        }
+
+        .badge-dept.loting {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-dept.khata {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .badge-dept.final-polish {
+            background: #ccfbf1;
+            color: #0f766e;
+            border: 1px solid #99f6e4;
+        }
     </style>
 </head>
+
 <body>
 
     <!-- Top Navigation Bar -->
     <div class="top-navbar">
-        <button class="top-tab active" id="btn-top-stock" onclick="switchView('stock')"><i data-lucide="edit-3" style="width:16px;height:16px;"></i> Entry</button>
-        <button class="top-tab" id="btn-top-all-stock" onclick="switchView('all-stock')"><i data-lucide="package" style="width:16px;height:16px;"></i> Stock</button>
-        <button class="top-tab" id="btn-top-report" onclick="switchView('report')"><i data-lucide="clipboard-list" style="width:16px;height:16px;"></i> Report</button>
-        <button class="top-tab" id="btn-top-master" onclick="switchView('master')"><i data-lucide="database" style="width:16px;height:16px;"></i> Master</button>
-        
+        <button class="top-tab active" id="btn-top-stock" onclick="switchView('stock')"><i data-lucide="edit-3"
+                style="width:16px;height:16px;"></i> Entry</button>
+        <button class="top-tab" id="btn-top-all-stock" onclick="switchView('all-stock')"><i data-lucide="package"
+                style="width:16px;height:16px;"></i> Stock</button>
+        <button class="top-tab" id="btn-top-report" onclick="switchView('report')"><i data-lucide="clipboard-list"
+                style="width:16px;height:16px;"></i> Report</button>
+        <button class="top-tab" id="btn-top-master" onclick="switchView('master')"><i data-lucide="database"
+                style="width:16px;height:16px;"></i> Master</button>
+
         <!-- Date selection dropdown/picker in navbar -->
-        <div style="margin-left: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">
+        <div
+            style="margin-left: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">
             <i data-lucide="calendar" style="width:16px;height:16px;color:var(--accent-navy);"></i>
             Date:
-            <input type="date" id="header-date-picker" min="2020-01-01" max="2035-12-31" style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
+            <input type="date" id="header-date-picker" min="2020-01-01" max="2035-12-31"
+                style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
         </div>
 
         <!-- Completed Kapans Dropdown -->
-        <div class="completed-dropdown-container" style="margin-left: 20px; position: relative; display: none; align-items: center;">
-            <button class="top-tab" id="btn-completed-dropdown" onclick="toggleCompletedDropdown(event)" style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
-                <i data-lucide="check-square" style="width:16px;height:16px;color:#059669;"></i> Completed Kapans <span id="completed-count-badge" style="background:#059669; color:white; border-radius:10px; padding: 2px 8px; font-size:0.75rem; font-weight:800; font-variant-numeric: tabular-nums;">0</span>
+        <div class="completed-dropdown-container"
+            style="margin-left: 20px; position: relative; display: none; align-items: center;">
+            <button class="top-tab" id="btn-completed-dropdown" onclick="toggleCompletedDropdown(event)"
+                style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none;"
+                onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                <i data-lucide="check-square" style="width:16px;height:16px;color:#059669;"></i> Completed Kapans <span
+                    id="completed-count-badge"
+                    style="background:#059669; color:white; border-radius:10px; padding: 2px 8px; font-size:0.75rem; font-weight:800; font-variant-numeric: tabular-nums;">0</span>
             </button>
-            <div id="completed-dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 320px; max-height: 400px; overflow-y: auto; background: white; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-lg); z-index: 9999; padding: 8px 0; font-family: 'Outfit', sans-serif;">
+            <div id="completed-dropdown-menu"
+                style="display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 320px; max-height: 400px; overflow-y: auto; background: white; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-lg); z-index: 9999; padding: 8px 0; font-family: 'Outfit', sans-serif;">
                 <!-- Will be populated dynamically -->
             </div>
         </div>
@@ -681,8 +779,11 @@
             <button class="dept-tab" data-dept="Khata">Khata</button>
             <button class="dept-tab" data-dept="Final Polish">Final Polish</button>
         </div>
-        <button class="top-tab" onclick="downloadBackup()" style="margin-left: auto; border-color: #059669; color: #059669;"><i data-lucide="download" style="width:16px;height:16px;"></i> Backup</button>
-        <button class="top-tab" onclick="triggerRestore()" style="border-color: #0891b2; color: #0891b2;"><i data-lucide="upload" style="width:16px;height:16px;"></i> Restore</button>
+        <button class="top-tab" onclick="downloadBackup()"
+            style="margin-left: auto; border-color: #059669; color: #059669;"><i data-lucide="download"
+                style="width:16px;height:16px;"></i> Backup</button>
+        <button class="top-tab" onclick="triggerRestore()" style="border-color: #0891b2; color: #0891b2;"><i
+                data-lucide="upload" style="width:16px;height:16px;"></i> Restore</button>
         <input type="file" id="file-restore" style="display: none;" accept=".json" onchange="restoreBackup(event)">
 
         <!-- Cloud Sync Indicator -->
@@ -698,7 +799,7 @@
 
         <!-- Main Content Area -->
         <div class="main-panel">
-            
+
 
 
             <!-- VIEW B: STOCK VIEW -->
@@ -706,7 +807,8 @@
                 <div class="stock-controls">
                     <div class="search-wrapper">
                         <i data-lucide="search" class="search-icon"></i>
-                        <input type="text" id="search-bar" autocomplete="off" class="search-input" placeholder="Search Kapan No (e.g. 867-3)...">
+                        <input type="text" id="search-bar" autocomplete="off" class="search-input"
+                            placeholder="Search Kapan No (e.g. 867-3)...">
                     </div>
                     <!-- Dynamic Inline KPIs -->
                     <div class="controls-kpi-container">
@@ -724,8 +826,12 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn-add" id="btn-add-group" style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="plus-square"></i> Add Rough</button>
-                        <button class="btn-add" id="btn-add-kapan" style="cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="plus-circle"></i> Add Kapan</button>
+                        <button class="btn-add" id="btn-add-group"
+                            style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i
+                                data-lucide="plus-square"></i> Add Rough</button>
+                        <button class="btn-add" id="btn-add-kapan"
+                            style="cursor: pointer; display: flex; align-items: center; gap: 6px;"><i
+                                data-lucide="plus-circle"></i> Add Kapan</button>
                     </div>
                 </div>
 
@@ -741,34 +847,52 @@
             </div>
 
             <!-- VIEW E: ALL STOCK VIEW -->
-            <div id="view-all-stock" class="view-pane" style="display: none; flex-direction: column; gap: 16px; align-items: center; width: 100%;">
-                <div class="stock-controls" style="padding: 12px 16px; width: 100%; max-width: 800px; display: flex; justify-content: center; align-items: center; border-radius: 8px;">
-                    <div style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
-                        <i data-lucide="package" style="width: 22px; height: 22px; color: var(--accent-navy);"></i> વિભાગ વાઈઝ કુલ સ્ટોક સમરી (Department-wise Stock Summary)
+            <div id="view-all-stock" class="view-pane"
+                style="display: none; flex-direction: column; gap: 16px; align-items: center; width: 100%;">
+                <div class="stock-controls"
+                    style="padding: 12px 16px; width: 100%; max-width: 800px; display: flex; justify-content: center; align-items: center; border-radius: 8px;">
+                    <div
+                        style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="package" style="width: 22px; height: 22px; color: var(--accent-navy);"></i>
+                        વિભાગ વાઈઝ કુલ સ્ટોક સમરી (Department-wise Stock Summary)
                     </div>
                 </div>
 
-                <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; width: 100%; max-width: 800px;">
+                <div
+                    style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; width: 100%; max-width: 800px;">
                     <table class="stock-table master-table" id="all-stock-summary-table" style="width: 100%;">
                         <thead>
                             <tr>
-                                <th style="width: 60px; text-align: center; font-size: 12px; font-weight: 700; text-transform: uppercase;">S.No</th>
-                                <th style="font-size: 12px; font-weight: 700; text-transform: uppercase;">Department</th>
-                                <th style="text-align: right; width: 160px; font-size: 12px; font-weight: 700; text-transform: uppercase;">Total Lots (Kapan)</th>
-                                <th style="text-align: right; width: 180px; font-size: 12px; font-weight: 700; text-transform: uppercase;">Total Pieces (PCS)</th>
-                                <th style="text-align: right; width: 180px; font-size: 12px; font-weight: 700; text-transform: uppercase;">Total Carats (CARAT)</th>
+                                <th
+                                    style="width: 60px; text-align: center; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                    S.No</th>
+                                <th style="font-size: 12px; font-weight: 700; text-transform: uppercase;">Department
+                                </th>
+                                <th
+                                    style="text-align: right; width: 160px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                    Total Lots (Kapan)</th>
+                                <th
+                                    style="text-align: right; width: 180px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                    Total Pieces (PCS)</th>
+                                <th
+                                    style="text-align: right; width: 180px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                    Total Carats (CARAT)</th>
                             </tr>
                         </thead>
                         <tbody id="all-stock-summary-tbody" style="font-size: 13px; font-weight: 600;">
                             <!-- Dynamic rows -->
                         </tbody>
                         <tfoot>
-                            <tr style="background: #cbd5e1; font-weight: 800; font-size: 14px; border-top: 2px solid #94a3b8; color: var(--text-primary);">
+                            <tr
+                                style="background: #cbd5e1; font-weight: 800; font-size: 14px; border-top: 2px solid #94a3b8; color: var(--text-primary);">
                                 <td style="text-align: center; padding: 10px 6px;">-</td>
                                 <td style="padding: 10px 6px; letter-spacing: 0.5px;">GRAND TOTAL</td>
-                                <td style="text-align: right; padding: 10px 6px; font-variant-numeric: tabular-nums;" id="all-stock-summary-grand-lots">0</td>
-                                <td style="text-align: right; padding: 10px 6px; font-variant-numeric: tabular-nums; color: var(--accent-navy);" id="all-stock-summary-grand-pcs">0</td>
-                                <td style="text-align: right; padding: 10px 6px; font-variant-numeric: tabular-nums; color: #059669;" id="all-stock-summary-grand-carats">0.00</td>
+                                <td style="text-align: right; padding: 10px 6px; font-variant-numeric: tabular-nums;"
+                                    id="all-stock-summary-grand-lots">0</td>
+                                <td style="text-align: right; padding: 10px 6px; font-variant-numeric: tabular-nums; color: var(--accent-navy);"
+                                    id="all-stock-summary-grand-pcs">0</td>
+                                <td style="text-align: right; padding: 10px 6px; font-variant-numeric: tabular-nums; color: #059669;"
+                                    id="all-stock-summary-grand-carats">0.00</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -779,34 +903,60 @@
             <div id="view-report" class="view-pane" style="display: none; flex-direction: column; gap: 16px;">
                 <!-- Header Card -->
                 <div class="stock-controls" style="padding: 12px 16px;">
-                    <div style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
-                        <i data-lucide="clipboard-list" style="width: 22px; height: 22px; color: var(--accent-navy);"></i> કાપણ વિભાગ વાઈઝ તારીખ ટ્રેકિંગ અહેવાલ (Kapan Date Tracking Report)
+                    <div
+                        style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="clipboard-list"
+                            style="width: 22px; height: 22px; color: var(--accent-navy);"></i> કાપણ વિભાગ વાઈઝ તારીખ
+                        ટ્રેકિંગ અહેવાલ (Kapan Date Tracking Report)
                     </div>
                 </div>
 
-                <div class="stock-controls" style="padding: 10px 16px; background: #ffffff; border-radius: 8px; border: 1px solid var(--card-border); gap: 16px;">
+                <div class="stock-controls"
+                    style="padding: 10px 16px; background: #ffffff; border-radius: 8px; border: 1px solid var(--card-border); gap: 16px;">
                     <div class="search-wrapper" style="max-width: 320px; flex: 1;">
                         <i data-lucide="search" class="search-icon"></i>
-                        <input type="text" id="report-search-bar" autocomplete="off" class="search-input" placeholder="Search Kapan No (e.g. 867)..." style="width: 100%;">
+                        <input type="text" id="report-search-bar" autocomplete="off" class="search-input"
+                            placeholder="Search Kapan No (e.g. 867)..." style="width: 100%;">
                     </div>
                     <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
-                        Total Kapans Tracked: <span id="report-total-count" style="font-weight: 700; color: var(--accent-navy);">0</span>
+                        Total Kapans Tracked: <span id="report-total-count"
+                            style="font-weight: 700; color: var(--accent-navy);">0</span>
                     </div>
                 </div>
 
-                <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow-x: auto; width: 100%;">
-                    <table class="stock-table master-table" id="report-tracking-table" style="width: 100%; border-collapse: collapse; min-width: 900px;">
+                <div
+                    style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow-x: auto; width: 100%;">
+                    <table class="stock-table master-table" id="report-tracking-table"
+                        style="width: 100%; border-collapse: collapse; min-width: 900px;">
                         <thead>
                             <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                                <th style="text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; width: 120px;">Kapan No</th>
-                                <th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Rough</th>
-                                <th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">AP OK</th>
-                                <th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">4P</th>
-                                <th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">RT</th>
-                                <th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">RA</th>
-                                <th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Loting</th>
-                                <th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Khata</th>
-                                <th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Final Polish</th>
+                                <th
+                                    style="text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; width: 120px;">
+                                    Kapan No</th>
+                                <th
+                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                    Rough</th>
+                                <th
+                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                    AP OK</th>
+                                <th
+                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                    4P</th>
+                                <th
+                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                    RT</th>
+                                <th
+                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                    RA</th>
+                                <th
+                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                    Loting</th>
+                                <th
+                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                    Khata</th>
+                                <th
+                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                    Final Polish</th>
                             </tr>
                         </thead>
                         <tbody id="report-tracking-tbody" style="font-size: 13px; font-weight: 600;">
@@ -819,14 +969,20 @@
             <!-- VIEW C: MASTER VIEW -->
             <div id="view-master" class="view-pane" style="display: none; flex-direction: column; gap: 16px;">
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;">
-                    
+
                     <!-- Left Column: Group Master (42% width) -->
                     <div style="flex: 1.2; min-width: 320px; display: flex; flex-direction: column; gap: 10px;">
                         <div class="stock-controls" style="padding: 4px 10px;">
-                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;"><i data-lucide="folder"></i> Group Master</div>
-                            <button class="btn-add btn-compact" onclick="openAddGroupModal()" style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px;"><i data-lucide="plus-square" style="width:12px;height:12px;"></i> Add Rough</button>
+                            <div
+                                style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="folder"></i> Group Master
+                            </div>
+                            <button class="btn-add btn-compact" onclick="openAddGroupModal()"
+                                style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px;"><i
+                                    data-lucide="plus-square" style="width:12px;height:12px;"></i> Add Rough</button>
                         </div>
-                        <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div
+                            style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
                             <table class="stock-table master-table" id="master-group-table" style="width: 100%;">
                                 <thead>
                                     <tr>
@@ -847,10 +1003,16 @@
                     <!-- Right Column: Kapan Master (58% width) -->
                     <div style="flex: 1.8; min-width: 450px; display: flex; flex-direction: column; gap: 10px;">
                         <div class="stock-controls" style="padding: 4px 10px;">
-                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;"><i data-lucide="hash"></i> Kapan Master</div>
-                            <input type="text" id="kapan-master-search" autocomplete="off" class="search-input" placeholder="Search Kapan..." style="max-width: 170px; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--card-border); height: 26px; line-height: 1;">
+                            <div
+                                style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="hash"></i> Kapan Master
+                            </div>
+                            <input type="text" id="kapan-master-search" autocomplete="off" class="search-input"
+                                placeholder="Search Kapan..."
+                                style="max-width: 170px; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--card-border); height: 26px; line-height: 1;">
                         </div>
-                        <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div
+                            style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
                             <div style="max-height: 460px; overflow-y: auto;">
                                 <table class="stock-table master-table" id="master-kapan-table" style="width: 100%;">
                                     <thead style="position: sticky; top: 0; z-index: 5;">
@@ -878,36 +1040,57 @@
         </div>
     </div>
 
-    
+
     <!-- Add Kapan Modal Dialog -->
-    <div id="modal-add-kapan" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div id="modal-add-kapan-content" style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px; position: relative;">
-            <div id="modal-add-kapan-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; cursor: move; user-select: none;">
-                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;"><i data-lucide="plus-circle"></i> Add Kapan</h3>
-                <button id="modal-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+    <div id="modal-add-kapan" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div id="modal-add-kapan-content"
+            style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px; position: relative;">
+            <div id="modal-add-kapan-header"
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; cursor: move; user-select: none;">
+                <h3
+                    style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="plus-circle"></i> Add Kapan
+                </h3>
+                <button id="modal-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i
+                        data-lucide="x" style="width: 20px; height: 20px;"></i></button>
             </div>
-            
+
             <form id="form-add-kapan" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; flex-direction: column; gap: 4px; position: relative;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Rough No.</label>
                     <div style="display: flex; gap: 6px;">
-                        <input type="text" id="input-group" placeholder="Select Group..." readonly required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: #f8fafc; cursor: pointer; flex: 1;">
-                        <button type="button" id="btn-open-group-search" style="padding: 8px 10px; background: var(--accent-navy); border: none; color: white; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+                        <input type="text" id="input-group" placeholder="Select Group..." readonly required
+                            style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: #f8fafc; cursor: pointer; flex: 1;">
+                        <button type="button" id="btn-open-group-search"
+                            style="padding: 8px 10px; background: var(--accent-navy); border: none; color: white; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i
+                                data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
                     </div>
 
                     <!-- Custom Search Party Dropdown Menu -->
-                    <div id="group-search-menu" style="display: none; position: absolute; top: 56px; left: 0; width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.08); z-index: 1100; font-family: 'Outfit', sans-serif; flex-direction: column; overflow: hidden;">
-                        
+                    <div id="group-search-menu"
+                        style="display: none; position: absolute; top: 56px; left: 0; width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.08); z-index: 1100; font-family: 'Outfit', sans-serif; flex-direction: column; overflow: hidden;">
+
                         <!-- Search Box Section -->
-                        <div style="padding: 6px 12px; display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
-                            <label style="font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Search Name</label>
-                            <input type="text" id="group-search-input" autocomplete="off" placeholder="Type name/number here..." style="padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 0.8rem; outline: none; background: #ecfdf5; color: #047857; font-weight: 600; width: 100%; transition: border-color 0.15s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#cbd5e1'">
+                        <div
+                            style="padding: 6px 12px; display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                            <label
+                                style="font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Search
+                                Name</label>
+                            <input type="text" id="group-search-input" autocomplete="off"
+                                placeholder="Type name/number here..."
+                                style="padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit; font-size: 0.8rem; outline: none; background: #ecfdf5; color: #047857; font-weight: 600; width: 100%; transition: border-color 0.15s;"
+                                onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#cbd5e1'">
                         </div>
 
                         <!-- Scrollable List -->
-                        <div id="group-search-list" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; background: #ffffff;">
+                        <div id="group-search-list"
+                            style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; background: #ffffff;">
                             <!-- Add New Party Button -->
-                            <div id="btn-add-new-party-row" style="padding: 4px 12px; font-size: 0.75rem; font-weight: 700; color: #10b981; border-bottom: 1px solid #cbd5e1; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'">
+                            <div id="btn-add-new-party-row"
+                                style="padding: 4px 12px; font-size: 0.75rem; font-weight: 700; color: #10b981; border-bottom: 1px solid #cbd5e1; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: background 0.15s;"
+                                onmouseover="this.style.background='#f0fdf4'"
+                                onmouseout="this.style.background='transparent'">
                                 <i data-lucide="plus" style="width:12px;height:12px;color:#10b981;"></i> + Add New Group
                             </div>
                             <!-- List items will be rendered dynamically -->
@@ -916,11 +1099,13 @@
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Kapan No.</label>
-                    <input type="text" id="input-kapan" placeholder="e.g. 867-15" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                    <input type="text" id="input-kapan" placeholder="e.g. 867-15" required
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Department</label>
-                    <select id="input-kapan-dept" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: #ffffff;">
+                    <select id="input-kapan-dept" required
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: #ffffff;">
                         <option value="Rough">Rough</option>
                         <option value="AP ok">AP OK</option>
                         <option value="4P">4P</option>
@@ -933,16 +1118,20 @@
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Raw Pieces</label>
-                    <input type="number" id="input-pcs" placeholder="e.g. 1500" required min="0" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                    <input type="number" id="input-pcs" placeholder="e.g. 1500" required min="0"
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Raw Carat</label>
-                    <input type="number" id="input-carat" placeholder="e.g. 75.50" step="0.01" required min="0" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                    <input type="number" id="input-carat" placeholder="e.g. 75.50" step="0.01" required min="0"
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
-                
-                <div id="modal-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
-                
-                <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+
+                <div id="modal-error"
+                    style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
+
+                <button type="submit"
+                    style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
                     <i data-lucide="check-circle"></i> Save
                 </button>
             </form>
@@ -950,22 +1139,33 @@
     </div>
 
     <!-- Add Group Modal Dialog -->
-    <div id="modal-add-group" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif;">
-        <div id="modal-add-group-content" style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 450px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px; position: relative;">
-            <div id="modal-add-group-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; cursor: move; user-select: none;">
-                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;"><i data-lucide="plus-square"></i> Add Rough</h3>
-                <button id="modal-group-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+    <div id="modal-add-group" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif;">
+        <div id="modal-add-group-content"
+            style="background: white; color: #0f172a; padding: 24px; width: 90%; max-width: 450px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 14px; position: relative;">
+            <div id="modal-add-group-header"
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; cursor: move; user-select: none;">
+                <h3
+                    style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="plus-square"></i> Add Rough
+                </h3>
+                <button id="modal-group-close"
+                    style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x"
+                        style="width: 20px; height: 20px;"></i></button>
             </div>
-            
+
             <form id="form-add-group" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">New Rough No.</label>
-                    <input type="text" id="input-group-name" placeholder="e.g. 876 CLIV 5-3 or 876" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
+                    <input type="text" id="input-group-name" placeholder="e.g. 876 CLIV 5-3 or 876" required
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
-                
-                <div id="modal-group-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
-                
-                <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+
+                <div id="modal-group-error"
+                    style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
+
+                <button type="submit"
+                    style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
                     <i data-lucide="check-circle"></i> Save Group
                 </button>
             </form>
@@ -973,47 +1173,72 @@
     </div>
 
     <!-- Custom Dialog Modal Overlay -->
-    <div id="custom-dialog-overlay" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px); font-family: 'Outfit', sans-serif;">
-        <div style="background: #ffffff; color: #0f172a; padding: 24px; width: 90%; max-width: 400px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 16px; animation: modalFadeIn 0.2s ease-out;">
-            <div id="dialog-header" style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent-navy); font-size: 1.1rem; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
+    <div id="custom-dialog-overlay" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px); font-family: 'Outfit', sans-serif;">
+        <div
+            style="background: #ffffff; color: #0f172a; padding: 24px; width: 90%; max-width: 400px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 16px; animation: modalFadeIn 0.2s ease-out;">
+            <div id="dialog-header"
+                style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent-navy); font-size: 1.1rem; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">
                 <!-- Injected dynamically -->
             </div>
-            <div id="dialog-body" style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; font-weight: 500;">
+            <div id="dialog-body"
+                style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; font-weight: 500;">
                 <!-- Injected dynamically -->
             </div>
             <!-- Input container for Prompt -->
             <div id="dialog-input-container" style="display: none;">
-                <input type="text" id="dialog-prompt-input" autocomplete="off" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; margin-top: 4px; background: #ffffff;">
+                <input type="text" id="dialog-prompt-input" autocomplete="off"
+                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; margin-top: 4px; background: #ffffff;">
             </div>
-            <div id="dialog-footer" style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #cbd5e1; padding-top: 12px;">
-                <button id="dialog-btn-cancel" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">Cancel</button>
-                <button id="dialog-btn-ok" style="background: var(--accent-navy); border: none; color: white; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">OK</button>
+            <div id="dialog-footer"
+                style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #cbd5e1; padding-top: 12px;">
+                <button id="dialog-btn-cancel"
+                    style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">Cancel</button>
+                <button id="dialog-btn-ok"
+                    style="background: var(--accent-navy); border: none; color: white; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;">OK</button>
             </div>
         </div>
     </div>
 
     <!-- Edit Kapan Modal Dialog -->
-    <div id="modal-edit-kapan" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
-        <div id="modal-edit-kapan-content" style="background: white; border: 1px solid var(--card-border); padding: 20px; width: 90%; max-width: 380px; border-radius: 12px; box-shadow: var(--shadow-lg); font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; gap: 14px; position: relative;">
-            <button id="modal-edit-kapan-close" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-secondary);"><i data-lucide="x"></i></button>
-            <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px;">
+    <div id="modal-edit-kapan" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+        <div id="modal-edit-kapan-content"
+            style="background: white; border: 1px solid var(--card-border); padding: 20px; width: 90%; max-width: 380px; border-radius: 12px; box-shadow: var(--shadow-lg); font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; gap: 14px; position: relative;">
+            <button id="modal-edit-kapan-close"
+                style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-secondary);"><i
+                    data-lucide="x"></i></button>
+            <div
+                style="font-size: 1.1rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px;">
                 <i data-lucide="edit-3"></i> Edit Kapan
             </div>
-            <form id="form-edit-kapan" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px; margin-top: 4px;">
+            <form id="form-edit-kapan" autocomplete="off"
+                style="display: flex; flex-direction: column; gap: 12px; margin-top: 4px;">
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">Kapan No.</label>
-                    <input type="text" id="edit-input-kapan-name" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
+                    <label
+                        style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">Kapan
+                        No.</label>
+                    <input type="text" id="edit-input-kapan-name" disabled
+                        style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New Pieces <span style="color:#dc2626">*</span></label>
-                    <input type="number" id="edit-input-pcs" required placeholder="Enter pieces..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                    <label
+                        style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New
+                        Pieces <span style="color:#dc2626">*</span></label>
+                    <input type="number" id="edit-input-pcs" required placeholder="Enter pieces..."
+                        style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New Carat <span style="color:#dc2626">*</span></label>
-                    <input type="number" step="0.01" id="edit-input-carat" required placeholder="Enter carat..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                    <label
+                        style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New
+                        Carat <span style="color:#dc2626">*</span></label>
+                    <input type="number" step="0.01" id="edit-input-carat" required placeholder="Enter carat..."
+                        style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
                 </div>
-                <div id="modal-edit-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
-                <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                <div id="modal-edit-error"
+                    style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
+                <button type="submit"
+                    style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
                     <i data-lucide="check-circle"></i> Save Changes
                 </button>
             </form>
@@ -1021,39 +1246,61 @@
     </div>
 
     <!-- Transfer Kapan Modal Dialog -->
-    <div id="modal-transfer-kapan" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
-        <div id="modal-transfer-kapan-content" style="background: white; border: 1px solid var(--card-border); padding: 20px; width: 90%; max-width: 380px; border-radius: 12px; box-shadow: var(--shadow-lg); font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; gap: 14px; position: relative;">
-            <div id="modal-transfer-kapan-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; cursor: move; user-select: none;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
+    <div id="modal-transfer-kapan" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+        <div id="modal-transfer-kapan-content"
+            style="background: white; border: 1px solid var(--card-border); padding: 20px; width: 90%; max-width: 380px; border-radius: 12px; box-shadow: var(--shadow-lg); font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; gap: 14px; position: relative;">
+            <div id="modal-transfer-kapan-header"
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; cursor: move; user-select: none;">
+                <h3
+                    style="font-size: 1.1rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
                     <i data-lucide="arrow-right-left"></i> Transfer Kapan
                 </h3>
-                <button id="modal-transfer-kapan-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+                <button id="modal-transfer-kapan-close"
+                    style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x"
+                        style="width: 20px; height: 20px;"></i></button>
             </div>
-            <form id="form-transfer-kapan" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px; margin-top: 4px;">
+            <form id="form-transfer-kapan" autocomplete="off"
+                style="display: flex; flex-direction: column; gap: 12px; margin-top: 4px;">
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">Kapan No.</label>
-                    <input type="text" id="transfer-input-kapan-name" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
+                    <label
+                        style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">Kapan
+                        No.</label>
+                    <input type="text" id="transfer-input-kapan-name" disabled
+                        style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
-                        <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">From</label>
-                        <input type="text" id="transfer-input-from-dept" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
+                        <label
+                            style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">From</label>
+                        <input type="text" id="transfer-input-from-dept" disabled
+                            style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">To</label>
-                        <input type="text" id="transfer-input-to-dept" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
+                        <label
+                            style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">To</label>
+                        <input type="text" id="transfer-input-to-dept" disabled
+                            style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
                     </div>
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New Pieces <span style="color:#dc2626">*</span></label>
-                    <input type="number" id="transfer-input-pcs" required placeholder="Enter pieces..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                    <label
+                        style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New
+                        Pieces <span style="color:#dc2626">*</span></label>
+                    <input type="number" id="transfer-input-pcs" required placeholder="Enter pieces..."
+                        style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New Carat <span style="color:#dc2626">*</span></label>
-                    <input type="number" step="0.01" id="transfer-input-carat" required placeholder="Enter carat..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                    <label
+                        style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New
+                        Carat <span style="color:#dc2626">*</span></label>
+                    <input type="number" step="0.01" id="transfer-input-carat" required placeholder="Enter carat..."
+                        style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
                 </div>
-                <div id="modal-transfer-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
-                <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                <div id="modal-transfer-error"
+                    style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
+                <button type="submit"
+                    style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
                     <i data-lucide="check-circle"></i> Save Transfer
                 </button>
             </form>
@@ -1062,8 +1309,15 @@
 
     <style>
         @keyframes modalFadeIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
     </style>
 
@@ -1092,7 +1346,7 @@
         function showCustomDialog(type, title, message, defaultValue = '') {
             return new Promise((resolve) => {
                 dialogResolve = resolve;
-                
+
                 // Cleanup extra buttons if they exist from previous calls
                 const extraBtn = document.getElementById('dialog-btn-extra');
                 if (extraBtn) extraBtn.remove();
@@ -1102,11 +1356,11 @@
                 dialogBtnCancel.style.background = '#f1f5f9';
                 dialogBtnCancel.style.color = 'var(--text-secondary)';
                 dialogBtnCancel.innerText = 'Cancel';
-                
+
                 dialogBtnOk.style.display = 'block';
                 dialogBtnOk.style.background = 'var(--accent-navy)';
                 dialogBtnOk.innerText = 'OK';
-                
+
                 let iconHtml = '';
                 if (type === 'alert') {
                     iconHtml = '<i data-lucide="info" style="width:18px;height:18px;color:#2563eb;"></i>';
@@ -1130,20 +1384,20 @@
                 } else if (type === 'delete-option') {
                     iconHtml = '<i data-lucide="trash-2" style="width:18px;height:18px;color:#dc2626;"></i>';
                     dialogInputContainer.style.display = 'none';
-                    
+
                     // Button 1: Normal OUT
                     dialogBtnOk.innerText = 'Out';
                     dialogBtnOk.style.background = '#d97706'; // Dark amber color for warning/OUT
-                    
+
                     // Button 2: Cancel (Grey)
                     dialogBtnCancel.innerText = 'Cancel';
-                    
+
                     // Button 3: Delete Mistake (Extra Button)
                     const btnMistake = document.createElement('button');
                     btnMistake.id = 'dialog-btn-extra';
                     btnMistake.style.cssText = 'background: #dc2626; border: none; color: white; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer;';
                     btnMistake.innerText = 'Delete';
-                    
+
                     btnMistake.addEventListener('click', () => {
                         dialogOverlay.style.display = 'none';
                         const resolveTemp = dialogResolve;
@@ -1151,14 +1405,14 @@
                         btnMistake.remove();
                         resolveTemp('mistake');
                     });
-                    
+
                     // Insert before the OK button in the footer
                     dialogBtnOk.parentNode.insertBefore(btnMistake, dialogBtnOk);
                 }
 
                 dialogHeader.innerHTML = `${iconHtml} <span>${title}</span>`;
                 dialogBody.innerText = message;
-                
+
                 dialogOverlay.style.display = 'flex';
                 lucide.createIcons();
 
@@ -1173,14 +1427,14 @@
                 dialogOverlay.style.display = 'none';
                 const resolveTemp = dialogResolve;
                 dialogResolve = null;
-                
+
                 // Cleanup extra button if exists
                 const extraBtn = document.getElementById('dialog-btn-extra');
                 if (extraBtn) extraBtn.remove();
-                
+
                 const isPrompt = dialogInputContainer.style.display === 'block';
                 const isDeleteOption = dialogBtnOk.innerText === 'Out';
-                
+
                 if (isPrompt) {
                     resolveTemp(dialogPromptInput.value.trim());
                 } else if (isDeleteOption) {
@@ -1196,11 +1450,11 @@
                 dialogOverlay.style.display = 'none';
                 const resolveTemp = dialogResolve;
                 dialogResolve = null;
-                
+
                 // Cleanup extra button if exists
                 const extraBtn = document.getElementById('dialog-btn-extra');
                 if (extraBtn) extraBtn.remove();
-                
+
                 const isPrompt = dialogInputContainer.style.display === 'block';
                 if (isPrompt) {
                     resolveTemp(null);
@@ -1257,7 +1511,7 @@
                     }
                 };
             }
-        } catch(e) {
+        } catch (e) {
             multiData = {
                 active_date: _todayKey,
                 dates: {
@@ -1331,7 +1585,7 @@
                     dayData.groups.forEach(group => {
                         if (!group.items) group.items = [];
                         if (!group.subtotals) group.subtotals = [];
-                        
+
                         // Sort group items naturally by kapan, prioritizing alphabets
                         group.items.sort((a, b) => {
                             if (a.is_subtotal && !b.is_subtotal) return 1;
@@ -1395,11 +1649,11 @@
         // ── Save helper: local first (instant), then background firebase sync ──
         function saveToLocal() {
             multiData.dates[multiData.active_date] = stockData;
-            
+
             // 1. Instantly save to local cache
             try {
                 localStorage.setItem(LS_KEY, JSON.stringify(multiData));
-            } catch(e) {}
+            } catch (e) { }
 
             // 2. Sync to Firebase in background
             setSyncStatus('syncing', 'Saving...');
@@ -1430,7 +1684,7 @@
                 // Firebase is the authoritative copy, load it
                 migrateOldEntries(fbData.dates);
                 multiData = fbData;
-                
+
                 // Ensure today's date slot exists
                 let isNewDateCreated = false;
                 if (!multiData.dates[todayNow]) {
@@ -1444,7 +1698,7 @@
                 }
                 multiData.active_date = todayNow;
                 syncStockDataReference();
-                
+
                 // Always recalculate grand totals on page load to heal any stale or zero totals in the database
                 recalculateGrandTotals();
             } else {
@@ -1466,7 +1720,7 @@
             // Save to LocalStorage cache
             try {
                 localStorage.setItem(LS_KEY, JSON.stringify(multiData));
-            } catch(e) {}
+            } catch (e) { }
 
             // Populate and render UI
             updateKPIs();
@@ -1478,7 +1732,7 @@
             populateGroupDropdown();
             updateCompletedBadgeCount();
             console.log("✅ Cloud load complete.");
-            
+
         }).catch(err => {
             console.error('Firebase sync failed, using cached offline data:', err);
             _appReady = true;
@@ -1501,7 +1755,7 @@
             if (!_appReady) return;
             const fbData = snapshot.val();
             if (!fbData || !fbData.dates) return;
-            
+
             migrateOldEntries(fbData.dates);
             // Compare the entire dates data instead of just the active date
             const fbDatesJson = JSON.stringify(fbData.dates);
@@ -1516,7 +1770,7 @@
                 // Sync remote updates into local storage
                 try {
                     localStorage.setItem(LS_KEY, JSON.stringify(multiData));
-                } catch(e) {}
+                } catch (e) { }
 
                 // Render remote changes instantly
                 updateKPIs();
@@ -1580,7 +1834,7 @@
             } else {
                 try {
                     localStorage.setItem(LS_KEY, JSON.stringify(multiData));
-                } catch(e) {}
+                } catch (e) { }
             }
 
             // Sync date picker UI
@@ -1599,13 +1853,13 @@
             const todayKey = getTodayKey();
             if (multiData.active_date !== todayKey) {
                 switchToToday();
-                
+
                 const parts = todayKey.split('-');
                 const displayD = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                
+
                 // Update dashboard header-date
 
-                
+
                 // Alert user
                 showCustomDialog('alert', 'Date Switched', `Date automatically switched to ${displayD} to preserve old data!`);
             }
@@ -1634,13 +1888,13 @@
         function calculateDaysInProcess(entryDateFormatted, activeDateKey) {
             const entryDate = parseDMYDate(entryDateFormatted);
             if (!entryDate) return 0;
-            
+
             const activeParts = activeDateKey.split('-');
             const activeDate = new Date(parseInt(activeParts[0]), parseInt(activeParts[1]) - 1, parseInt(activeParts[2]));
-            
-            entryDate.setHours(0,0,0,0);
-            activeDate.setHours(0,0,0,0);
-            
+
+            entryDate.setHours(0, 0, 0, 0);
+            activeDate.setHours(0, 0, 0, 0);
+
             const diffTime = activeDate - entryDate;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             return diffDays >= 0 ? diffDays : 0;
@@ -1649,11 +1903,11 @@
         let migrationPerformed = false;
         function migrateOldEntries(fbDates) {
             if (migrationPerformed) return;
-            
+
             let hasUpdates = false;
             const dateKeys = Object.keys(fbDates).sort();
             const earliestDatesMap = {};
-            
+
             dateKeys.forEach(dateKey => {
                 const dayData = fbDates[dateKey];
                 if (dayData && dayData.groups) {
@@ -1684,7 +1938,7 @@
                     });
                 }
             });
-            
+
             dateKeys.forEach(dateKey => {
                 const dayData = fbDates[dateKey];
                 if (dayData && dayData.groups) {
@@ -1697,7 +1951,7 @@
                                 const correctYMD = earliestDatesMap[gName][kNo] || dateKey;
                                 const parts = correctYMD.split('-');
                                 const correctDMY = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                                
+
                                 if (!item.date || item.date !== correctDMY) {
                                     item.date = correctDMY;
                                     hasUpdates = true;
@@ -1707,7 +1961,7 @@
                     });
                 }
             });
-            
+
             if (hasUpdates) {
                 migrationPerformed = true;
                 db.ref(DB_PATH + '/dates').set(fbDates);
@@ -1727,7 +1981,7 @@
             const inlineKapan = document.getElementById('ctrl-kpi-kapan');
             const inlinePcs = document.getElementById('ctrl-kpi-pcs');
             const inlineCarats = document.getElementById('ctrl-kpi-carats');
-            
+
             if (inlineKapan) inlineKapan.innerText = Math.round(stockData.grand_totals.total_kapan || 0).toString();
             if (inlinePcs) inlinePcs.innerText = Math.round(stockData.grand_totals.total_pcs || 0).toString();
             if (inlineCarats) inlineCarats.innerText = (stockData.grand_totals.total_carat || 0).toFixed(2);
@@ -1745,7 +1999,7 @@
             dayData.groups.forEach(group => {
                 let groupPcs = 0;
                 let groupCarat = 0.0;
-                
+
                 group.items.forEach(item => {
                     if (!item.is_subtotal && !item.completed) {
                         const pcs = parseInt(item.pcs);
@@ -1754,7 +2008,7 @@
                         if (!isNaN(carat)) groupCarat += carat;
                     }
                 });
-                
+
                 totalLots += group.items.filter(item => !item.is_subtotal && !item.completed).length;
                 totalPcs += groupPcs;
                 totalCarats += groupCarat;
@@ -1901,13 +2155,13 @@
             // Remove active classes
             document.querySelectorAll('.top-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.view-pane').forEach(pane => pane.style.display = 'none');
-            
+
             // Show Completed Kapans dropdown only on the Report tab
             const completedContainer = document.querySelector('.completed-dropdown-container');
             if (completedContainer) {
                 completedContainer.style.display = (viewName === 'report') ? 'flex' : 'none';
             }
-            
+
             const deptTabs = document.getElementById('stock-dept-tabs');
             if (viewName === 'stock') {
                 const topStock = document.getElementById('btn-top-stock');
@@ -1926,7 +2180,7 @@
                 if (topReport) topReport.classList.add('active');
                 document.getElementById('view-report').style.display = 'flex';
                 if (deptTabs) deptTabs.style.display = 'none';
-                
+
                 const reportSearch = document.getElementById('report-search-bar');
                 if (reportSearch) reportSearch.value = '';
                 renderDailyReport();
@@ -1992,7 +2246,7 @@
             stockData.groups.forEach(group => {
                 let groupPcs = 0;
                 let groupCarat = 0.0;
-                
+
                 group.items.forEach(item => {
                     if (!item.is_subtotal && !item.completed) {
                         const pcs = parseInt(item.pcs);
@@ -2039,8 +2293,8 @@
                     if (item.is_subtotal || item.completed) return;
 
                     // Apply filter if search query is active
-                    if (lowercaseQuery && 
-                        !item.kapan.toLowerCase().includes(lowercaseQuery) && 
+                    if (lowercaseQuery &&
+                        !item.kapan.toLowerCase().includes(lowercaseQuery) &&
                         !group.name.toLowerCase().includes(lowercaseQuery)) {
                         return;
                     }
@@ -2135,15 +2389,15 @@
         function openEditKapanModal(groupName, kapanName, currentPcs, currentCarat) {
             targetEditGroup = groupName;
             targetEditKapan = kapanName;
-            
+
             resetModalPosition('modal-edit-kapan-content');
             document.getElementById('edit-input-kapan-name').value = kapanName;
             document.getElementById('edit-input-pcs').value = currentPcs;
             document.getElementById('edit-input-carat').value = currentCarat;
-            
+
             editKapanError.style.display = 'none';
             modalEditKapan.style.display = 'flex';
-            
+
             setTimeout(() => {
                 const pcsInput = document.getElementById('edit-input-pcs');
                 if (pcsInput) pcsInput.focus();
@@ -2182,15 +2436,15 @@
                     if (item) {
                         item.pcs = String(newPcs);
                         item.carat = String(newCarat);
-                        
+
                         // Recalculate, save to LocalStorage/Firebase and refresh all UI elements
                         recalculateGrandTotals();
                         renderStockCards(document.getElementById('search-bar')?.value || '');
                         renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
                         renderMasterGroupTable();
-            renderKapanMasterTable();
+                        renderKapanMasterTable();
                         renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
-                        
+
                         modalEditKapan.style.display = 'none';
                         showCustomDialog('alert', 'Success', `Kapan "${targetEditKapan}" pieces and carat successfully updated!`);
                     }
@@ -2230,7 +2484,7 @@
                 recalculateGrandTotals();
                 populateGroupDropdown();
                 renderMasterGroupTable();
-            renderKapanMasterTable();
+                renderKapanMasterTable();
                 await showCustomDialog('alert', 'Success', "Group name successfully updated!");
             }
         }
@@ -2273,7 +2527,7 @@
             if (group) {
                 // Delete from today
                 group.items = group.items.filter(item => item.kapan !== kapanName);
-                
+
                 // Recalculate Serial numbers just in case
                 let counter = 1;
                 group.items.forEach(item => {
@@ -2311,7 +2565,7 @@
                 renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
                 renderMasterGroupTable();
                 renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
-                
+
                 if (isMistake) {
                     await showCustomDialog('alert', 'Success', "Kapan removed as added by mistake!");
                 } else {
@@ -2345,12 +2599,12 @@
                     const btn = document.getElementById(`btn-bulk-delete-${safeId}`);
                     const selectAllCb = card.querySelector('.select-all-kapan');
                     const totalCheckboxes = card.querySelectorAll('.kapan-checkbox');
-                    
+
                     // Keep master checkbox in sync
                     if (selectAllCb) {
                         selectAllCb.checked = (checkedBoxes.length === totalCheckboxes.length && totalCheckboxes.length > 0);
                     }
-                    
+
                     if (btn) {
                         if (checkedBoxes.length > 0) {
                             btn.style.display = 'inline-flex';
@@ -2388,7 +2642,7 @@
             if (group) {
                 // Delete from today
                 group.items = group.items.filter(item => item.is_subtotal || !kapansToDelete.includes(item.kapan));
-                
+
                 // Recalculate Serial numbers
                 let counter = 1;
                 group.items.forEach(item => {
@@ -2426,7 +2680,7 @@
                 renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
                 renderMasterGroupTable();
                 renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
-                
+
                 if (isMistake) {
                     await showCustomDialog('alert', 'Success', "Selected kapans removed as added by mistake!");
                 } else {
@@ -2450,7 +2704,7 @@
             else if (d === 'Loting') { classStr = 'loting'; label = 'Loting'; }
             else if (d === 'Khata') { classStr = 'khata'; label = 'Khata'; }
             else if (d === 'Final Polish') { classStr = 'final-polish'; label = 'Final Polish'; }
-            
+
             return `<span class="badge-dept ${classStr}">${label}</span>`;
         }
 
@@ -2470,9 +2724,9 @@
                 // Filter items
                 const matchedItems = group.items.filter(item => {
                     if (item.is_subtotal || item.completed) return false;
-                    const matchesQuery = !query || 
-                           (item.kapan && item.kapan.toLowerCase().includes(query)) ||
-                           (item.s_no && item.s_no.toString().includes(query));
+                    const matchesQuery = !query ||
+                        (item.kapan && item.kapan.toLowerCase().includes(query)) ||
+                        (item.s_no && item.s_no.toString().includes(query));
                     const matchesDept = (deptFilter === 'all') || (item.dept === deptFilter);
                     return matchesQuery && matchesDept;
                 });
@@ -2485,7 +2739,7 @@
                 // Compute sums
                 let groupPcs = 0;
                 let groupCarat = 0.0;
-                
+
                 matchedItems.forEach(item => {
                     const pcs = parseInt(item.pcs);
                     const carat = parseFloat(item.carat);
@@ -2505,9 +2759,9 @@
                 // Create stock card
                 const card = document.createElement('div');
                 card.className = 'stock-card';
-                
+
                 const safeId = (isAllStockView ? 'all_' : '') + group.name.replace(/[^a-zA-Z0-9-]/g, '_');
-                
+
                 let tableRows = '';
                 matchedItems.forEach(item => {
                     const itemDate = item.date ? item.date.substring(0, 5) : (stockData.date ? stockData.date.substring(0, 5) : '-');
@@ -2600,11 +2854,11 @@
             const inlineKapan = document.getElementById(isAllStockView ? 'all-stock-kpi-kapan' : 'ctrl-kpi-kapan');
             const inlinePcs = document.getElementById(isAllStockView ? 'all-stock-kpi-pcs' : 'ctrl-kpi-pcs');
             const inlineCarats = document.getElementById(isAllStockView ? 'all-stock-kpi-carats' : 'ctrl-kpi-carats');
-            
+
             if (inlineKapan) inlineKapan.innerText = filteredKapanCount.toString();
             if (inlinePcs) inlinePcs.innerText = filteredPcsCount.toString();
             if (inlineCarats) inlineCarats.innerText = filteredCaratCount.toFixed(2);
-            
+
             // Re-initialize Lucide Icons for dynamic trash buttons
             lucide.createIcons();
         }
@@ -2778,7 +3032,7 @@
             const modal = document.getElementById('modal-add-kapan');
             const modalError = document.getElementById('modal-error');
             const inputGroup = document.getElementById('input-group');
-            
+
             if (modal && inputGroup) {
                 resetModalPosition('modal-add-kapan-content');
                 modal.style.display = 'flex';
@@ -2786,7 +3040,7 @@
                 inputGroup.value = groupName;
                 closeGroupSearchMenu(); // Close search party dropdown just in case
                 validateKapanInstant();
-                
+
                 // Focus on the Kapan input after modal animation/display
                 setTimeout(() => {
                     const kInput = document.getElementById('input-kapan');
@@ -2804,7 +3058,7 @@
                 resetModalPosition('modal-add-kapan-content');
                 modal.style.display = 'flex';
                 modalError.style.display = 'none';
-                
+
                 if (inputGroup) inputGroup.value = '';
                 if (inputKapan) inputKapan.value = '';
                 const inputPcs = document.getElementById('input-pcs');
@@ -2812,7 +3066,7 @@
                 const inputCarat = document.getElementById('input-carat');
                 if (inputCarat) inputCarat.value = '';
                 validateKapanInstant();
-                
+
                 // Automatically open ERP-style Search Party menu
                 openGroupSearchMenu();
             });
@@ -2831,7 +3085,7 @@
 
             function dragStart(e) {
                 if (e.button !== 0) return; // Only drag with left click
-                
+
                 // Don't drag if clicked on interactive elements
                 if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select')) {
                     return;
@@ -2843,7 +3097,7 @@
                 startY = e.clientY;
                 translateX = parseFloat(dragContent.dataset.translateX) || 0;
                 translateY = parseFloat(dragContent.dataset.translateY) || 0;
-                
+
                 document.addEventListener('mousemove', drag);
                 document.addEventListener('mouseup', dragEnd);
             }
@@ -2911,10 +3165,10 @@
                 modalGroup.style.display = 'none';
             }
             // Close search menu if clicked outside
-            if (typeof groupSearchMenu !== 'undefined' && groupSearchMenu && groupSearchMenu.style.display === 'flex' && 
-                !groupSearchMenu.contains(e.target) && 
-                e.target !== inputGroup && 
-                e.target !== btnOpenGroupSearch && 
+            if (typeof groupSearchMenu !== 'undefined' && groupSearchMenu && groupSearchMenu.style.display === 'flex' &&
+                !groupSearchMenu.contains(e.target) &&
+                e.target !== inputGroup &&
+                e.target !== btnOpenGroupSearch &&
                 !btnOpenGroupSearch.contains(e.target)) {
                 closeGroupSearchMenu();
             }
@@ -2925,7 +3179,7 @@
             formAddGroup.addEventListener('submit', (e) => {
                 e.preventDefault();
                 modalGroupError.style.display = 'none';
-                
+
 
                 const groupName = document.getElementById('input-group-name').value.trim();
 
@@ -2949,15 +3203,15 @@
                 recalculateGrandTotals(); // Recalculates and saves to LocalStorage
                 populateGroupDropdown();
                 renderMasterGroupTable();
-            renderKapanMasterTable(); // Refresh table view immediately
-                
+                renderKapanMasterTable(); // Refresh table view immediately
+
                 // Keep modal open, reset only, and refocus for consecutive entries!
                 formAddGroup.reset();
                 setTimeout(() => {
                     const input = document.getElementById('input-group-name');
                     if (input) input.focus();
                 }, 50);
-                
+
                 renderStockCards(searchInput.value);
             });
         }
@@ -2967,7 +3221,7 @@
             formAdd.addEventListener('submit', (e) => {
                 e.preventDefault();
                 modalError.style.display = 'none';
-                
+
 
                 const selectedGroupName = selectGroup.value;
                 const kapan = document.getElementById('input-kapan').value.trim().toUpperCase();
@@ -3021,7 +3275,7 @@
                     return;
                 }
 
-                                // Duplicate Kapan check - same number cannot be added twice in same group
+                // Duplicate Kapan check - same number cannot be added twice in same group
                 const isDuplicate = group.items.some(item =>
                     !item.is_subtotal && item.kapan && item.kapan.trim().toLowerCase() === kapan.toLowerCase()
                 );
@@ -3033,7 +3287,7 @@
                     return;
                 }
 
-// Determine new Serial number (items count + 1)
+                // Determine new Serial number (items count + 1)
                 const newSno = String(group.items.filter(item => !item.is_subtotal).length + 1);
 
                 const activeParts = multiData.active_date.split('-');
@@ -3055,18 +3309,18 @@
 
                 group.items.push(newItem);
                 recalculateGrandTotals(); // Recalculates and saves to LocalStorage
-                
+
                 // Keep modal open, reset only Kapan, Pieces, Carat and Department
                 document.getElementById('input-kapan').value = '';
                 document.getElementById('input-pcs').value = '';
                 document.getElementById('input-carat').value = '';
                 document.getElementById('input-kapan-dept').value = 'Rough';
-                
+
                 setTimeout(() => {
                     const input = document.getElementById('input-kapan');
                     if (input) input.focus();
                 }, 50);
-                
+
                 renderStockCards(searchInput.value);
                 renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
                 renderMasterGroupTable();
@@ -3097,7 +3351,7 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = async function(e) {
+            reader.onload = async function (e) {
                 try {
                     const parsedData = JSON.parse(e.target.result);
                     if (parsedData && parsedData.dates && parsedData.active_date) {
@@ -3130,7 +3384,7 @@
                             await showCustomDialog('alert', 'Error', "Invalid backup file! Please upload a valid JSON file.");
                         }
                     }
-                } catch(err) {
+                } catch (err) {
                     await showCustomDialog('alert', 'Error', "Error reading backup file!");
                 }
             };
@@ -3150,7 +3404,7 @@
                 if (headerDate) headerDate.textContent = `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
         }
-        
+
 
         if (datePicker) {
             datePicker.addEventListener('change', (e) => {
@@ -3191,12 +3445,12 @@
                 renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
                 renderMasterGroupTable();
                 renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
-                
+
                 // If report view is active, update the report
                 if (document.getElementById('view-report').style.display === 'flex') {
                     renderDailyReport();
                 }
-                
+
                 const displayD = `${parts[2]}-${parts[1]}-${parts[0]}`;
                 // Update dashboard header-date
 
@@ -3237,14 +3491,14 @@
 
         function openTransferKapanModal(groupName, kapanName, currentDept, currentPcs, currentCarat) {
             const currentVal = currentDept || 'Rough';
-            
+
             targetTransferGroup = groupName;
             targetTransferKapan = kapanName;
-            
+
             resetModalPosition('modal-transfer-kapan-content');
             document.getElementById('transfer-input-kapan-name').value = kapanName;
             document.getElementById('transfer-input-from-dept').value = DEPT_DISPLAY_NAMES[currentVal] || currentVal;
-            
+
             const toDeptInput = document.getElementById('transfer-input-to-dept');
             if (currentVal === 'Final Polish') {
                 toDeptInput.value = 'Complete / Dispatch (પ્રોસેસ પૂર્ણ)';
@@ -3257,10 +3511,10 @@
 
             document.getElementById('transfer-input-pcs').value = currentPcs;
             document.getElementById('transfer-input-carat').value = currentCarat;
-            
+
             transferKapanError.style.display = 'none';
             modalTransferKapan.style.display = 'flex';
-            
+
             setTimeout(() => {
                 const pcsInput = document.getElementById('transfer-input-pcs');
                 if (pcsInput) {
@@ -3277,7 +3531,7 @@
             const button = document.getElementById('btn-completed-dropdown');
             if (!menu || !button) return;
             const isVisible = menu.style.display === 'block';
-            
+
             if (isVisible) {
                 menu.style.display = 'none';
             } else {
@@ -3287,7 +3541,7 @@
                 menu.style.position = 'fixed';
                 menu.style.top = `${rect.bottom + 6}px`;
                 menu.style.left = `${rect.left}px`;
-                
+
                 renderCompletedDropdown();
             }
         }
@@ -3299,8 +3553,8 @@
             if (!menu) return;
 
             menu.innerHTML = '';
-            
-            const completedGroups = {}; 
+
+            const completedGroups = {};
             let totalCompleted = 0;
 
             stockData.groups.forEach(group => {
@@ -3353,7 +3607,7 @@
                     row.style.alignItems = 'center';
                     row.style.borderBottom = '1px solid #f8fafc';
                     row.style.transition = 'background 0.15s';
-                    
+
                     row.onmouseover = () => { row.style.background = '#f8fafc'; };
                     row.onmouseout = () => { row.style.background = 'transparent'; };
 
@@ -3392,10 +3646,10 @@
                     restoreBtn.style.alignItems = 'center';
                     restoreBtn.style.gap = '4px';
                     restoreBtn.style.transition = 'all 0.15s';
-                    
+
                     restoreBtn.onmouseover = () => { restoreBtn.style.background = '#dbeafe'; };
                     restoreBtn.onmouseout = () => { restoreBtn.style.background = '#eff6ff'; };
-                    
+
                     restoreBtn.innerHTML = '<i data-lucide="rotate-ccw" style="width:11px;height:11px;"></i> ચાલુ કરો';
                     restoreBtn.onclick = (e) => {
                         e.stopPropagation();
@@ -3404,7 +3658,7 @@
 
                     actionCol.appendChild(restoreBtn);
                     row.appendChild(actionCol);
-                    
+
                     menu.appendChild(row);
                 });
             });
@@ -3444,7 +3698,7 @@
             const isEditKapanOpen = modalEditKapan && modalEditKapan.style.display === 'flex';
             const isTransferOpen = modalTransferKapan && modalTransferKapan.style.display === 'flex';
             const isDialogOpen = dialogOverlay && dialogOverlay.style.display === 'flex';
-            
+
             if (isKapanOpen || isGroupOpen || isEditKapanOpen || isTransferOpen || isDialogOpen) {
                 document.body.classList.add('modal-open');
             } else {
@@ -3459,4 +3713,5 @@
         if (dialogOverlay) observer.observe(dialogOverlay, { attributes: true, attributeFilter: ['style'] });
     </script>
 </body>
+
 </html>

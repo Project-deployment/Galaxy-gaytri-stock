@@ -584,6 +584,61 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.4; transform: scale(0.7); }
         }
+
+        /* Department Sub-navbar Styles */
+        .dept-tabs {
+            display: flex;
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 2px;
+            gap: 2px;
+            overflow-x: auto;
+            align-items: center;
+            height: 28px;
+        }
+        .dept-tab {
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            padding: 3px 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            height: 22px;
+            transition: all 0.15s;
+            text-transform: uppercase;
+        }
+        .dept-tab:hover {
+            background: #f1f5f9;
+            color: var(--text-primary);
+        }
+        .dept-tab.active {
+            background: var(--accent-navy);
+            color: #ffffff;
+        }
+
+        /* Department Badges styles */
+        .badge-dept {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge-dept.rough { background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
+        .badge-dept.ap-ok { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-dept.four-p { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+        .badge-dept.rt { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-dept.ra { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+        .badge-dept.khata { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
     </style>
 </head>
 <body>
@@ -602,8 +657,15 @@
         </div>
 
 
-        
-        <!-- Backup & Restore Buttons -->
+        <!-- Department Filtering Sub-Tabs -->
+        <div class="dept-tabs" id="stock-dept-tabs" style="margin-left: 20px;">
+            <button class="dept-tab active" data-dept="Rough">Rough</button>
+            <button class="dept-tab" data-dept="AP ok">AP OK</button>
+            <button class="dept-tab" data-dept="4P">4P</button>
+            <button class="dept-tab" data-dept="RT">RT</button>
+            <button class="dept-tab" data-dept="RA">RA</button>
+            <button class="dept-tab" data-dept="Khata">Khata</button>
+        </div>
         <button class="top-tab" onclick="downloadBackup()" style="margin-left: auto; border-color: #059669; color: #059669;"><i data-lucide="download" style="width:16px;height:16px;"></i> Backup</button>
         <button class="top-tab" onclick="triggerRestore()" style="border-color: #0891b2; color: #0891b2;"><i data-lucide="upload" style="width:16px;height:16px;"></i> Restore</button>
         <input type="file" id="file-restore" style="display: none;" accept=".json" onchange="restoreBackup(event)">
@@ -651,6 +713,7 @@
                         <button class="btn-add" id="btn-add-kapan" style="cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="plus-circle"></i> Add Kapan</button>
                     </div>
                 </div>
+
 
                 <div class="stock-grid" id="stock-grid">
                     <!-- Cards will be populated dynamically -->
@@ -711,6 +774,7 @@
                                 <thead>
                                     <tr>
                                         <th>ગ્રુપ</th>
+                                        <th>વિભાગ</th>
                                         <th>કાપણ (Kapan)</th>
                                         <th style="text-align: right;">આવેલ નંગ</th>
                                         <th style="text-align: right;">આવેલ કેરેટ</th>
@@ -732,7 +796,8 @@
                             <table class="stock-table" style="width: 100%;">
                                 <thead>
                                     <tr>
-                                        <th>તારીખ</th>
+                                        <th>ગ્રુપ</th>
+                                        <th>વિભાગ</th>
                                         <th>કાપણ (Kapan)</th>
                                         <th style="text-align: right;">જાવેલ નંગ</th>
                                         <th style="text-align: right;">જાવેલ કેરેટ</th>
@@ -850,6 +915,17 @@
                     <input type="text" id="input-kapan" placeholder="e.g. 867-15" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Department</label>
+                    <select id="input-kapan-dept" required style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none; background: #ffffff;">
+                        <option value="Rough">Rough</option>
+                        <option value="AP ok">AP OK</option>
+                        <option value="4P">4P</option>
+                        <option value="RT">RT</option>
+                        <option value="RA">RA</option>
+                        <option value="Khata">Khata</option>
+                    </select>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-weight: 700; font-size: 0.8rem; color: #475569;">Raw Pieces</label>
                     <input type="number" id="input-pcs" placeholder="e.g. 1500" required min="0" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.9rem; outline: none;">
                 </div>
@@ -933,6 +1009,53 @@
                 <div id="modal-edit-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
                 <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
                     <i data-lucide="check-circle"></i> Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transfer Kapan Modal Dialog -->
+    <div id="modal-transfer-kapan" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+        <div id="modal-transfer-kapan-content" style="background: white; border: 1px solid var(--card-border); padding: 20px; width: 90%; max-width: 380px; border-radius: 12px; box-shadow: var(--shadow-lg); font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; gap: 14px; position: relative;">
+            <div id="modal-transfer-kapan-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; cursor: move; user-select: none;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="arrow-right-left"></i> Transfer Kapan
+                </h3>
+                <button id="modal-transfer-kapan-close" style="background: none; border: none; cursor: pointer; color: #64748b;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+            </div>
+            <form id="form-transfer-kapan" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px; margin-top: 4px;">
+                <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">Kapan No.</label>
+                    <input type="text" id="transfer-input-kapan-name" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">From</label>
+                        <input type="text" id="transfer-input-from-dept" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">To <span style="color:#dc2626">*</span></label>
+                        <select id="transfer-input-to-dept" required style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none; background: #ffffff;">
+                            <option value="Rough">Rough</option>
+                            <option value="AP ok">AP OK</option>
+                            <option value="4P">4P</option>
+                            <option value="RT">RT</option>
+                            <option value="RA">RA</option>
+                            <option value="Khata">Khata</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New Pieces <span style="color:#dc2626">*</span></label>
+                    <input type="number" id="transfer-input-pcs" required placeholder="Enter pieces..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New Carat <span style="color:#dc2626">*</span></label>
+                    <input type="number" step="0.01" id="transfer-input-carat" required placeholder="Enter carat..." style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none;">
+                </div>
+                <div id="modal-transfer-error" style="color: #dc2626; font-size: 0.8rem; display: none; font-weight: 700; margin-top: 2px;"></div>
+                <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; margin-top: 4px; background: var(--accent-navy); color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                    <i data-lucide="check-circle"></i> Save Transfer
                 </button>
             </form>
         </div>
@@ -1144,6 +1267,7 @@
             };
         }
         let stockData = null;
+        let activeDeptFilter = 'Rough';
 
         // Custom comparator for Kapan numbers: Non-alphanumeric first, then Alphabetic, then Numeric
         function compareKapanAlphabetFirst(a, b) {
@@ -1223,6 +1347,9 @@
                         group.items.forEach(item => {
                             if (!item.is_subtotal) {
                                 item.s_no = String(counter++);
+                                if (!item.dept) {
+                                    item.dept = 'Rough';
+                                }
                             }
                         });
                     });
@@ -1647,7 +1774,8 @@
                             kapan: item.kapan,
                             pcs: parseInt(item.pcs) || 0,
                             carat: parseFloat(item.carat) || 0.0,
-                            groupName: g.name
+                            groupName: g.name,
+                            dept: item.dept || 'Rough'
                         };
                     }
                 });
@@ -1681,7 +1809,7 @@
             let totalOutPcs = 0;
             let totalOutCarats = 0.0;
 
-            // Find IN flows & positive changes
+            // Find IN flows & positive changes and department changes
             Object.keys(currMap).forEach(kapan => {
                 const curr = currMap[kapan];
                 const prev = prevMap[kapan];
@@ -1689,12 +1817,34 @@
                 if (!prev) {
                     inItems.push({
                         group: curr.groupName,
+                        dept: curr.dept,
                         kapan: curr.kapan,
                         pcs: curr.pcs,
                         carat: curr.carat
                     });
                     totalInPcs += curr.pcs;
                     totalInCarats += curr.carat;
+                } else if (curr.dept !== prev.dept) {
+                    // Department changed: OUT from prev, IN to curr
+                    inItems.push({
+                        group: curr.groupName,
+                        dept: curr.dept,
+                        kapan: curr.kapan + " (ટ્રાન્સફર)",
+                        pcs: curr.pcs,
+                        carat: curr.carat
+                    });
+                    totalInPcs += curr.pcs;
+                    totalInCarats += curr.carat;
+
+                    outItems.push({
+                        group: prev.groupName,
+                        dept: prev.dept,
+                        kapan: prev.kapan + " (ટ્રાન્સફર)",
+                        pcs: prev.pcs,
+                        carat: prev.carat
+                    });
+                    totalOutPcs += prev.pcs;
+                    totalOutCarats += prev.carat;
                 } else {
                     const diffPcs = curr.pcs - prev.pcs;
                     // Round to 2 decimal places to prevent javascript floating point inaccuracies
@@ -1707,6 +1857,7 @@
                         const incCarat = Math.max(0.0, diffCarat);
                         inItems.push({
                             group: curr.groupName,
+                            dept: curr.dept,
                             kapan: curr.kapan,
                             pcs: incPcs,
                             carat: incCarat
@@ -1718,6 +1869,7 @@
                         const decCarat = Math.max(0.0, -diffCarat);
                         outItems.push({
                             group: curr.groupName,
+                            dept: curr.dept,
                             kapan: curr.kapan,
                             pcs: decPcs,
                             carat: decCarat
@@ -1736,6 +1888,7 @@
                 if (!curr) {
                     outItems.push({
                         group: prev.groupName,
+                        dept: prev.dept,
                         kapan: prev.kapan,
                         pcs: prev.pcs,
                         carat: prev.carat
@@ -1752,12 +1905,13 @@
             outTbody.innerHTML = '';
 
             if (inItems.length === 0) {
-                inTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 12px 6px;">આજે કોઈ નવી આવક નથી.</td></tr>';
+                inTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 12px 6px;">આજે કોઈ નવી આવક નથી.</td></tr>';
             } else {
                 inItems.forEach(item => {
                     inTbody.innerHTML += `
                         <tr>
                             <td>${item.group}</td>
+                            <td>${getDeptBadgeHtml(item.dept)}</td>
                             <td>${item.kapan}</td>
                             <td style="text-align: right; color: #059669; font-weight: 700; font-variant-numeric: tabular-nums;">+${formatNumber(item.pcs)}</td>
                             <td style="text-align: right; color: #059669; font-weight: 700; font-variant-numeric: tabular-nums;">+${formatCarat(item.carat)}</td>
@@ -1767,12 +1921,13 @@
             }
 
             if (outItems.length === 0) {
-                outTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 12px 6px;">આજે કોઈ નવી જાવક નથી.</td></tr>';
+                outTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 12px 6px;">આજે કોઈ નવી જાવક નથી.</td></tr>';
             } else {
                 outItems.forEach(item => {
                     outTbody.innerHTML += `
                         <tr>
                             <td>${item.group}</td>
+                            <td>${getDeptBadgeHtml(item.dept)}</td>
                             <td>${item.kapan}</td>
                             <td style="text-align: right; color: #dc2626; font-weight: 700; font-variant-numeric: tabular-nums;">-${formatNumber(item.pcs)}</td>
                             <td style="text-align: right; color: #dc2626; font-weight: 700; font-variant-numeric: tabular-nums;">-${formatCarat(item.carat)}</td>
@@ -1818,22 +1973,26 @@
             document.querySelectorAll('.top-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.view-pane').forEach(pane => pane.style.display = 'none');
             
+            const deptTabs = document.getElementById('stock-dept-tabs');
             if (viewName === 'stock') {
                 const topStock = document.getElementById('btn-top-stock');
                 if (topStock) topStock.classList.add('active');
                 document.getElementById('view-stock').style.display = 'flex';
+                if (deptTabs) deptTabs.style.display = 'flex';
                 renderStockCards(document.getElementById('search-bar').value);
             } else if (viewName === 'report') {
                 const topReport = document.getElementById('btn-top-report');
                 if (topReport) topReport.classList.add('active');
                 document.getElementById('view-report').style.display = 'flex';
+                if (deptTabs) deptTabs.style.display = 'none';
                 renderDailyReport();
             } else if (viewName === 'master') {
                 const topMaster = document.getElementById('btn-top-master');
                 if (topMaster) topMaster.classList.add('active');
                 document.getElementById('view-master').style.display = 'flex';
+                if (deptTabs) deptTabs.style.display = 'none';
                 renderMasterGroupTable();
-            renderKapanMasterTable();
+                renderKapanMasterTable();
             }
         }
 
@@ -1850,6 +2009,12 @@
                 } else if (modalGroup.style.display === 'flex') {
                     e.preventDefault();
                     modalGroup.style.display = 'none';
+                } else if (document.getElementById('modal-edit-kapan')?.style.display === 'flex') {
+                    e.preventDefault();
+                    document.getElementById('modal-edit-kapan').style.display = 'none';
+                } else if (document.getElementById('modal-transfer-kapan')?.style.display === 'flex') {
+                    e.preventDefault();
+                    document.getElementById('modal-transfer-kapan').style.display = 'none';
                 }
             }
 
@@ -1947,7 +2112,10 @@
                         <td style="font-weight: 600; color: var(--accent-navy);">${item.kapan}</td>
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(parseInt(item.pcs) || 0)}</td>
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(parseFloat(item.carat) || 0)}</td>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; white-space: nowrap;">
+                            <button class="btn-compact" onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 4px;">
+                                <i data-lucide="arrow-right-left" style="width:11px;height:11px;"></i> Transfer
+                            </button>
                             <button class="btn-compact" onclick="openEditKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;">
                                 <i data-lucide="edit-3" style="width:11px;height:11px;"></i> Edit
                             </button>
@@ -2266,21 +2434,42 @@
         // Generate Cards & Tables (with 4 Columns: S.No, Kapan, Pieces, Carat)
         const grid = document.getElementById('stock-grid');
 
+        // Department Badge Helper
+        function getDeptBadgeHtml(dept) {
+            const d = dept || 'Rough';
+            let classStr = 'rough';
+            let label = 'Rough';
+            if (d === 'AP ok') { classStr = 'ap-ok'; label = 'AP ok'; }
+            else if (d === '4P') { classStr = 'four-p'; label = '4P'; }
+            else if (d === 'RT') { classStr = 'rt'; label = 'RT'; }
+            else if (d === 'RA') { classStr = 'ra'; label = 'RA'; }
+            else if (d === 'Khata') { classStr = 'khata'; label = 'Khata'; }
+            
+            return `<span class="badge-dept ${classStr}">${label}</span>`;
+        }
+
         function renderStockCards(filterText = '') {
             grid.innerHTML = '';
             let totalCardsRendered = 0;
             const query = filterText.toLowerCase().trim();
 
+            let filteredKapanCount = 0;
+            let filteredPcsCount = 0;
+            let filteredCaratCount = 0.0;
+
             stockData.groups.forEach(group => {
                 // Filter items
                 const matchedItems = group.items.filter(item => {
-                    if (!query) return true;
-                    return (item.kapan && item.kapan.toLowerCase().includes(query)) ||
+                    if (item.is_subtotal) return false;
+                    const matchesQuery = !query || 
+                           (item.kapan && item.kapan.toLowerCase().includes(query)) ||
                            (item.s_no && item.s_no.toString().includes(query));
+                    const matchesDept = (activeDeptFilter === 'all') || (item.dept === activeDeptFilter);
+                    return matchesQuery && matchesDept;
                 });
 
-                // Skip showing empty cards when searching
-                if (query && matchedItems.length === 0) return;
+                // Skip showing empty cards when searching or filtering departments
+                if ((query || activeDeptFilter !== 'all') && matchedItems.length === 0) return;
 
                 totalCardsRendered++;
 
@@ -2289,13 +2478,15 @@
                 let groupCarat = 0.0;
                 
                 matchedItems.forEach(item => {
-                    if (!item.is_subtotal) {
-                        const pcs = parseInt(item.pcs);
-                        const carat = parseFloat(item.carat);
-                        if (!isNaN(pcs)) groupPcs += pcs;
-                        if (!isNaN(carat)) groupCarat += carat;
-                    }
+                    const pcs = parseInt(item.pcs);
+                    const carat = parseFloat(item.carat);
+                    if (!isNaN(pcs)) groupPcs += pcs;
+                    if (!isNaN(carat)) groupCarat += carat;
                 });
+
+                filteredKapanCount += matchedItems.length;
+                filteredPcsCount += groupPcs;
+                filteredCaratCount += groupCarat;
 
                 let showSubtotal = true;
                 let subPcs = groupPcs;
@@ -2310,28 +2501,26 @@
                 
                 let tableRows = '';
                 matchedItems.forEach(item => {
-                    if (!item.is_subtotal) {
-                        const itemDate = item.date ? item.date.substring(0, 5) : (stockData.date ? stockData.date.substring(0, 5) : '-');
-                        const days = calculateDaysInProcess(item.date || stockData.date, multiData.active_date);
-                        const dayColor = days > 10 ? 'var(--accent-red, #dc2626)' : (days > 5 ? '#f97316' : '#059669');
-                        tableRows += `
-                            <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${item.kapan.replace(/'/g, "\\'")}">
-                                <td style="text-align: center; width: 28px; padding: 4px 4px;">
-                                    <input type="checkbox" class="kapan-checkbox" onchange="updateBulkDeleteButton('${group.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transform: scale(1.1);">
-                                </td>
-                                <td class="col-date" style="text-align: left; font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${itemDate}</td>
-                                <td class="col-days" style="text-align: center; font-size: 11px; font-weight: 700; color: ${dayColor}; white-space: nowrap;">${days} d</td>
-                                <td class="col-kapan">${item.kapan || '-'}</td>
-                                <td class="col-num col-pcs" style="text-align: right;">${formatNumber(item.pcs)}</td>
-                                <td class="col-num col-cts" style="text-align: right;">${formatCarat(item.carat)}</td>
-                                <td style="text-align: center; width: 24px; padding: 4px 2px;">
-                                    <button onclick="deleteKapan('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Delete Kapan">
-                                        <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    }
+                    const itemDate = item.date ? item.date.substring(0, 5) : (stockData.date ? stockData.date.substring(0, 5) : '-');
+                    const days = calculateDaysInProcess(item.date || stockData.date, multiData.active_date);
+                    const dayColor = days > 10 ? 'var(--accent-red, #dc2626)' : (days > 5 ? '#f97316' : '#059669');
+                    tableRows += `
+                        <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${item.kapan.replace(/'/g, "\\'")}">
+                            <td style="text-align: center; width: 28px; padding: 4px 4px;">
+                                <input type="checkbox" class="kapan-checkbox" onchange="updateBulkDeleteButton('${group.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transform: scale(1.1);">
+                            </td>
+                            <td class="col-date" style="text-align: left; font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${itemDate}</td>
+                            <td class="col-days" style="text-align: center; font-size: 11px; font-weight: 700; color: ${dayColor}; white-space: nowrap;">${days} d</td>
+                            <td class="col-kapan">${item.kapan || '-'}</td>
+                            <td class="col-num col-pcs" style="text-align: right;">${formatNumber(item.pcs)}</td>
+                            <td class="col-num col-cts" style="text-align: right;">${formatCarat(item.carat)}</td>
+                            <td style="text-align: center; width: 28px; padding: 4px 2px;">
+                                <button onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: #3b82f6; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s; margin: 0 auto;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Transfer Department">
+                                    <i data-lucide="arrow-right-left" style="width:12px;height:12px;"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
                 });
 
                 if (showSubtotal) {
@@ -2360,7 +2549,7 @@
                             <button class="btn-bulk-delete" id="btn-bulk-delete-${safeId}" onclick="performBulkDelete('${group.name.replace(/'/g, "\\'")}')" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
                                 <i data-lucide="trash-2" style="width:12px;height:12px;"></i> Delete (<span class="bulk-count">0</span>)
                             </button>
-                            <div class="group-badge-summary">${matchedItems.filter(i => !i.is_subtotal).length} Lots</div>
+                            <div class="group-badge-summary">${matchedItems.length} Lots</div>
                         </div>
                     </div>
                     <div class="table-container">
@@ -2375,7 +2564,7 @@
                                     <th style="text-align: left; width: 75px;">Kapan</th>
                                     <th style="text-align: right; width: 65px;">PCS</th>
                                     <th style="text-align: right; width: 75px;">CARAT</th>
-                                    <th style="width: 24px;"></th>
+                                    <th style="width: 28px;"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2388,6 +2577,15 @@
             });
 
             document.getElementById('no-results').style.display = (totalCardsRendered === 0) ? 'flex' : 'none';
+
+            // Update the inline KPIs with filtered values
+            const inlineKapan = document.getElementById('ctrl-kpi-kapan');
+            const inlinePcs = document.getElementById('ctrl-kpi-pcs');
+            const inlineCarats = document.getElementById('ctrl-kpi-carats');
+            
+            if (inlineKapan) inlineKapan.innerText = filteredKapanCount.toString();
+            if (inlinePcs) inlinePcs.innerText = filteredPcsCount.toString();
+            if (inlineCarats) inlineCarats.innerText = filteredCaratCount.toFixed(2);
             
             // Re-initialize Lucide Icons for dynamic trash buttons
             lucide.createIcons();
@@ -2818,6 +3016,7 @@
 
                 const activeParts = multiData.active_date.split('-');
                 const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
+                const dept = document.getElementById('input-kapan-dept').value || 'Rough';
 
                 const newItem = {
                     s_no: newSno,
@@ -2825,16 +3024,18 @@
                     pcs: pcs,
                     carat: carat,
                     date: entryDateFormatted,
+                    dept: dept,
                     is_subtotal: false
                 };
 
                 group.items.push(newItem);
                 recalculateGrandTotals(); // Recalculates and saves to LocalStorage
                 
-                // Keep modal open, reset only Kapan, Pieces, and Carat (keep Group selected for fast entry!)
+                // Keep modal open, reset only Kapan, Pieces, Carat and Department
                 document.getElementById('input-kapan').value = '';
                 document.getElementById('input-pcs').value = '';
                 document.getElementById('input-carat').value = '';
+                document.getElementById('input-kapan-dept').value = 'Rough';
                 
                 setTimeout(() => {
                     const input = document.getElementById('input-kapan');
@@ -2972,7 +3173,118 @@
             });
         }
 
+        // Transfer Kapan Modal Handlers
+        const modalTransferKapan = document.getElementById('modal-transfer-kapan');
+        const btnTransferKapanClose = document.getElementById('modal-transfer-kapan-close');
+        const formTransferKapan = document.getElementById('form-transfer-kapan');
+        const transferKapanError = document.getElementById('modal-transfer-error');
+
+        let targetTransferGroup = '';
+        let targetTransferKapan = '';
+
+        function openTransferKapanModal(groupName, kapanName, currentDept, currentPcs, currentCarat) {
+            targetTransferGroup = groupName;
+            targetTransferKapan = kapanName;
+            
+            resetModalPosition('modal-transfer-kapan-content');
+            document.getElementById('transfer-input-kapan-name').value = kapanName;
+            document.getElementById('transfer-input-from-dept').value = currentDept;
+            document.getElementById('transfer-input-to-dept').value = currentDept;
+            document.getElementById('transfer-input-pcs').value = currentPcs;
+            document.getElementById('transfer-input-carat').value = currentCarat;
+            
+            transferKapanError.style.display = 'none';
+            modalTransferKapan.style.display = 'flex';
+            
+            setTimeout(() => {
+                const toDeptInput = document.getElementById('transfer-input-to-dept');
+                if (toDeptInput) toDeptInput.focus();
+            }, 50);
+        }
+
+        if (btnTransferKapanClose) {
+            btnTransferKapanClose.addEventListener('click', () => {
+                modalTransferKapan.style.display = 'none';
+            });
+        }
+
+        if (formTransferKapan) {
+            formTransferKapan.addEventListener('submit', (e) => {
+                e.preventDefault();
+                transferKapanError.style.display = 'none';
+
+                const toDept = document.getElementById('transfer-input-to-dept').value;
+                const newPcs = parseInt(document.getElementById('transfer-input-pcs').value);
+                const newCarat = parseFloat(document.getElementById('transfer-input-carat').value);
+                const fromDept = document.getElementById('transfer-input-from-dept').value;
+
+                if (toDept === fromDept) {
+                    transferKapanError.innerText = 'કૃપા કરીને બદલવા માટે નવો વિભાગ પસંદ કરો!';
+                    transferKapanError.style.display = 'block';
+                    return;
+                }
+
+                if (isNaN(newPcs) || newPcs < 0) {
+                    transferKapanError.innerText = 'નંગ ની સંખ્યા સાચી હોવી જરૂરી છે!';
+                    transferKapanError.style.display = 'block';
+                    return;
+                }
+                if (isNaN(newCarat) || newCarat < 0) {
+                    transferKapanError.innerText = 'કેરેટ સાચા હોવા જરૂરી છે!';
+                    transferKapanError.style.display = 'block';
+                    return;
+                }
+
+                // Update the kapan inside in-memory stockData
+                const group = stockData.groups.find(g => g.name === targetTransferGroup);
+                if (group) {
+                    const item = group.items.find(it => !it.is_subtotal && it.kapan === targetTransferKapan);
+                    if (item) {
+                        item.dept = toDept;
+                        item.pcs = String(newPcs);
+                        item.carat = String(newCarat);
+                        
+                        // Recalculate, save to LocalStorage/Firebase and refresh all UI elements
+                        recalculateGrandTotals();
+                        renderStockCards(document.getElementById('search-bar')?.value || '');
+                        renderMasterGroupTable();
+                        renderKapanMasterTable();
+                        if (document.getElementById('kapan-master-search')) {
+                            renderKapanMasterTable(document.getElementById('kapan-master-search').value);
+                        }
+                        
+                        modalTransferKapan.style.display = 'none';
+                        showCustomDialog('alert', 'Success', `Kapan "${targetTransferKapan}" successfully transferred to "${toDept}" department!`);
+                    }
+                }
+            });
+        }
+
+        // Close transfer modal if clicked outside
+        window.addEventListener('click', (e) => {
+            if (e.target === modalTransferKapan) {
+                modalTransferKapan.style.display = 'none';
+            }
+        });
+
+        // Initialize drag for Transfer Modal
+        makeElementDraggable('modal-transfer-kapan-header', 'modal-transfer-kapan-content');
+
+        // Bind Department Tab Clicks
+        function initDeptTabs() {
+            const tabs = document.querySelectorAll('#stock-dept-tabs .dept-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    activeDeptFilter = tab.getAttribute('data-dept');
+                    renderStockCards(document.getElementById('search-bar')?.value || '');
+                });
+            });
+        }
+
         // Render stock view on first load
+        initDeptTabs();
         renderStockCards();
 
         // Init icons
@@ -2983,9 +3295,10 @@
             const isKapanOpen = modal && modal.style.display === 'flex';
             const isGroupOpen = modalGroup && modalGroup.style.display === 'flex';
             const isEditKapanOpen = modalEditKapan && modalEditKapan.style.display === 'flex';
+            const isTransferOpen = modalTransferKapan && modalTransferKapan.style.display === 'flex';
             const isDialogOpen = dialogOverlay && dialogOverlay.style.display === 'flex';
             
-            if (isKapanOpen || isGroupOpen || isEditKapanOpen || isDialogOpen) {
+            if (isKapanOpen || isGroupOpen || isEditKapanOpen || isTransferOpen || isDialogOpen) {
                 document.body.classList.add('modal-open');
             } else {
                 document.body.classList.remove('modal-open');
@@ -2995,6 +3308,7 @@
         if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
         if (modalGroup) observer.observe(modalGroup, { attributes: true, attributeFilter: ['style'] });
         if (modalEditKapan) observer.observe(modalEditKapan, { attributes: true, attributeFilter: ['style'] });
+        if (modalTransferKapan) observer.observe(modalTransferKapan, { attributes: true, attributeFilter: ['style'] });
         if (dialogOverlay) observer.observe(dialogOverlay, { attributes: true, attributeFilter: ['style'] });
     </script>
 </body>

@@ -2491,7 +2491,7 @@
 
                 const deptObj = (multiData.departments || []).find(x => x.id === dept);
                 const displayName = deptObj ? deptObj.name : dept;
-                const deptBadge = `<span class="badge-dept" style="font-size: 14px !important; padding: 3px 8px !important;">${displayName}</span>`;
+                const deptBadge = `<span style="font-size: 15px; font-weight: 700; color: var(--text-primary); text-transform: uppercase;">${displayName}</span>`;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `

@@ -1178,6 +1178,32 @@
                                 </button>
                             </div>
 
+                            <!-- Session Timeout Card -->
+                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                    <div style="background: #fee2e2; color: #dc2626; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i data-lucide="clock" style="width: 20px; height: 20px;"></i>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">ઓટો લોગઆઉટ સમય (Auto Logout Timeout)</div>
+                                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">જો આટલા સમય સુધી કોઈ પ્રવૃત્તિ ન થાય, તો ઓટોમેટીક લોગઆઉટ થઈ જશે.</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                                    <select id="setting-session-timeout" onchange="updateSessionTimeoutSetting(this.value)"
+                                        style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.85rem; font-weight: 700; outline: none; background: #ffffff; cursor: pointer;">
+                                        <option value="5">5 Minutes (૫ મિનિટ)</option>
+                                        <option value="10">10 Minutes (૧૦ મિનિટ)</option>
+                                        <option value="15">15 Minutes (૧૫ મિનિટ)</option>
+                                        <option value="30">30 Minutes (૩૦ મિનિટ)</option>
+                                        <option value="60">1 Hour (૧ કલાક)</option>
+                                        <option value="120">2 Hours (૨ કલાક)</option>
+                                        <option value="240">4 Hours (૪ કલાક)</option>
+                                        <option value="never">Never (કોઈ સમય મર્યાદા નહીં)</option>
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -1730,6 +1756,9 @@
             }
             if (!multiData.adminPassword) {
                 multiData.adminPassword = "admin123";
+            }
+            if (!multiData.sessionTimeout) {
+                multiData.sessionTimeout = "15";
             }
             if (multiData.departments) {
                 multiData.departments.forEach(dept => {
@@ -4257,6 +4286,69 @@
             });
         }
 
+        function initSettingsTimeoutDropdown() {
+            const el = document.getElementById('setting-session-timeout');
+            if (el) {
+                el.value = multiData.sessionTimeout || "15";
+            }
+        }
+
+        function updateSessionTimeoutSetting(val) {
+            multiData.sessionTimeout = val;
+            saveToLocal();
+            showCustomDialog('alert', 'Success', `Auto Logout Timeout updated to ${val === 'never' ? 'Never' : val + ' minutes'}!`);
+        }
+
+        let activityInterval = null;
+        function initActivityTracker() {
+            let lastUpdate = Date.now();
+            function handleActivity() {
+                const now = Date.now();
+                if (now - lastUpdate > 5000) {
+                    lastUpdate = now;
+                    localStorage.setItem('galaxy_session_last_activity', String(now));
+                }
+            }
+
+            const events = ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll', 'click'];
+            events.forEach(name => {
+                document.addEventListener(name, handleActivity, { passive: true });
+            });
+
+            localStorage.setItem('galaxy_session_last_activity', String(Date.now()));
+
+            if (activityInterval) clearInterval(activityInterval);
+            activityInterval = setInterval(checkInactivity, 5000);
+        }
+
+        function checkInactivity() {
+            const sessionVal = sessionStorage.getItem('galaxy_session') || localStorage.getItem('galaxy_session');
+            if (!sessionVal) return;
+
+            const timeoutStr = multiData.sessionTimeout || "15";
+            if (timeoutStr === "never") return;
+
+            const limitMs = parseInt(timeoutStr) * 60 * 1000;
+            const lastActivity = parseInt(localStorage.getItem('galaxy_session_last_activity') || Date.now());
+
+            if (Date.now() - lastActivity > limitMs) {
+                console.log("Auto logout triggered due to inactivity.");
+                performAutoLogout();
+            }
+        }
+
+        function performAutoLogout() {
+            sessionStorage.removeItem('galaxy_session');
+            localStorage.removeItem('galaxy_session');
+            checkAccessControl();
+            
+            const errorEl = document.getElementById('login-error-msg');
+            if (errorEl) {
+                errorEl.innerHTML = "⚠️ Session expired due to inactivity! Please log in again.";
+                errorEl.style.display = 'block';
+            }
+        }
+
         // ── Auth System Controller ──
         function checkAccessControl() {
             const sessionVal = sessionStorage.getItem('galaxy_session') || localStorage.getItem('galaxy_session');
@@ -4264,6 +4356,54 @@
             const workspace = document.querySelector('.workspace');
             const logoutBtn = document.getElementById('btn-logout');
             const datePickerContainer = document.getElementById('header-date-picker')?.parentElement;
+
+            if (sessionVal) {
+                // Check if session has already expired before showing workspace
+                const timeoutStr = multiData.sessionTimeout || "15";
+                if (timeoutStr !== "never") {
+                    const limitMs = parseInt(timeoutStr) * 60 * 1000;
+                    const lastActivity = parseInt(localStorage.getItem('galaxy_session_last_activity') || 0);
+                    if (lastActivity && (Date.now() - lastActivity > limitMs)) {
+                        // Clear session instantly
+                        sessionStorage.removeItem('galaxy_session');
+                        localStorage.removeItem('galaxy_session');
+                        if (loginScreen) {
+                            loginScreen.style.display = 'flex';
+                            const rememberedUser = localStorage.getItem('remembered_username');
+                            const usernameEl = document.getElementById('login-username');
+                            const passwordEl = document.getElementById('login-password');
+                            const rememberEl = document.getElementById('login-remember');
+                            
+                            if (rememberedUser) {
+                                if (usernameEl) usernameEl.value = rememberedUser;
+                                if (rememberEl) rememberEl.checked = true;
+                                if (passwordEl) {
+                                    passwordEl.value = '';
+                                    setTimeout(() => passwordEl.focus(), 50);
+                                }
+                            } else {
+                                if (usernameEl) {
+                                    usernameEl.value = '';
+                                    setTimeout(() => usernameEl.focus(), 50);
+                                }
+                                if (rememberEl) rememberEl.checked = false;
+                                if (passwordEl) passwordEl.value = '';
+                            }
+                            const errorEl = document.getElementById('login-error-msg');
+                            if (errorEl) {
+                                errorEl.innerHTML = "⚠️ Session expired due to inactivity! Please log in again.";
+                                errorEl.style.display = 'block';
+                            }
+                        }
+                        if (workspace) workspace.style.display = 'none';
+                        if (logoutBtn) logoutBtn.style.display = 'none';
+                        document.body.classList.add('modal-open');
+                        return;
+                    }
+                }
+                // Refresh activity time since user successfully accessed the system
+                localStorage.setItem('galaxy_session_last_activity', String(Date.now()));
+            }
 
             // Header buttons
             const btnStock = document.getElementById('btn-top-stock');
@@ -4385,6 +4525,10 @@
             activeViewName = viewName;
             originalSwitchView(viewName);
 
+            if (viewName === 'setting') {
+                initSettingsTimeoutDropdown();
+            }
+
             const switcher = document.getElementById('stock-dept-tabs');
             if (switcher) {
                 if (session.role === 'admin' && viewName === 'stock') {
@@ -4464,6 +4608,7 @@
                     sessionStorage.setItem('galaxy_session', JSON.stringify(sessionData));
                     localStorage.removeItem('remembered_username');
                 }
+                initActivityTracker();
                 checkAccessControl();
             }
         }
@@ -4495,6 +4640,7 @@
         populateLoginDropdown();
         renderStockCards();
         checkAccessControl();
+        initActivityTracker();
 
         // Init icons
         lucide.createIcons();

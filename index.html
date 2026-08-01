@@ -2311,10 +2311,12 @@
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(parseInt(item.pcs) || 0)}</td>
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(parseFloat(item.carat) || 0)}</td>
                         <td style="text-align: center; white-space: nowrap;">
-                            <button class="btn-compact" onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 4px;">
+                            <button class="btn-compact" onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 4px;">
                                 <i data-lucide="arrow-right-left" style="width:11px;height:11px;"></i> Transfer
                             </button>
-                            <button class="btn-compact" onclick="openEditKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;">
+                            <button class="btn-compact" onclick="openEditKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;">
+                                <i data-lucide="edit-3" style="width:11px;height:11px;"></i> Edit
+                            </button>
                                 <i data-lucide="edit-3" style="width:11px;height:11px;"></i> Edit
                             </button>
                         </td>
@@ -2432,7 +2434,7 @@
                 // Update the kapan inside in-memory stockData
                 const group = stockData.groups.find(g => g.name === targetEditGroup);
                 if (group) {
-                    const item = group.items.find(it => !it.is_subtotal && it.kapan === targetEditKapan);
+                    const item = group.items.find(it => !it.is_subtotal && String(it.kapan) === String(targetEditKapan));
                     if (item) {
                         item.pcs = String(newPcs);
                         item.carat = String(newCarat);
@@ -2526,7 +2528,7 @@
             const group = stockData.groups.find(g => g.name === groupName);
             if (group) {
                 // Delete from today
-                group.items = group.items.filter(item => item.kapan !== kapanName);
+                group.items = group.items.filter(item => String(item.kapan) !== String(kapanName));
 
                 // Recalculate Serial numbers just in case
                 let counter = 1;
@@ -2546,7 +2548,7 @@
                         if (prevData && prevData.groups) {
                             const prevGroup = prevData.groups.find(g => g.name === groupName);
                             if (prevGroup) {
-                                prevGroup.items = prevGroup.items.filter(item => item.kapan !== kapanName);
+                                prevGroup.items = prevGroup.items.filter(item => String(item.kapan) !== String(kapanName));
                                 let prevCounter = 1;
                                 prevGroup.items.forEach(item => {
                                     if (!item.is_subtotal) {
@@ -2641,7 +2643,7 @@
             const group = stockData.groups.find(g => g.name === groupName);
             if (group) {
                 // Delete from today
-                group.items = group.items.filter(item => item.is_subtotal || !kapansToDelete.includes(item.kapan));
+                group.items = group.items.filter(item => item.is_subtotal || !kapansToDelete.includes(String(item.kapan)));
 
                 // Recalculate Serial numbers
                 let counter = 1;
@@ -2661,7 +2663,7 @@
                         if (prevData && prevData.groups) {
                             const prevGroup = prevData.groups.find(g => g.name === groupName);
                             if (prevGroup) {
-                                prevGroup.items = prevGroup.items.filter(item => item.is_subtotal || !kapansToDelete.includes(item.kapan));
+                                prevGroup.items = prevGroup.items.filter(item => item.is_subtotal || !kapansToDelete.includes(String(item.kapan)));
                                 let prevCounter = 1;
                                 prevGroup.items.forEach(item => {
                                     if (!item.is_subtotal) {
@@ -2774,7 +2776,7 @@
                     const transferIconColor = isFinalPolish ? '#059669' : '#3b82f6';
 
                     tableRows += `
-                        <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${item.kapan.replace(/'/g, "\\'")}">
+                        <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${String(item.kapan).replace(/'/g, "\\'")}">
                             <td style="text-align: center; width: 28px; padding: 4px 4px;">
                                 <input type="checkbox" class="kapan-checkbox" onchange="updateBulkDeleteButton('${group.name.replace(/'/g, "\\'")}', ${isAllStockView})" style="cursor: pointer; transform: scale(1.1);">
                             </td>
@@ -2784,7 +2786,7 @@
                             <td class="col-num col-pcs" style="text-align: right;">${formatNumber(item.pcs)}</td>
                             <td class="col-num col-cts" style="text-align: right;">${formatCarat(item.carat)}</td>
                             <td style="text-align: center; width: 28px; padding: 4px 2px;">
-                                <button onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: ${transferIconColor}; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s; margin: 0 auto;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="${transferTooltip}">
+                                <button onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: ${transferIconColor}; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s; margin: 0 auto;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="${transferTooltip}">
                                     <i data-lucide="${transferIcon}" style="width:12px;height:12px;"></i>
                                 </button>
                             </td>
@@ -3172,6 +3174,15 @@
                 !btnOpenGroupSearch.contains(e.target)) {
                 closeGroupSearchMenu();
             }
+            // Close completed dropdown menu if clicked outside
+            const completedMenu = document.getElementById('completed-dropdown-menu');
+            const completedBtn = document.getElementById('btn-completed-dropdown');
+            if (completedMenu && completedMenu.style.display === 'block' && 
+                !completedMenu.contains(e.target) && 
+                e.target !== completedBtn && 
+                !completedBtn.contains(e.target)) {
+                completedMenu.style.display = 'none';
+            }
         });
 
         // Save New Group to LocalStorage
@@ -3467,6 +3478,12 @@
         let targetTransferGroup = '';
         let targetTransferKapan = '';
 
+        if (btnTransferKapanClose) {
+            btnTransferKapanClose.addEventListener('click', () => {
+                modalTransferKapan.style.display = 'none';
+            });
+        }
+
         const NEXT_DEPT_MAP = {
             'Rough': 'AP ok',
             'AP ok': '4P',
@@ -3522,6 +3539,105 @@
                     pcsInput.select();
                 }
             }, 50);
+        }
+
+        if (formTransferKapan) {
+            formTransferKapan.addEventListener('submit', (e) => {
+                e.preventDefault();
+                transferKapanError.style.display = 'none';
+
+                const newPcs = parseInt(document.getElementById('transfer-input-pcs').value);
+                const newCarat = parseFloat(document.getElementById('transfer-input-carat').value);
+                const toDept = document.getElementById('transfer-input-to-dept').dataset.val;
+
+                if (isNaN(newPcs) || newPcs < 0) {
+                    transferKapanError.innerText = 'નંગ ની સંખ્યા સાચી હોવી જરૂરી છે!';
+                    transferKapanError.style.display = 'block';
+                    return;
+                }
+                if (isNaN(newCarat) || newCarat < 0) {
+                    transferKapanError.innerText = 'કેરેટ સાચા હોવા જરૂરી છે!';
+                    transferKapanError.style.display = 'block';
+                    return;
+                }
+
+                const group = stockData.groups.find(g => g.name === targetTransferGroup);
+                if (group) {
+                    const item = group.items.find(it => !it.is_subtotal && String(it.kapan) === String(targetTransferKapan));
+                    if (item) {
+                        item.pcs = String(newPcs);
+                        item.carat = String(newCarat);
+                        
+                        const activeParts = multiData.active_date.split('-');
+                        const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
+
+                        if (toDept === 'Completed') {
+                            item.completed = true;
+                            item.completedDate = entryDateFormatted;
+                        } else {
+                            item.dept = toDept;
+                            if (!item.deptDates) {
+                                item.deptDates = {};
+                            }
+                            item.deptDates[toDept] = entryDateFormatted;
+                        }
+
+                        recalculateGrandTotals();
+                        renderStockCards(document.getElementById('search-bar')?.value || '');
+                        renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
+                        renderMasterGroupTable();
+                        renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
+                        
+                        if (document.getElementById('view-report').style.display === 'flex') {
+                            renderDailyReport();
+                        }
+
+                        modalTransferKapan.style.display = 'none';
+                        if (toDept === 'Completed') {
+                            showCustomDialog('alert', 'Success', `Kapan "${targetTransferKapan}" completed and dispatched successfully!`);
+                        } else {
+                            showCustomDialog('alert', 'Success', `Kapan "${targetTransferKapan}" successfully transferred to ${DEPT_DISPLAY_NAMES[toDept] || toDept}!`);
+                        }
+                    }
+                }
+            });
+        }
+
+        function restoreCompletedKapan(groupName, kapanName) {
+            const group = stockData.groups.find(g => g.name === groupName);
+            if (group) {
+                const item = group.items.find(it => !it.is_subtotal && String(it.kapan) === String(kapanName));
+                if (item) {
+                    item.completed = false;
+                    delete item.completedDate;
+                    item.dept = 'Final Polish';
+                    
+                    recalculateGrandTotals();
+                    renderStockCards(document.getElementById('search-bar')?.value || '');
+                    renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
+                    renderMasterGroupTable();
+                    renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
+                    
+                    renderCompletedDropdown();
+                    
+                    showCustomDialog('alert', 'Success', `Kapan "${kapanName}" has been restored back to Final Polish!`);
+                }
+            }
+        }
+
+        function updateCompletedBadgeCount() {
+            const badge = document.getElementById('completed-count-badge');
+            if (!badge) return;
+            
+            let totalCompleted = 0;
+            stockData.groups.forEach(group => {
+                group.items.forEach(item => {
+                    if (!item.is_subtotal && item.completed) {
+                        totalCompleted++;
+                    }
+                });
+            });
+            badge.innerText = totalCompleted.toString();
         }
 
         // Toggle Completed Kapans Dropdown Menu

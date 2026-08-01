@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ગેલેક્ષી STOCK (ગાયત્રી) </title>
+    <title>STOCK DETAIL</title>
     <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -559,58 +559,30 @@
 
         /* ── Cloud Sync Indicator ── */
         #sync-indicator {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 20px;
-            border: 1.5px solid transparent;
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
             transition: all 0.3s ease;
-            white-space: nowrap;
             cursor: default;
             user-select: none;
-            margin-left: 8px;
+            margin-left: auto;
         }
 
         #sync-indicator.synced {
-            background: #f0fdf4 !important;
-            border-color: #86efac !important;
-            color: #16a34a !important;
+            background: #22c55e !important;
+            box-shadow: 0 0 6px #22c55e;
         }
 
         #sync-indicator.syncing {
-            background: #fefce8 !important;
-            border-color: #fde047 !important;
-            color: #ca8a04 !important;
-        }
-
-        #sync-indicator.error {
-            background: #fef2f2 !important;
-            border-color: #fca5a5 !important;
-            color: #dc2626 !important;
-        }
-
-        #sync-indicator .sync-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            transition: background 0.3s;
-        }
-
-        #sync-indicator.synced .sync-dot {
-            background: #22c55e !important;
-        }
-
-        #sync-indicator.syncing .sync-dot {
             background: #eab308 !important;
+            box-shadow: 0 0 6px #eab308;
             animation: syncpulse 0.8s ease-in-out infinite;
         }
 
-        #sync-indicator.error .sync-dot {
+        #sync-indicator.error {
             background: #ef4444 !important;
+            box-shadow: 0 0 6px #ef4444;
         }
 
         @keyframes syncpulse {
@@ -625,6 +597,118 @@
                 opacity: 0.4;
                 transform: scale(0.7);
             }
+        }
+
+        /* Login Screen CSS Styles */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #faf6f4, #faf6f4);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            color: var(--text-primary);
+        }
+
+        .login-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--accent-navy);
+            margin: 0;
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
+        }
+
+        .login-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: -12px;
+        }
+
+        .login-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .login-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-input {
+            background: #f8fafc;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent-navy);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 45, 98, 0.15);
+        }
+
+        .login-btn {
+            background: var(--accent-navy);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background: #001f44;
+            box-shadow: 0 4px 12px rgba(0, 45, 98, 0.2);
+        }
+
+        .login-error {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: none;
+            text-align: center;
         }
 
         /* Department Sub-navbar Styles */
@@ -677,59 +761,50 @@
             border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
-        }
-
-        .badge-dept.rough {
-            background: #e2e8f0;
+            background: #f1f5f9;
             color: #475569;
             border: 1px solid #cbd5e1;
-        }
-
-        .badge-dept.ap-ok {
-            background: #dbeafe;
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
-        }
-
-        .badge-dept.four-p {
-            background: #f3e8ff;
-            color: #6b21a8;
-            border: 1px solid #e9d5ff;
-        }
-
-        .badge-dept.rt {
-            background: #e0f2fe;
-            color: #0369a1;
-            border: 1px solid #bae6fd;
-        }
-
-        .badge-dept.ra {
-            background: #ffedd5;
-            color: #c2410c;
-            border: 1px solid #fed7aa;
-        }
-
-        .badge-dept.loting {
-            background: #dcfce7;
-            color: #15803d;
-            border: 1px solid #bbf7d0;
-        }
-
-        .badge-dept.khata {
-            background: #fee2e2;
-            color: #b91c1c;
-            border: 1px solid #fecaca;
-        }
-
-        .badge-dept.final-polish {
-            background: #ccfbf1;
-            color: #0f766e;
-            border: 1px solid #99f6e4;
         }
     </style>
 </head>
 
 <body>
+
+    <!-- Login Screen Overlay -->
+    <div id="login-screen" class="login-overlay" style="display: none;">
+        <div class="login-card">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <div
+                    style="width: 44px; height: 44px; background: rgba(37, 99, 235, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="lock" style="width: 20px; height: 20px; color: #2563eb;"></i>
+                </div>
+                <h2 class="login-title">STOCK DETAIL</h2>
+            </div>
+
+            <div id="login-error-msg" class="login-error"></div>
+
+            <div class="login-form-group">
+                <label class="login-label" for="login-username">Username / Department</label>
+                <input type="text" id="login-username" class="login-input" placeholder="e.g. admin or Rough..."
+                    autocomplete="off">
+            </div>
+
+            <div class="login-form-group">
+                <label class="login-label" for="login-password">Password</label>
+                <input type="password" id="login-password" class="login-input" placeholder="••••"
+                    autocomplete="off">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="login-remember" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-navy);">
+                <label for="login-remember" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; user-select: none;">Remember me</label>
+            </div>
+
+            <button id="btn-login-submit" class="login-btn" onclick="performLogin()" style="justify-content: center; height: 42px;">
+                SUBMIT
+            </button>
+        </div>
+    </div>
 
     <!-- Top Navigation Bar -->
     <div class="top-navbar">
@@ -741,12 +816,12 @@
                 style="width:16px;height:16px;"></i> Report</button>
         <button class="top-tab" id="btn-top-master" onclick="switchView('master')"><i data-lucide="database"
                 style="width:16px;height:16px;"></i> Master</button>
+        <button class="top-tab" id="btn-top-setting" onclick="switchView('setting')"><i data-lucide="settings"
+                style="width:16px;height:16px;"></i> Setting</button>
 
         <!-- Date selection dropdown/picker in navbar -->
         <div
             style="margin-left: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">
-            <i data-lucide="calendar" style="width:16px;height:16px;color:var(--accent-navy);"></i>
-            Date:
             <input type="date" id="header-date-picker" min="2020-01-01" max="2035-12-31"
                 style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
         </div>
@@ -770,18 +845,17 @@
 
         <!-- Department Filtering Sub-Tabs -->
         <div class="dept-tabs" id="stock-dept-tabs" style="margin-left: 20px;"></div>
-        <button class="top-tab" onclick="downloadBackup()"
-            style="margin-left: auto; border-color: #059669; color: #059669;"><i data-lucide="download"
-                style="width:16px;height:16px;"></i> Backup</button>
-        <button class="top-tab" onclick="triggerRestore()" style="border-color: #0891b2; color: #0891b2;"><i
-                data-lucide="upload" style="width:16px;height:16px;"></i> Restore</button>
         <input type="file" id="file-restore" style="display: none;" accept=".json" onchange="restoreBackup(event)">
 
         <!-- Cloud Sync Indicator -->
-        <div id="sync-indicator" class="syncing">
-            <span class="sync-dot"></span>
-            <span id="sync-label">Connecting...</span>
-        </div>
+        <div id="sync-indicator" class="syncing" title="Connecting..."></div>
+
+        <!-- Logout Button -->
+        <button id="btn-logout" class="top-tab" onclick="performLogout()" title="Logout"
+            style="margin-left: 12px; border: 1px solid #ef4444; color: #ef4444; font-weight: 700; height: 28px; width: 28px; display: none; align-items: center; justify-content: center; padding: 0; border-radius: 6px; cursor: pointer; background: none; transition: background 0.15s, color 0.15s;"
+            onmouseover="this.style.background='#ef4444'; this.style.color='#ffffff';" onmouseout="this.style.background='none'; this.style.color='#ef4444';">
+            <i data-lucide="log-out" style="width:14px;height:14px;"></i>
+        </button>
     </div>
 
     <!-- Workspace Panel -->
@@ -851,39 +925,39 @@
 
                 <div
                     style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; width: 100%; max-width: 800px;">
-                    <table class="stock-table master-table" id="all-stock-summary-table" style="width: 100%;">
+                    <table class="stock-table" id="all-stock-summary-table" style="width: 100%;">
                         <thead>
                             <tr>
                                 <th
-                                    style="width: 60px; text-align: center; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                    style="width: 60px; text-align: center; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">
                                     S.No</th>
-                                <th style="font-size: 12px; font-weight: 700; text-transform: uppercase;">Department
+                                <th style="text-align: center; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">Department
                                 </th>
                                 <th
-                                    style="text-align: right; width: 160px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
-                                    Total Lots (Kapan)</th>
+                                    style="text-align: center; width: 180px; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">
+                                    Total PCS</th>
                                 <th
-                                    style="text-align: right; width: 180px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
-                                    Total Pieces (PCS)</th>
+                                    style="text-align: center; width: 180px; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">
+                                    Total Carats</th>
                                 <th
-                                    style="text-align: right; width: 180px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
-                                    Total Carats (CARAT)</th>
+                                    style="text-align: center; width: 160px; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">
+                                    Total Kapan</th>
                             </tr>
                         </thead>
-                        <tbody id="all-stock-summary-tbody" style="font-size: 13px; font-weight: 600;">
+                        <tbody id="all-stock-summary-tbody" style="font-size: 15px; font-weight: 700;">
                             <!-- Dynamic rows -->
                         </tbody>
                         <tfoot>
                             <tr
-                                style="background: #cbd5e1; font-weight: 800; font-size: 14px; border-top: 2px solid #94a3b8; color: var(--text-primary);">
-                                <td style="text-align: center; padding: 10px 6px;">-</td>
-                                <td style="padding: 10px 6px; letter-spacing: 0.5px;">GRAND TOTAL</td>
-                                <td style="text-align: right; padding: 10px 6px; font-variant-numeric: tabular-nums;"
-                                    id="all-stock-summary-grand-lots">0</td>
-                                <td style="text-align: right; padding: 10px 6px; font-variant-numeric: tabular-nums; color: var(--accent-navy);"
+                                style="background: #cbd5e1; font-weight: 800; font-size: 16px; border-top: 2px solid #94a3b8; color: var(--text-primary);">
+                                <td style="text-align: center; padding: 4px 4px;">-</td>
+                                <td style="text-align: center; padding: 4px 4px; letter-spacing: 0.5px;">GRAND TOTAL</td>
+                                <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums; color: var(--accent-navy);"
                                     id="all-stock-summary-grand-pcs">0</td>
-                                <td style="text-align: right; padding: 10px 6px; font-variant-numeric: tabular-nums; color: #059669;"
+                                <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums; color: #059669;"
                                     id="all-stock-summary-grand-carats">0.00</td>
+                                <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums;"
+                                    id="all-stock-summary-grand-lots">0</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -961,8 +1035,8 @@
             <div id="view-master" class="view-pane" style="display: none; flex-direction: column; gap: 16px;">
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;">
 
-                    <!-- Left Column: Group Master (42% width) -->
-                    <div style="flex: 1.2; min-width: 320px; display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Left Column: Group Master (1/3 width) -->
+                    <div style="flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 10px;">
                         <div class="stock-controls" style="padding: 4px 10px;">
                             <div
                                 style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
@@ -991,8 +1065,8 @@
                         </div>
                     </div>
 
-                    <!-- Right Column: Kapan Master (58% width) -->
-                    <div style="flex: 1.8; min-width: 450px; display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Right Column: Kapan Master (2/3 width) -->
+                    <div style="flex: 2; min-width: 450px; display: flex; flex-direction: column; gap: 10px;">
                         <div class="stock-controls" style="padding: 4px 10px;">
                             <div
                                 style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
@@ -1025,26 +1099,41 @@
                         </div>
                     </div>
 
-                    <!-- Department Master (flex: 1.2; min-width: 320px) -->
-                    <div style="flex: 1.2; min-width: 320px; display: flex; flex-direction: column; gap: 10px;">
+                </div>
+            </div>
+
+            <!-- VIEW F: SETTING VIEW -->
+            <div id="view-setting" class="view-pane" style="display: none; flex-direction: column; gap: 16px;">
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;">
+                    
+                    <!-- Left Column: Department Master (60% width) -->
+                    <div style="flex: 1.5; min-width: 450px; display: flex; flex-direction: column; gap: 10px;">
                         <div class="stock-controls" style="padding: 4px 10px;">
-                            <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
+                            <div
+                                style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
                                 <i data-lucide="layers"></i> Department Master
                             </div>
-                            <button class="btn-add btn-compact" onclick="addDepartment()"
-                                style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px;">
-                                <i data-lucide="plus-square" style="width:12px;height:12px;"></i> Add Dept
-                            </button>
+                            <div style="display: flex; gap: 4px;">
+                                <button class="btn-compact" onclick="changeAdminPassword()"
+                                    style="background: #fef08a; border: 1px solid #fde047; color: #854d0e; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight: 700;">
+                                    <i data-lucide="key" style="width:12px;height:12px;"></i> Admin Pass
+                                </button>
+                                <button class="btn-add btn-compact" onclick="addDepartment()"
+                                    style="background: #002d62; border: 1px solid #cbd5e1; color: white; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px;">
+                                    <i data-lucide="plus-square" style="width:12px;height:12px;"></i> Add Dept
+                                </button>
+                            </div>
                         </div>
-                        <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div
+                            style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
                             <div style="max-height: 460px; overflow-y: auto;">
                                 <table class="stock-table master-table" id="master-dept-table" style="width: 100%;">
                                     <thead>
                                         <tr>
                                             <th style="width: 50px; text-align: center;">Order</th>
                                             <th>Department</th>
-                                            <th style="text-align: center; width: 80px;">Color</th>
-                                            <th style="text-align: center; width: 130px;">Actions</th>
+                                            <th style="text-align: center; width: 100px;">Password</th>
+                                            <th style="text-align: center; width: 160px;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="master-dept-tbody">
@@ -1052,6 +1141,53 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Backup & Restore (40% width) -->
+                    <div style="flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 10px;">
+                        <div class="stock-controls" style="padding: 4px 10px;">
+                            <div
+                                style="font-size: 0.95rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="database"></i> Backup & Restore (બેકઅપ અને રીસ્ટોર)
+                            </div>
+                        </div>
+                        
+                        <div
+                            style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+                            
+                            <!-- Backup Card -->
+                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                    <div style="background: #eff6ff; color: #2563eb; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i data-lucide="download" style="width: 20px; height: 20px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">ડાઉનલોડ બેકઅપ (Download Backup)</div>
+                                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">તમામ તારીખોનો ડેટા ફાઇલમાં સેવ કરવા માટે ડાઉનલોડ કરો.</div>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="downloadBackup()" style="margin-top: 6px; width: 100%; background: #2563eb; color: white; border: none; border-radius: 6px; padding: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                                    <i data-lucide="download" style="width: 14px; height: 14px;"></i> Download Backup (.json)
+                                </button>
+                            </div>
+
+                            <!-- Restore Card -->
+                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                    <div style="background: #f0fdf4; color: #16a34a; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i data-lucide="upload" style="width: 20px; height: 20px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">રીસ્ટોર ડેટા (Restore Data)</div>
+                                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">બેકઅપ ફાઈલમાંથી ડેટા પાછો મેળવવા માટે ફાઈલ અપલોડ કરો.</div>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="triggerRestore()" style="margin-top: 6px; width: 100%; background: #16a34a; color: white; border: none; border-radius: 6px; padding: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
+                                    <i data-lucide="upload" style="width: 14px; height: 14px;"></i> Restore Backup (.json)
+                                </button>
+                            </div>
+
                         </div>
                     </div>
 
@@ -1592,20 +1728,30 @@
             }
             if (!multiData.departments) {
                 multiData.departments = [
-                    { id: "Rough", name: "Rough", color: "#e2e8f0", textColor: "#475569", borderColor: "#cbd5e1" },
-                    { id: "AP ok", name: "AP OK", color: "#dbeafe", textColor: "#1e40af", borderColor: "#bfdbfe" },
-                    { id: "4P", name: "4P", color: "#f3e8ff", textColor: "#6b21a8", borderColor: "#e9d5ff" },
-                    { id: "RT", name: "RT", color: "#e0f2fe", textColor: "#0369a1", borderColor: "#bae6fd" },
-                    { id: "RA", name: "RA", color: "#ffedd5", textColor: "#c2410c", borderColor: "#fed7aa" },
-                    { id: "Loting", name: "Loting", color: "#dcfce7", textColor: "#15803d", borderColor: "#bbf7d0" },
-                    { id: "Khata", name: "Khata", color: "#fee2e2", textColor: "#b91c1c", borderColor: "#fecaca" },
-                    { id: "Final Polish", name: "Final Polish", color: "#ccfbf1", textColor: "#0f766e", borderColor: "#99f6e4" }
+                    { id: "Rough", name: "Rough", password: "123", color: "#e2e8f0", textColor: "#475569", borderColor: "#cbd5e1" },
+                    { id: "AP ok", name: "AP OK", password: "123", color: "#dbeafe", textColor: "#1e40af", borderColor: "#bfdbfe" },
+                    { id: "4P", name: "4P", password: "123", color: "#f3e8ff", textColor: "#6b21a8", borderColor: "#e9d5ff" },
+                    { id: "RT", name: "RT", password: "123", color: "#e0f2fe", textColor: "#0369a1", borderColor: "#bae6fd" },
+                    { id: "RA", name: "RA", password: "123", color: "#ffedd5", textColor: "#c2410c", borderColor: "#fed7aa" },
+                    { id: "Loting", name: "Loting", password: "123", color: "#dcfce7", textColor: "#15803d", borderColor: "#bbf7d0" },
+                    { id: "Khata", name: "Khata", password: "123", color: "#fee2e2", textColor: "#b91c1c", borderColor: "#fecaca" },
+                    { id: "Final Polish", name: "Final Polish", password: "123", color: "#ccfbf1", textColor: "#0f766e", borderColor: "#99f6e4" }
                 ];
             }
-            if (multiData.departments && multiData.departments.length > 0) {
-                const exists = multiData.departments.some(x => x.id === activeDeptFilter);
-                if (!exists) {
-                    activeDeptFilter = multiData.departments[0].id;
+            if (!multiData.adminPassword) {
+                multiData.adminPassword = "admin123";
+            }
+            if (multiData.departments) {
+                multiData.departments.forEach(dept => {
+                    if (!dept.password) {
+                        dept.password = "123";
+                    }
+                });
+                if (multiData.departments.length > 0) {
+                    const exists = multiData.departments.some(x => x.id === activeDeptFilter);
+                    if (!exists) {
+                        activeDeptFilter = multiData.departments[0].id;
+                    }
                 }
             }
             // Normalize all dates in the dataset
@@ -1671,10 +1817,11 @@
         function setSyncStatus(state, label) {
             const el = document.getElementById('sync-indicator');
             const lbl = document.getElementById('sync-label');
-            if (!el || !lbl) return;
+            if (!el) return;
             el.className = '';
             el.classList.add(state);
-            lbl.textContent = label;
+            el.setAttribute('title', label);
+            if (lbl) lbl.textContent = label;
         }
 
         // ── Save helper: local first (instant), then background firebase sync ──
@@ -1756,6 +1903,7 @@
             // Populate and render UI
             renderDeptTabs();
             populateAddKapanDeptSelect();
+            populateLoginDropdown();
             updateKPIs();
             renderStockCards('');
             renderAllStockTable('');
@@ -1776,6 +1924,7 @@
             // Fallback render of cached data
             renderDeptTabs();
             populateAddKapanDeptSelect();
+            populateLoginDropdown();
             updateKPIs();
             renderStockCards('');
             renderAllStockTable('');
@@ -1817,6 +1966,7 @@
                 // Render remote changes instantly
                 renderDeptTabs();
                 populateAddKapanDeptSelect();
+                populateLoginDropdown();
                 updateKPIs();
                 renderStockCards(document.getElementById('search-bar')?.value || '');
                 renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
@@ -1919,6 +2069,16 @@
         function formatCarat(num) {
             if (num === null || num === undefined || isNaN(num)) return '-';
             return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatNumberNoCommas(num) {
+            if (num === null || num === undefined || isNaN(num)) return '0';
+            return Math.round(Number(num)).toString();
+        }
+
+        function formatCaratNoCommas(num) {
+            if (num === null || num === undefined || isNaN(num)) return '0.00';
+            return Number(num).toFixed(2);
         }
 
         function parseDMYDate(dateStr) {
@@ -2187,6 +2347,11 @@
                 if (deptTabs) deptTabs.style.display = 'none';
                 renderMasterGroupTable();
                 renderKapanMasterTable();
+            } else if (viewName === 'setting') {
+                const topSetting = document.getElementById('btn-top-setting');
+                if (topSetting) topSetting.classList.add('active');
+                document.getElementById('view-setting').style.display = 'flex';
+                if (deptTabs) deptTabs.style.display = 'none';
                 renderMasterDeptTable();
             }
         }
@@ -2262,11 +2427,11 @@
                     <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(groupPcs)}</td>
                     <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(groupCarat)}</td>
                     <td style="text-align: center;">
-                        <button class="btn-compact" onclick="editGroupName('${group.name.replace(/'/g, "\\'")}')" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 4px;">
-                            <i data-lucide="edit-2" style="width:11px;height:11px;"></i> Edit
+                        <button class="btn-compact" onclick="editGroupName('${group.name.replace(/'/g, "\\'")}')" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 4px;" title="Rename">
+                            <i data-lucide="edit-2" style="width:11px;height:11px;"></i>
                         </button>
-                        <button class="btn-compact" onclick="deleteGroup('${group.name.replace(/'/g, "\\'")}')" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;">
-                            <i data-lucide="trash-2" style="width:11px;height:11px;"></i> Delete
+                        <button class="btn-compact" onclick="deleteGroup('${group.name.replace(/'/g, "\\'")}')" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;" title="Delete">
+                            <i data-lucide="trash-2" style="width:11px;height:11px;"></i>
                         </button>
                     </td>
                 `;
@@ -2308,13 +2473,11 @@
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(parseInt(item.pcs) || 0)}</td>
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(parseFloat(item.carat) || 0)}</td>
                         <td style="text-align: center; white-space: nowrap;">
-                            <button class="btn-compact" onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 4px;">
-                                <i data-lucide="arrow-right-left" style="width:11px;height:11px;"></i> Transfer
+                            <button class="btn-compact" onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 4px;" title="Transfer">
+                                <i data-lucide="arrow-right-left" style="width:11px;height:11px;"></i>
                             </button>
-                            <button class="btn-compact" onclick="openEditKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;">
-                                <i data-lucide="edit-3" style="width:11px;height:11px;"></i> Edit
-                            </button>
-                                <i data-lucide="edit-3" style="width:11px;height:11px;"></i> Edit
+                            <button class="btn-compact" onclick="openEditKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;" title="Edit">
+                                <i data-lucide="edit-3" style="width:11px;height:11px;"></i>
                             </button>
                         </td>
                     `;
@@ -2357,23 +2520,25 @@
                 grandPcs += deptPcs;
                 grandCarat += deptCarat;
 
-                const deptBadge = getDeptBadgeHtml(dept);
+                const deptObj = (multiData.departments || []).find(x => x.id === dept);
+                const displayName = deptObj ? deptObj.name : dept;
+                const deptBadge = `<span class="badge-dept" style="font-size: 14px !important; padding: 3px 8px !important;">${displayName}</span>`;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="text-align: center; color: var(--text-secondary); font-weight: 700;">${index + 1}</td>
-                    <td style="font-weight: 700; font-size: 13px; text-align: left;">${deptBadge}</td>
-                    <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--text-primary);">${formatNumber(deptLots)}</td>
-                    <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--accent-navy);">${formatNumber(deptPcs)}</td>
-                    <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: #059669;">${formatCarat(deptCarat)}</td>
+                    <td style="text-align: center; color: var(--text-secondary); font-weight: 700; padding: 2px 4px; font-size: 15px;">${index + 1}</td>
+                    <td style="text-align: center; font-weight: 700; padding: 2px 4px; font-size: 15px;">${deptBadge}</td>
+                    <td style="text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--accent-navy); padding: 2px 4px; font-size: 15px;">${formatNumberNoCommas(deptPcs)}</td>
+                    <td style="text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; color: #059669; padding: 2px 4px; font-size: 15px;">${formatCaratNoCommas(deptCarat)}</td>
+                    <td style="text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--text-primary); padding: 2px 4px; font-size: 15px;">${formatNumberNoCommas(deptLots)}</td>
                 `;
                 tbody.appendChild(tr);
             });
 
             // Update Grand Totals in footer
-            document.getElementById('all-stock-summary-grand-lots').innerText = formatNumber(grandLots);
-            document.getElementById('all-stock-summary-grand-pcs').innerText = formatNumber(grandPcs);
-            document.getElementById('all-stock-summary-grand-carats').innerText = formatCarat(grandCarat);
+            document.getElementById('all-stock-summary-grand-pcs').innerText = formatNumberNoCommas(grandPcs);
+            document.getElementById('all-stock-summary-grand-carats').innerText = formatCaratNoCommas(grandCarat);
+            document.getElementById('all-stock-summary-grand-lots').innerText = formatNumberNoCommas(grandLots);
         }
 
         // Edit Kapan Modal Handlers
@@ -2695,16 +2860,18 @@
         function getDeptBadgeHtml(dept) {
             const d = dept || 'Rough';
             const deptObj = (multiData.departments || []).find(x => x.id === d);
-            if (deptObj) {
-                return `<span class="badge-dept" style="background: ${deptObj.color}; color: ${deptObj.textColor}; border: 1px solid ${deptObj.borderColor || '#cbd5e1'}; display: inline-block; padding: 2px 6px; font-size: 0.68rem; font-weight: 800; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px;">${deptObj.name}</span>`;
-            }
-            return `<span class="badge-dept" style="background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; display: inline-block; padding: 2px 6px; font-size: 0.68rem; font-weight: 800; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px;">${d}</span>`;
+            const displayName = deptObj ? deptObj.name : d;
+            return `<span class="badge-dept">${displayName}</span>`;
         }
 
         function renderStockCardsForGrid(gridId, deptFilter, filterText = '', isAllStockView = false) {
             const targetGrid = document.getElementById(gridId);
             if (!targetGrid) return;
             targetGrid.innerHTML = '';
+
+            const sessionVal = sessionStorage.getItem('galaxy_session');
+            const session = sessionVal ? JSON.parse(sessionVal) : null;
+            const isAdmin = session && session.role === 'admin';
 
             let totalCardsRendered = 0;
             const query = filterText.toLowerCase().trim();
@@ -2799,13 +2966,17 @@
                     `;
                 }
 
+                const addKapanBtnHtml = isAdmin ? `
+                            <button onclick="openAddKapanForGroup('${group.name.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" title="Add Kapan to Group">
+                                <i data-lucide="plus-circle" style="width:16px;height:16px;"></i>
+                            </button>
+                ` : '';
+
                 card.innerHTML = `
                     <div class="card-header-bar" id="card-header-${safeId}">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <div class="group-title">${group.name}</div>
-                            <button onclick="openAddKapanForGroup('${group.name.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" title="Add Kapan to Group">
-                                <i data-lucide="plus-circle" style="width:16px;height:16px;"></i>
-                            </button>
+                            ${addKapanBtnHtml}
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <button class="btn-bulk-delete" id="btn-bulk-delete-${safeId}" onclick="performBulkDelete('${group.name.replace(/'/g, "\\'")}', ${isAllStockView})" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
@@ -3176,9 +3347,9 @@
             // Close completed dropdown menu if clicked outside
             const completedMenu = document.getElementById('completed-dropdown-menu');
             const completedBtn = document.getElementById('btn-completed-dropdown');
-            if (completedMenu && completedMenu.style.display === 'block' && 
-                !completedMenu.contains(e.target) && 
-                e.target !== completedBtn && 
+            if (completedMenu && completedMenu.style.display === 'block' &&
+                !completedMenu.contains(e.target) &&
+                e.target !== completedBtn &&
                 !completedBtn.contains(e.target)) {
                 completedMenu.style.display = 'none';
             }
@@ -3558,7 +3729,7 @@
                     if (item) {
                         item.pcs = String(newPcs);
                         item.carat = String(newCarat);
-                        
+
                         const activeParts = multiData.active_date.split('-');
                         const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
 
@@ -3588,7 +3759,7 @@
                         renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
                         renderMasterGroupTable();
                         renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
-                        
+
                         if (document.getElementById('view-report').style.display === 'flex') {
                             renderDailyReport();
                         }
@@ -3612,15 +3783,15 @@
                     item.completed = false;
                     delete item.completedDate;
                     item.dept = 'Final Polish';
-                    
+
                     recalculateGrandTotals();
                     renderStockCards(document.getElementById('search-bar')?.value || '');
                     renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
                     renderMasterGroupTable();
                     renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
-                    
+
                     renderCompletedDropdown();
-                    
+
                     showCustomDialog('alert', 'Success', `Kapan "${kapanName}" has been restored back to Final Polish!`);
                 }
             }
@@ -3629,7 +3800,7 @@
         function updateCompletedBadgeCount() {
             const badge = document.getElementById('completed-count-badge');
             if (!badge) return;
-            
+
             let totalCompleted = 0;
             stockData.groups.forEach(group => {
                 group.items.forEach(item => {
@@ -3808,25 +3979,27 @@
             const depts = multiData.departments || [];
             depts.forEach((dept, index) => {
                 const tr = document.createElement('tr');
-                const badgeHtml = getDeptBadgeHtml(dept.id);
                 const isFirst = index === 0;
                 const isLast = index === depts.length - 1;
 
                 tr.innerHTML = `
                     <td style="text-align: center; font-weight: 700; color: var(--text-secondary);">${index + 1}</td>
                     <td style="font-weight: 600; color: var(--accent-navy);">${dept.name}</td>
-                    <td style="text-align: center; vertical-align: middle;">${badgeHtml}</td>
+                    <td style="text-align: center; font-family: monospace; font-weight: 700; color: #475569;">${dept.password || '123'}</td>
                     <td style="text-align: center; white-space: nowrap; vertical-align: middle;">
-                        <button class="btn-compact" onclick="moveDepartmentUp(${index})" ${isFirst ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''} style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); margin-right: 2px; padding: 2px 4px;">
+                        <button class="btn-compact" onclick="moveDepartmentUp(${index})" ${isFirst ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''} style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); margin-right: 2px; padding: 2px 4px;" title="ઉપર ખસેડો">
                             <i data-lucide="arrow-up" style="width:11px;height:11px;"></i>
                         </button>
-                        <button class="btn-compact" onclick="moveDepartmentDown(${index})" ${isLast ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''} style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); margin-right: 4px; padding: 2px 4px;">
+                        <button class="btn-compact" onclick="moveDepartmentDown(${index})" ${isLast ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''} style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); margin-right: 4px; padding: 2px 4px;" title="નીચે ખસેડો">
                             <i data-lucide="arrow-down" style="width:11px;height:11px;"></i>
                         </button>
-                        <button class="btn-compact" onclick="editDepartmentName('${dept.id}')" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 2px; padding: 2px 4px;">
+                        <button class="btn-compact" onclick="changeDepartmentPassword('${dept.id}')" style="background: #fef08a; border: 1px solid #fde047; color: #854d0e; margin-right: 2px; padding: 2px 4px;" title="પાસવર્ડ બદલો">
+                            <i data-lucide="key" style="width:11px;height:11px;"></i>
+                        </button>
+                        <button class="btn-compact" onclick="editDepartmentName('${dept.id}')" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 2px; padding: 2px 4px;" title="નામ બદલો">
                             <i data-lucide="edit-2" style="width:11px;height:11px;"></i>
                         </button>
-                        <button class="btn-compact" onclick="deleteDepartment('${dept.id}')" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 2px 4px;">
+                        <button class="btn-compact" onclick="deleteDepartment('${dept.id}')" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 2px 4px;" title="ડિલીટ કરો">
                             <i data-lucide="trash-2" style="width:11px;height:11px;"></i>
                         </button>
                     </td>
@@ -3835,6 +4008,40 @@
             });
 
             lucide.createIcons();
+        }
+
+        async function changeDepartmentPassword(deptId) {
+            const depts = multiData.departments || [];
+            const dept = depts.find(d => d.id === deptId);
+            if (!dept) return;
+
+            const newPass = await showCustomDialog('prompt', 'Change Password', `Enter new password for "${dept.name}":`, dept.password || '123');
+            if (newPass === null) return;
+            const trimmed = newPass.trim();
+            if (!trimmed) {
+                await showCustomDialog('alert', 'Error', 'Password cannot be empty!');
+                return;
+            }
+
+            dept.password = trimmed;
+            saveToLocal();
+            renderMasterDeptTable();
+            await showCustomDialog('alert', 'Success', `Password for "${dept.name}" updated successfully!`);
+        }
+
+        async function changeAdminPassword() {
+            const currentPass = multiData.adminPassword || 'admin123';
+            const newPass = await showCustomDialog('prompt', 'Admin Password', 'Enter new Admin Password:', currentPass);
+            if (newPass === null) return;
+            const trimmed = newPass.trim();
+            if (!trimmed) {
+                await showCustomDialog('alert', 'Error', 'Password cannot be empty!');
+                return;
+            }
+
+            multiData.adminPassword = trimmed;
+            saveToLocal();
+            await showCustomDialog('alert', 'Success', 'Admin Password updated successfully!');
         }
 
         async function addDepartment() {
@@ -3858,6 +4065,7 @@
             const newDept = {
                 id: trimmed,
                 name: trimmed,
+                password: "123",
                 color: colors.color,
                 textColor: colors.textColor,
                 borderColor: colors.borderColor
@@ -3871,6 +4079,7 @@
             renderDeptTabs();
             renderMasterDeptTable();
             populateAddKapanDeptSelect();
+            populateLoginDropdown();
             renderAllStockTable();
             renderDailyReport();
 
@@ -3930,6 +4139,7 @@
             renderDeptTabs();
             renderMasterDeptTable();
             populateAddKapanDeptSelect();
+            populateLoginDropdown();
             renderStockCards(document.getElementById('search-bar')?.value || '');
             renderAllStockTable();
             renderDailyReport();
@@ -3982,6 +4192,7 @@
             renderDeptTabs();
             renderMasterDeptTable();
             populateAddKapanDeptSelect();
+            populateLoginDropdown();
             renderStockCards(document.getElementById('search-bar')?.value || '');
             renderAllStockTable();
             renderDailyReport();
@@ -4056,10 +4267,244 @@
             });
         }
 
+        // ── Auth System Controller ──
+        function checkAccessControl() {
+            const sessionVal = sessionStorage.getItem('galaxy_session') || localStorage.getItem('galaxy_session');
+            const loginScreen = document.getElementById('login-screen');
+            const workspace = document.querySelector('.workspace');
+            const logoutBtn = document.getElementById('btn-logout');
+            const datePickerContainer = document.getElementById('header-date-picker')?.parentElement;
+
+            // Header buttons
+            const btnStock = document.getElementById('btn-top-stock');
+            const btnAllStock = document.getElementById('btn-top-all-stock');
+            const btnReport = document.getElementById('btn-top-report');
+            const btnMaster = document.getElementById('btn-top-master');
+            const btnSetting = document.getElementById('btn-top-setting');
+
+            if (!sessionVal) {
+                if (loginScreen) {
+                    loginScreen.style.display = 'flex';
+                    const rememberedUser = localStorage.getItem('remembered_username');
+                    const usernameEl = document.getElementById('login-username');
+                    const passwordEl = document.getElementById('login-password');
+                    const rememberEl = document.getElementById('login-remember');
+                    
+                    if (rememberedUser) {
+                        if (usernameEl) usernameEl.value = rememberedUser;
+                        if (rememberEl) rememberEl.checked = true;
+                        if (passwordEl) {
+                            passwordEl.value = '';
+                            setTimeout(() => passwordEl.focus(), 50);
+                        }
+                    } else {
+                        if (usernameEl) {
+                            usernameEl.value = '';
+                            setTimeout(() => usernameEl.focus(), 50);
+                        }
+                        if (rememberEl) rememberEl.checked = false;
+                        if (passwordEl) passwordEl.value = '';
+                    }
+                    document.getElementById('login-error-msg').style.display = 'none';
+                }
+                if (workspace) workspace.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+                document.body.classList.add('modal-open');
+                return;
+            }
+
+            if (loginScreen) loginScreen.style.display = 'none';
+            if (workspace) workspace.style.display = 'flex';
+            if (logoutBtn) logoutBtn.style.display = 'flex';
+            document.body.classList.remove('modal-open');
+
+            const session = JSON.parse(sessionVal);
+
+            // Toggle Add buttons for admin vs normal users
+            const btnAddGroup = document.getElementById('btn-add-group');
+            const btnAddKapan = document.getElementById('btn-add-kapan');
+
+            if (session.role === 'admin') {
+                if (btnStock) btnStock.style.display = 'flex';
+                if (btnAllStock) btnAllStock.style.display = 'flex';
+                if (btnReport) btnReport.style.display = 'flex';
+                if (btnMaster) btnMaster.style.display = 'flex';
+                if (btnSetting) btnSetting.style.display = 'flex';
+
+                if (datePickerContainer) datePickerContainer.style.display = 'flex';
+
+                if (btnAddGroup) btnAddGroup.style.display = 'flex';
+                if (btnAddKapan) btnAddKapan.style.display = 'flex';
+
+                renderDeptTabs();
+                const switcher = document.getElementById('stock-dept-tabs');
+                if (switcher && activeViewName === 'stock') switcher.style.display = 'flex';
+
+                const selectDept = document.getElementById('input-kapan-dept');
+                if (selectDept) {
+                    selectDept.disabled = false;
+                    selectDept.parentElement.style.display = 'flex';
+                }
+            } else {
+                const deptId = session.deptId;
+                activeDeptFilter = deptId;
+
+                if (btnStock) btnStock.style.display = 'flex';
+                if (btnAllStock) btnAllStock.style.display = 'none';
+                if (btnReport) btnReport.style.display = 'none';
+                if (btnMaster) btnMaster.style.display = 'none';
+                if (btnSetting) btnSetting.style.display = 'none';
+
+                if (btnAddGroup) btnAddGroup.style.display = 'none';
+                if (btnAddKapan) btnAddKapan.style.display = 'none';
+
+                const switcher = document.getElementById('stock-dept-tabs');
+                if (switcher) switcher.style.display = 'none';
+
+                const selectDept = document.getElementById('input-kapan-dept');
+                if (selectDept) {
+                    selectDept.value = deptId;
+                    selectDept.disabled = true;
+                    selectDept.parentElement.style.display = 'none';
+                }
+
+                const currentView = activeViewName || 'stock';
+                if (currentView !== 'stock') {
+                    switchView('stock');
+                } else {
+                    renderStockCards(document.getElementById('search-bar')?.value || '');
+                }
+            }
+            lucide.createIcons();
+        }
+
+        let activeViewName = 'stock';
+        const originalSwitchView = switchView;
+        switchView = function (viewName) {
+            const sessionVal = sessionStorage.getItem('galaxy_session') || localStorage.getItem('galaxy_session');
+            if (!sessionVal) {
+                checkAccessControl();
+                return;
+            }
+            const session = JSON.parse(sessionVal);
+            if (session.role !== 'admin' && viewName !== 'stock') {
+                originalSwitchView('stock');
+                activeViewName = 'stock';
+                return;
+            }
+            activeViewName = viewName;
+            originalSwitchView(viewName);
+
+            const switcher = document.getElementById('stock-dept-tabs');
+            if (switcher) {
+                if (session.role === 'admin' && viewName === 'stock') {
+                    switcher.style.display = 'flex';
+                } else {
+                    switcher.style.display = 'none';
+                }
+            }
+        };
+
+        function populateLoginDropdown() {
+            // No-op: username is now a text input
+        }
+
+        function performLogin() {
+            const userEl = document.getElementById('login-username');
+            const passEl = document.getElementById('login-password');
+            const errorEl = document.getElementById('login-error-msg');
+            const rememberMe = document.getElementById('login-remember')?.checked;
+
+            if (!userEl || !passEl) return;
+
+            const username = userEl.value.trim().toLowerCase();
+            const password = passEl.value.trim();
+
+            if (!username || !password) {
+                errorEl.innerText = "Please enter both Username and Password!";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            errorEl.style.display = 'none';
+
+            let sessionData = null;
+
+            if (username === 'admin') {
+                const adminPass = multiData.adminPassword || 'admin123';
+                if (password === adminPass) {
+                    sessionData = { role: 'admin' };
+                } else {
+                    errorEl.innerText = "❌ Incorrect Admin Password!";
+                    errorEl.style.display = 'block';
+                    passEl.focus();
+                    passEl.select();
+                    return;
+                }
+            } else {
+                const depts = multiData.departments || [];
+                const matchedDept = depts.find(d => d.name.toLowerCase() === username || d.id.toLowerCase() === username);
+
+                if (matchedDept) {
+                    if (password === (matchedDept.password || '123')) {
+                        sessionData = {
+                            role: 'user',
+                            deptId: matchedDept.id,
+                            deptName: matchedDept.name
+                        };
+                    } else {
+                        errorEl.innerText = "❌ Incorrect Password!";
+                        errorEl.style.display = 'block';
+                        passEl.focus();
+                        passEl.select();
+                        return;
+                    }
+                } else {
+                    errorEl.innerText = "❌ Username not found!";
+                    errorEl.style.display = 'block';
+                    return;
+                }
+            }
+
+            if (sessionData) {
+                if (rememberMe) {
+                    localStorage.setItem('galaxy_session', JSON.stringify(sessionData));
+                    localStorage.setItem('remembered_username', userEl.value.trim());
+                } else {
+                    sessionStorage.setItem('galaxy_session', JSON.stringify(sessionData));
+                    localStorage.removeItem('remembered_username');
+                }
+                checkAccessControl();
+            }
+        }
+
+        function performLogout() {
+            sessionStorage.removeItem('galaxy_session');
+            localStorage.removeItem('galaxy_session');
+            checkAccessControl();
+        }
+
+        // Setup Login Form keyboard listeners
+        document.getElementById('login-username').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('login-password').focus();
+            }
+        });
+
+        document.getElementById('login-password').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performLogin();
+            }
+        });
+
         // Render stock view on first load
         renderDeptTabs();
         populateAddKapanDeptSelect();
+        populateLoginDropdown();
         renderStockCards();
+        checkAccessControl();
 
         // Init icons
         lucide.createIcons();

@@ -1902,70 +1902,7 @@
 
         let migrationPerformed = false;
         function migrateOldEntries(fbDates) {
-            if (migrationPerformed) return;
-
-            let hasUpdates = false;
-            const dateKeys = Object.keys(fbDates).sort();
-            const earliestDatesMap = {};
-
-            dateKeys.forEach(dateKey => {
-                const dayData = fbDates[dateKey];
-                if (dayData && dayData.groups) {
-                    dayData.groups.forEach(group => {
-                        const gName = group.name;
-                        if (!earliestDatesMap[gName]) {
-                            earliestDatesMap[gName] = {};
-                        }
-                        if (group.items) {
-                            group.items.forEach(item => {
-                                if (item.is_subtotal) return;
-                                const kNo = (item.kapan || "").toUpperCase();
-                                if (kNo) {
-                                    if (item.date) {
-                                        const parts = item.date.split('-');
-                                        const itemYMD = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : dateKey;
-                                        if (!earliestDatesMap[gName][kNo] || itemYMD < earliestDatesMap[gName][kNo]) {
-                                            earliestDatesMap[gName][kNo] = itemYMD;
-                                        }
-                                    } else {
-                                        if (!earliestDatesMap[gName][kNo]) {
-                                            earliestDatesMap[gName][kNo] = dateKey;
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-
-            dateKeys.forEach(dateKey => {
-                const dayData = fbDates[dateKey];
-                if (dayData && dayData.groups) {
-                    dayData.groups.forEach(group => {
-                        const gName = group.name;
-                        if (group.items) {
-                            group.items.forEach(item => {
-                                if (item.is_subtotal) return;
-                                const kNo = (item.kapan || "").toUpperCase();
-                                const correctYMD = earliestDatesMap[gName][kNo] || dateKey;
-                                const parts = correctYMD.split('-');
-                                const correctDMY = `${parts[2]}-${parts[1]}-${parts[0]}`;
-
-                                if (!item.date || item.date !== correctDMY) {
-                                    item.date = correctDMY;
-                                    hasUpdates = true;
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-
-            if (hasUpdates) {
-                migrationPerformed = true;
-                db.ref(DB_PATH + '/dates').set(fbDates);
-            }
+            // Disabled to allow re-entering deleted Kapans with new current dates
         }
 
         // Update indicators in dashboard
@@ -3576,11 +3513,21 @@
                             item.completedDate = entryDateFormatted;
                         } else {
                             item.dept = toDept;
+                            item.date = entryDateFormatted; // Set Kapan entry date in the new department to the transfer date
                             if (!item.deptDates) {
                                 item.deptDates = {};
                             }
                             item.deptDates[toDept] = entryDateFormatted;
                         }
+
+                        console.log("✅ Kapan Transferred Successfully:", {
+                            kapan: targetTransferKapan,
+                            fromGroup: targetTransferGroup,
+                            toDepartment: toDept,
+                            newDateSet: item.date,
+                            newPieces: item.pcs,
+                            newCarat: item.carat
+                        });
 
                         recalculateGrandTotals();
                         renderStockCards(document.getElementById('search-bar')?.value || '');

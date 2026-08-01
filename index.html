@@ -659,6 +659,16 @@
             <input type="date" id="header-date-picker" min="2020-01-01" max="2035-12-31" style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
         </div>
 
+        <!-- Completed Kapans Dropdown -->
+        <div class="completed-dropdown-container" style="margin-left: 20px; position: relative; display: none; align-items: center;">
+            <button class="top-tab" id="btn-completed-dropdown" onclick="toggleCompletedDropdown(event)" style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                <i data-lucide="check-square" style="width:16px;height:16px;color:#059669;"></i> Completed Kapans <span id="completed-count-badge" style="background:#059669; color:white; border-radius:10px; padding: 2px 8px; font-size:0.75rem; font-weight:800; font-variant-numeric: tabular-nums;">0</span>
+            </button>
+            <div id="completed-dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 320px; max-height: 400px; overflow-y: auto; background: white; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-lg); z-index: 9999; padding: 8px 0; font-family: 'Outfit', sans-serif;">
+                <!-- Will be populated dynamically -->
+            </div>
+        </div>
+
 
         <!-- Department Filtering Sub-Tabs -->
         <div class="dept-tabs" id="stock-dept-tabs" style="margin-left: 20px;">
@@ -1466,6 +1476,7 @@
             renderMasterGroupTable();
             renderKapanMasterTable();
             populateGroupDropdown();
+            updateCompletedBadgeCount();
             console.log("✅ Cloud load complete.");
             
         }).catch(err => {
@@ -1482,6 +1493,7 @@
             renderMasterGroupTable();
             renderKapanMasterTable();
             populateGroupDropdown();
+            updateCompletedBadgeCount();
         });
 
         // ── Step 3: Real-time update listener for multi-device sync ──
@@ -1511,7 +1523,8 @@
                 renderStockCards(document.getElementById('search-bar')?.value || '');
                 renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
                 renderMasterGroupTable();
-            renderKapanMasterTable();
+                renderKapanMasterTable();
+                updateCompletedBadgeCount();
                 setSyncStatus('synced', 'Synced ✓');
                 console.log("🔄 Realtime remote updates synced.");
             }
@@ -1734,7 +1747,7 @@
                 let groupCarat = 0.0;
                 
                 group.items.forEach(item => {
-                    if (!item.is_subtotal) {
+                    if (!item.is_subtotal && !item.completed) {
                         const pcs = parseInt(item.pcs);
                         const carat = parseFloat(item.carat);
                         if (!isNaN(pcs)) groupPcs += pcs;
@@ -1742,7 +1755,7 @@
                     }
                 });
                 
-                totalLots += group.items.filter(item => !item.is_subtotal).length;
+                totalLots += group.items.filter(item => !item.is_subtotal && !item.completed).length;
                 totalPcs += groupPcs;
                 totalCarats += groupCarat;
             });
@@ -1760,6 +1773,7 @@
             recalculateTotalsForDate(multiData.active_date);
             saveToLocal();
             updateKPIs();
+            updateCompletedBadgeCount();
         }
 
         // Initialize KPIs
@@ -1888,6 +1902,12 @@
             document.querySelectorAll('.top-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.view-pane').forEach(pane => pane.style.display = 'none');
             
+            // Show Completed Kapans dropdown only on the Report tab
+            const completedContainer = document.querySelector('.completed-dropdown-container');
+            if (completedContainer) {
+                completedContainer.style.display = (viewName === 'report') ? 'flex' : 'none';
+            }
+            
             const deptTabs = document.getElementById('stock-dept-tabs');
             if (viewName === 'stock') {
                 const topStock = document.getElementById('btn-top-stock');
@@ -1974,7 +1994,7 @@
                 let groupCarat = 0.0;
                 
                 group.items.forEach(item => {
-                    if (!item.is_subtotal) {
+                    if (!item.is_subtotal && !item.completed) {
                         const pcs = parseInt(item.pcs);
                         const carat = parseFloat(item.carat);
                         if (!isNaN(pcs)) groupPcs += pcs;
@@ -1982,7 +2002,7 @@
                     }
                 });
 
-                const lotsCount = group.items.filter(item => !item.is_subtotal).length;
+                const lotsCount = group.items.filter(item => !item.is_subtotal && !item.completed).length;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -2016,7 +2036,7 @@
 
             stockData.groups.forEach(group => {
                 group.items.forEach(item => {
-                    if (item.is_subtotal) return;
+                    if (item.is_subtotal || item.completed) return;
 
                     // Apply filter if search query is active
                     if (lowercaseQuery && 
@@ -2071,7 +2091,7 @@
 
                 stockData.groups.forEach(group => {
                     group.items.forEach(item => {
-                        if (item.is_subtotal) return;
+                        if (item.is_subtotal || item.completed) return;
                         if ((item.dept || 'Rough') === dept) {
                             deptLots++;
                             deptPcs += parseInt(item.pcs) || 0;
@@ -2449,7 +2469,7 @@
             stockData.groups.forEach(group => {
                 // Filter items
                 const matchedItems = group.items.filter(item => {
-                    if (item.is_subtotal) return false;
+                    if (item.is_subtotal || item.completed) return false;
                     const matchesQuery = !query || 
                            (item.kapan && item.kapan.toLowerCase().includes(query)) ||
                            (item.s_no && item.s_no.toString().includes(query));
@@ -2494,6 +2514,11 @@
                     const days = calculateDaysInProcess(item.date || stockData.date, multiData.active_date);
                     const dayColor = days > 10 ? 'var(--accent-red, #dc2626)' : (days > 5 ? '#f97316' : '#059669');
 
+                    const isFinalPolish = (item.dept || 'Rough') === 'Final Polish';
+                    const transferTooltip = isFinalPolish ? 'Complete Kapan (પ્રોસેસ પૂર્ણ કરો)' : 'Transfer Department (વિભાગ બદલો)';
+                    const transferIcon = isFinalPolish ? 'check-circle' : 'arrow-right-left';
+                    const transferIconColor = isFinalPolish ? '#059669' : '#3b82f6';
+
                     tableRows += `
                         <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${item.kapan.replace(/'/g, "\\'")}">
                             <td style="text-align: center; width: 28px; padding: 4px 4px;">
@@ -2505,8 +2530,8 @@
                             <td class="col-num col-pcs" style="text-align: right;">${formatNumber(item.pcs)}</td>
                             <td class="col-num col-cts" style="text-align: right;">${formatCarat(item.carat)}</td>
                             <td style="text-align: center; width: 28px; padding: 4px 2px;">
-                                <button onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: #3b82f6; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s; margin: 0 auto;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Transfer Department">
-                                    <i data-lucide="arrow-right-left" style="width:12px;height:12px;"></i>
+                                <button onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${item.kapan.replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: ${transferIconColor}; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s; margin: 0 auto;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="${transferTooltip}">
+                                    <i data-lucide="${transferIcon}" style="width:12px;height:12px;"></i>
                                 </button>
                             </td>
                         </tr>
@@ -3212,12 +3237,7 @@
 
         function openTransferKapanModal(groupName, kapanName, currentDept, currentPcs, currentCarat) {
             const currentVal = currentDept || 'Rough';
-            const nextDeptVal = NEXT_DEPT_MAP[currentVal];
-            if (!nextDeptVal) {
-                showCustomDialog('alert', 'Transfer Not Allowed', `આ કાપણ પહેલેથી જ અંતિમ વિભાગ (Final Polish) માં છે, તેથી તેને આગળ ટ્રાન્સફર કરી શકાશે નહીં!`);
-                return;
-            }
-
+            
             targetTransferGroup = groupName;
             targetTransferKapan = kapanName;
             
@@ -3226,8 +3246,14 @@
             document.getElementById('transfer-input-from-dept').value = DEPT_DISPLAY_NAMES[currentVal] || currentVal;
             
             const toDeptInput = document.getElementById('transfer-input-to-dept');
-            toDeptInput.value = DEPT_DISPLAY_NAMES[nextDeptVal] || nextDeptVal;
-            toDeptInput.dataset.val = nextDeptVal; // Store the exact database schema value
+            if (currentVal === 'Final Polish') {
+                toDeptInput.value = 'Complete / Dispatch (પ્રોસેસ પૂર્ણ)';
+                toDeptInput.dataset.val = 'Completed';
+            } else {
+                const nextDeptVal = NEXT_DEPT_MAP[currentVal];
+                toDeptInput.value = DEPT_DISPLAY_NAMES[nextDeptVal] || nextDeptVal;
+                toDeptInput.dataset.val = nextDeptVal; // Store the exact database schema value
+            }
 
             document.getElementById('transfer-input-pcs').value = currentPcs;
             document.getElementById('transfer-input-carat').value = currentCarat;
@@ -3244,77 +3270,149 @@
             }, 50);
         }
 
-        if (btnTransferKapanClose) {
-            btnTransferKapanClose.addEventListener('click', () => {
-                modalTransferKapan.style.display = 'none';
-            });
-        }
-
-        if (formTransferKapan) {
-            formTransferKapan.addEventListener('submit', (e) => {
-                e.preventDefault();
-                transferKapanError.style.display = 'none';
-
-                const toDept = document.getElementById('transfer-input-to-dept').dataset.val;
-                const newPcs = parseInt(document.getElementById('transfer-input-pcs').value);
-                const newCarat = parseFloat(document.getElementById('transfer-input-carat').value);
-                const fromDept = document.getElementById('transfer-input-from-dept').value;
-
-                if (isNaN(newPcs) || newPcs < 0) {
-                    transferKapanError.innerText = 'નંગ ની સંખ્યા સાચી હોવી જરૂરી છે!';
-                    transferKapanError.style.display = 'block';
-                    return;
-                }
-                if (isNaN(newCarat) || newCarat < 0) {
-                    transferKapanError.innerText = 'કેરેટ સાચા હોવા જરૂરી છે!';
-                    transferKapanError.style.display = 'block';
-                    return;
-                }
-
-                // Update the kapan inside in-memory stockData
-                const group = stockData.groups.find(g => g.name === targetTransferGroup);
-                if (group) {
-                    const item = group.items.find(it => !it.is_subtotal && it.kapan === targetTransferKapan);
-                    if (item) {
-                        const previousDept = item.dept || 'Rough';
-                        const activeParts = multiData.active_date.split('-');
-                        const transferDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
-
-                        item.dept = toDept;
-                        item.pcs = String(newPcs);
-                        item.carat = String(newCarat);
-
-                        if (!item.deptDates) {
-                            item.deptDates = {};
-                        }
-                        if (!item.deptDates[previousDept]) {
-                            item.deptDates[previousDept] = item.date || transferDateFormatted;
-                        }
-                        item.deptDates[toDept] = transferDateFormatted;
-                        
-                        // Recalculate, save to LocalStorage/Firebase and refresh all UI elements
-                        recalculateGrandTotals();
-                        renderStockCards(document.getElementById('search-bar')?.value || '');
-                        renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
-                        renderMasterGroupTable();
-                        renderKapanMasterTable();
-                        if (document.getElementById('kapan-master-search')) {
-                            renderKapanMasterTable(document.getElementById('kapan-master-search').value);
-                        }
-                        
-                        modalTransferKapan.style.display = 'none';
-                        showCustomDialog('alert', 'Success', `Kapan "${targetTransferKapan}" successfully transferred to "${DEPT_DISPLAY_NAMES[toDept] || toDept}" department!`);
-                    }
-                }
-            });
-        }
-
-        // Close transfer modal if clicked outside
-        window.addEventListener('click', (e) => {
-            if (e.target === modalTransferKapan) {
-                modalTransferKapan.style.display = 'none';
+        // Toggle Completed Kapans Dropdown Menu
+        function toggleCompletedDropdown(event) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById('completed-dropdown-menu');
+            const button = document.getElementById('btn-completed-dropdown');
+            if (!menu || !button) return;
+            const isVisible = menu.style.display === 'block';
+            
+            if (isVisible) {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+                // Position menu dynamically using fixed positioning to bypass navbar overflow clip
+                const rect = button.getBoundingClientRect();
+                menu.style.position = 'fixed';
+                menu.style.top = `${rect.bottom + 6}px`;
+                menu.style.left = `${rect.left}px`;
+                
+                renderCompletedDropdown();
             }
-        });
+        }
+
+        // Render Completed Kapans inside Navbar Dropdown
+        function renderCompletedDropdown() {
+            const menu = document.getElementById('completed-dropdown-menu');
+            const badge = document.getElementById('completed-count-badge');
+            if (!menu) return;
+
+            menu.innerHTML = '';
+            
+            const completedGroups = {}; 
+            let totalCompleted = 0;
+
+            stockData.groups.forEach(group => {
+                group.items.forEach(item => {
+                    if (!item.is_subtotal && item.completed) {
+                        if (!completedGroups[group.name]) {
+                            completedGroups[group.name] = [];
+                        }
+                        completedGroups[group.name].push(item);
+                        totalCompleted++;
+                    }
+                });
+            });
+
+            if (badge) {
+                badge.innerText = totalCompleted.toString();
+            }
+
+            const sortedGroupNames = Object.keys(completedGroups).sort();
+
+            if (totalCompleted === 0) {
+                menu.innerHTML = `
+                    <div style="padding: 16px; text-align: center; color: var(--text-secondary); font-size: 0.85rem;">
+                        કોઈ કાપણ પૂર્ણ થયેલ નથી.<br>
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;">(No completed kapans)</span>
+                    </div>
+                `;
+                return;
+            }
+
+            sortedGroupNames.forEach(groupName => {
+                const header = document.createElement('div');
+                header.style.padding = '6px 12px';
+                header.style.fontSize = '0.75rem';
+                header.style.fontWeight = '800';
+                header.style.color = 'var(--accent-navy)';
+                header.style.background = '#f8fafc';
+                header.style.borderTop = '1px solid #f1f5f9';
+                header.style.borderBottom = '1px solid #f1f5f9';
+                header.style.textTransform = 'uppercase';
+                header.innerText = groupName;
+                menu.appendChild(header);
+
+                completedGroups[groupName].forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'completed-item-row';
+                    row.style.padding = '8px 12px';
+                    row.style.display = 'flex';
+                    row.style.justifyContent = 'space-between';
+                    row.style.alignItems = 'center';
+                    row.style.borderBottom = '1px solid #f8fafc';
+                    row.style.transition = 'background 0.15s';
+                    
+                    row.onmouseover = () => { row.style.background = '#f8fafc'; };
+                    row.onmouseout = () => { row.style.background = 'transparent'; };
+
+                    const infoCol = document.createElement('div');
+                    infoCol.style.display = 'flex';
+                    infoCol.style.flexDirection = 'column';
+                    infoCol.style.gap = '2px';
+
+                    const kapanNameSpan = document.createElement('span');
+                    kapanNameSpan.style.fontSize = '0.85rem';
+                    kapanNameSpan.style.fontWeight = '700';
+                    kapanNameSpan.style.color = 'var(--text-primary)';
+                    kapanNameSpan.innerText = item.kapan;
+                    infoCol.appendChild(kapanNameSpan);
+
+                    const dateSpan = document.createElement('span');
+                    dateSpan.style.fontSize = '0.72rem';
+                    dateSpan.style.color = '#64748b';
+                    dateSpan.style.fontWeight = '600';
+                    dateSpan.innerText = `તારીખ: ${item.completedDate || '-'}`;
+                    infoCol.appendChild(dateSpan);
+
+                    row.appendChild(infoCol);
+
+                    const actionCol = document.createElement('div');
+                    const restoreBtn = document.createElement('button');
+                    restoreBtn.style.background = '#eff6ff';
+                    restoreBtn.style.border = '1px solid #bfdbfe';
+                    restoreBtn.style.borderRadius = '4px';
+                    restoreBtn.style.padding = '3px 6px';
+                    restoreBtn.style.color = '#1d4ed8';
+                    restoreBtn.style.fontSize = '0.75rem';
+                    restoreBtn.style.fontWeight = '700';
+                    restoreBtn.style.cursor = 'pointer';
+                    restoreBtn.style.display = 'flex';
+                    restoreBtn.style.alignItems = 'center';
+                    restoreBtn.style.gap = '4px';
+                    restoreBtn.style.transition = 'all 0.15s';
+                    
+                    restoreBtn.onmouseover = () => { restoreBtn.style.background = '#dbeafe'; };
+                    restoreBtn.onmouseout = () => { restoreBtn.style.background = '#eff6ff'; };
+                    
+                    restoreBtn.innerHTML = '<i data-lucide="rotate-ccw" style="width:11px;height:11px;"></i> ચાલુ કરો';
+                    restoreBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        restoreCompletedKapan(groupName, item.kapan);
+                    };
+
+                    actionCol.appendChild(restoreBtn);
+                    row.appendChild(actionCol);
+                    
+                    menu.appendChild(row);
+                });
+            });
+
+            lucide.createIcons();
+        }
+
+
 
         // Initialize drag for Transfer Modal
         makeElementDraggable('modal-transfer-kapan-header', 'modal-transfer-kapan-content');

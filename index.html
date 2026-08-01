@@ -1034,15 +1034,8 @@
                         <input type="text" id="transfer-input-from-dept" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">To <span style="color:#dc2626">*</span></label>
-                        <select id="transfer-input-to-dept" required style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; outline: none; background: #ffffff;">
-                            <option value="Rough">Rough</option>
-                            <option value="AP ok">AP OK</option>
-                            <option value="4P">4P</option>
-                            <option value="RT">RT</option>
-                            <option value="RA">RA</option>
-                            <option value="Khata">Khata</option>
-                        </select>
+                        <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">To</label>
+                        <input type="text" id="transfer-input-to-dept" disabled style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
                     </div>
                 </div>
                 <div>
@@ -3182,14 +3175,43 @@
         let targetTransferGroup = '';
         let targetTransferKapan = '';
 
+        const NEXT_DEPT_MAP = {
+            'Rough': 'AP ok',
+            'AP ok': '4P',
+            '4P': 'RT',
+            'RT': 'RA',
+            'RA': 'Khata',
+            'Khata': null
+        };
+
+        const DEPT_DISPLAY_NAMES = {
+            'Rough': 'Rough',
+            'AP ok': 'AP OK',
+            '4P': '4P',
+            'RT': 'RT',
+            'RA': 'RA',
+            'Khata': 'KHATA'
+        };
+
         function openTransferKapanModal(groupName, kapanName, currentDept, currentPcs, currentCarat) {
+            const currentVal = currentDept || 'Rough';
+            const nextDeptVal = NEXT_DEPT_MAP[currentVal];
+            if (!nextDeptVal) {
+                showCustomDialog('alert', 'Transfer Not Allowed', `આ કાપણ પહેલેથી જ અંતિમ વિભાગ (KHATA) માં છે, તેથી તેને આગળ ટ્રાન્સફર કરી શકાશે નહીં!`);
+                return;
+            }
+
             targetTransferGroup = groupName;
             targetTransferKapan = kapanName;
             
             resetModalPosition('modal-transfer-kapan-content');
             document.getElementById('transfer-input-kapan-name').value = kapanName;
-            document.getElementById('transfer-input-from-dept').value = currentDept;
-            document.getElementById('transfer-input-to-dept').value = currentDept;
+            document.getElementById('transfer-input-from-dept').value = DEPT_DISPLAY_NAMES[currentVal] || currentVal;
+            
+            const toDeptInput = document.getElementById('transfer-input-to-dept');
+            toDeptInput.value = DEPT_DISPLAY_NAMES[nextDeptVal] || nextDeptVal;
+            toDeptInput.dataset.val = nextDeptVal; // Store the exact database schema value
+
             document.getElementById('transfer-input-pcs').value = currentPcs;
             document.getElementById('transfer-input-carat').value = currentCarat;
             
@@ -3197,8 +3219,11 @@
             modalTransferKapan.style.display = 'flex';
             
             setTimeout(() => {
-                const toDeptInput = document.getElementById('transfer-input-to-dept');
-                if (toDeptInput) toDeptInput.focus();
+                const pcsInput = document.getElementById('transfer-input-pcs');
+                if (pcsInput) {
+                    pcsInput.focus();
+                    pcsInput.select();
+                }
             }, 50);
         }
 
@@ -3213,16 +3238,10 @@
                 e.preventDefault();
                 transferKapanError.style.display = 'none';
 
-                const toDept = document.getElementById('transfer-input-to-dept').value;
+                const toDept = document.getElementById('transfer-input-to-dept').dataset.val;
                 const newPcs = parseInt(document.getElementById('transfer-input-pcs').value);
                 const newCarat = parseFloat(document.getElementById('transfer-input-carat').value);
                 const fromDept = document.getElementById('transfer-input-from-dept').value;
-
-                if (toDept === fromDept) {
-                    transferKapanError.innerText = 'કૃપા કરીને બદલવા માટે નવો વિભાગ પસંદ કરો!';
-                    transferKapanError.style.display = 'block';
-                    return;
-                }
 
                 if (isNaN(newPcs) || newPcs < 0) {
                     transferKapanError.innerText = 'નંગ ની સંખ્યા સાચી હોવી જરૂરી છે!';
@@ -3254,7 +3273,7 @@
                         }
                         
                         modalTransferKapan.style.display = 'none';
-                        showCustomDialog('alert', 'Success', `Kapan "${targetTransferKapan}" successfully transferred to "${toDept}" department!`);
+                        showCustomDialog('alert', 'Success', `Kapan "${targetTransferKapan}" successfully transferred to "${DEPT_DISPLAY_NAMES[toDept] || toDept}" department!`);
                     }
                 }
             });

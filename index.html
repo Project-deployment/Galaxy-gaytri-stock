@@ -1765,9 +1765,22 @@
         // Initialize KPIs
         updateKPIs();
 
-        // Compile department-wise entry dates history for all kapans
+        // Compile department-wise entry dates history for all active kapans
         function compileKapanHistory() {
             const historyMap = {}; // kapanName -> { kapan: string, deptDates: { deptName: dateStr } }
+
+            // Initialize with only active kapans in the current stockData
+            stockData.groups.forEach(group => {
+                group.items.forEach(item => {
+                    if (item.is_subtotal || !item.kapan) return;
+                    const kapanName = item.kapan.trim().toUpperCase();
+                    historyMap[kapanName] = {
+                        kapan: kapanName,
+                        deptDates: {}
+                    };
+                });
+            });
+
             const sortedDates = Object.keys(multiData.dates).sort(); // Sort chronologically
 
             sortedDates.forEach(dateKey => {
@@ -1783,12 +1796,8 @@
                         if (item.is_subtotal || !item.kapan) return;
 
                         const kapanName = item.kapan.trim().toUpperCase();
-                        if (!historyMap[kapanName]) {
-                            historyMap[kapanName] = {
-                                kapan: kapanName,
-                                deptDates: {}
-                            };
-                        }
+                        // Only compile history for Kapans that are currently in stock
+                        if (!historyMap[kapanName]) return;
 
                         // Use item.deptDates if it exists as the source of truth
                         if (item.deptDates) {
@@ -3262,6 +3271,11 @@
                     return;
                 }
 
+                // Update the kapan inside in-memory stockData
+                const group = stockData.groups.find(g => g.name === targetTransferGroup);
+                if (group) {
+                    const item = group.items.find(it => !it.is_subtotal && it.kapan === targetTransferKapan);
+                    if (item) {
                         const previousDept = item.dept || 'Rough';
                         const activeParts = multiData.active_date.split('-');
                         const transferDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;

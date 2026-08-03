@@ -1850,7 +1850,6 @@
                     }
                 }
             }
-            
             // Automatically set today's date for any existing items that are currently in SIDE
             const todayDateFormatted = getTodayKey().split('-').reverse().join('-'); // returns DD-MM-YYYY
             let updatedSideDates = false;
@@ -1858,9 +1857,9 @@
                 const dayData = multiData.dates[dateKey];
                 if (dayData && dayData.groups) {
                     dayData.groups.forEach(group => {
-                        if (group.items) {
+                        if (group && group.items) {
                             group.items.forEach(item => {
-                                if (!item.is_subtotal && item.dept === SIDE_DEPT_ID && item.date !== todayDateFormatted) {
+                                if (item && !item.is_subtotal && item.dept === SIDE_DEPT_ID && item.date !== todayDateFormatted) {
                                     item.date = todayDateFormatted;
                                     updatedSideDates = true;
                                 }
@@ -1879,7 +1878,10 @@
                 if (dayData) {
                     if (!dayData.groups) dayData.groups = [];
                     dayData.groups.forEach(group => {
+                        if (!group) return;
                         if (!group.items) group.items = [];
+                        // Clean null/undefined items from the array to prevent sorting/rendering crashes
+                        group.items = group.items.filter(item => item !== null && item !== undefined);
                         if (!group.subtotals) group.subtotals = [];
 
                         // Sort group items naturally by kapan, prioritizing alphabets
@@ -1903,7 +1905,12 @@
                         });
                     });
                     // Sort the groups naturally
-                    dayData.groups.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+                    dayData.groups = dayData.groups.filter(g => g !== null && g !== undefined);
+                    dayData.groups.sort((a, b) => {
+                        const nameA = String(a && a.name ? a.name : '');
+                        const nameB = String(b && b.name ? b.name : '');
+                        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+                    });
 
                     if (!dayData.subtotals) dayData.subtotals = [];
                     if (!dayData.grand_totals) dayData.grand_totals = { total_kapan: 0, total_pcs: 0, total_carat: 0 };
@@ -1962,6 +1969,8 @@
             } catch (e) { }
 
             // 2. Sync to Firebase in background
+            if (!_appReady) return; // Prevent overwriting Firebase before initial sync completes!
+
             setSyncStatus('syncing', 'Saving...');
             db.ref(DB_PATH).set(JSON.parse(JSON.stringify(multiData)))
                 .then(() => setSyncStatus('synced', 'Synced ✓'))
@@ -2188,10 +2197,10 @@
             }
         }
 
-        // Format numbers in Indian Style
+        // Format numbers in Indian Style (Modified to disable commas for PCS)
         function formatNumber(num) {
             if (num === null || num === undefined || isNaN(num)) return '-';
-            return num.toLocaleString('en-IN');
+            return Math.round(Number(num)).toString();
         }
 
         function formatCarat(num) {
@@ -3658,8 +3667,11 @@
                 };
 
                 stockData.groups.push(newGroup);
-                // Sort the groups naturally
-                stockData.groups.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+                stockData.groups.sort((a, b) => {
+                    const nameA = String(a && a.name ? a.name : '');
+                    const nameB = String(b && b.name ? b.name : '');
+                    return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+                });
                 recalculateGrandTotals(); // Recalculates and saves to LocalStorage
                 populateGroupDropdown();
                 renderMasterGroupTable();

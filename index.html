@@ -845,6 +845,26 @@
             </div>
         </div>
 
+        <!-- Tracking Report Tab Button -->
+        <div class="tracking-report-container"
+            style="margin-left: 8px; display: none; align-items: center;">
+            <button class="top-tab" id="btn-tracking-report-tab" onclick="switchReportSubView('tracking')"
+                style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none;"
+                onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                <i data-lucide="list" style="width:16px;height:16px;color:#475569;"></i> Tracking Report
+            </button>
+        </div>
+
+        <!-- Daily Report Tab Button -->
+        <div class="daily-report-container"
+            style="margin-left: 8px; display: none; align-items: center;">
+            <button class="top-tab" id="btn-daily-report-tab" onclick="switchReportSubView('daily')"
+                style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none;"
+                onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+                <i data-lucide="clipboard" style="width:16px;height:16px;color:#2563eb;"></i> Daily Report
+            </button>
+        </div>
+
 
         <!-- Department Filtering Sub-Tabs -->
         <div class="dept-tabs" id="stock-dept-tabs" style="margin-left: 20px;"></div>
@@ -963,58 +983,66 @@
 
             <!-- VIEW D: REPORT VIEW -->
             <div id="view-report" class="view-pane" style="display: none; flex-direction: column; gap: 16px;">
-                <div class="stock-controls"
-                    style="padding: 4px 12px; background: #ffffff; border-radius: 8px; border: 1px solid var(--card-border); gap: 16px;">
-                    <div class="search-wrapper" style="max-width: 250px; flex: 1;">
-                        <i data-lucide="search" class="search-icon" style="width: 14px; height: 14px;"></i>
-                        <input type="text" id="report-search-bar" autocomplete="off" class="search-input"
-                            placeholder="Search Kapan No (e.g. 867)..." style="width: 100%;">
+                <!-- Tracking Subview -->
+                <div id="subview-tracking" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+                    <div class="stock-controls"
+                        style="padding: 4px 12px; background: #ffffff; border-radius: 8px; border: 1px solid var(--card-border); gap: 16px;">
+                        <div class="search-wrapper" style="max-width: 250px; flex: 1;">
+                            <i data-lucide="search" class="search-icon" style="width: 14px; height: 14px;"></i>
+                            <input type="text" id="report-search-bar" autocomplete="off" class="search-input"
+                                placeholder="Search Kapan No (e.g. 867)..." style="width: 100%;">
+                        </div>
+                        <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">
+                            Total Kapans Tracked: <span id="report-total-count"
+                                style="font-weight: 700; color: var(--accent-navy);">0</span>
+                        </div>
                     </div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">
-                        Total Kapans Tracked: <span id="report-total-count"
-                            style="font-weight: 700; color: var(--accent-navy);">0</span>
+
+                    <div
+                        style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow-x: auto; width: 100%;">
+                        <table class="stock-table master-table" id="report-tracking-table"
+                            style="width: 100%; border-collapse: collapse; min-width: 900px;">
+                            <thead>
+                                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                    <th
+                                        style="text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; width: 120px;">
+                                        Kapan No</th>
+                                    <th
+                                        style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                        Rough</th>
+                                    <th
+                                        style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                        AP OK</th>
+                                    <th
+                                        style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                        4P</th>
+                                    <th
+                                        style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                        RT</th>
+                                    <th
+                                        style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                        RA</th>
+                                    <th
+                                        style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                        Loting</th>
+                                    <th
+                                        style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                        Khata</th>
+                                    <th
+                                        style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
+                                        Final Polish</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-tracking-tbody" style="font-size: 13px; font-weight: 600;">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div
-                    style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow-x: auto; width: 100%;">
-                    <table class="stock-table master-table" id="report-tracking-table"
-                        style="width: 100%; border-collapse: collapse; min-width: 900px;">
-                        <thead>
-                            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                                <th
-                                    style="text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; width: 120px;">
-                                    Kapan No</th>
-                                <th
-                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
-                                    Rough</th>
-                                <th
-                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
-                                    AP OK</th>
-                                <th
-                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
-                                    4P</th>
-                                <th
-                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
-                                    RT</th>
-                                <th
-                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
-                                    RA</th>
-                                <th
-                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
-                                    Loting</th>
-                                <th
-                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
-                                    Khata</th>
-                                <th
-                                    style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">
-                                    Final Polish</th>
-                            </tr>
-                        </thead>
-                        <tbody id="report-tracking-tbody" style="font-size: 13px; font-weight: 600;">
-                            <!-- Dynamic rows -->
-                        </tbody>
-                    </table>
+                <!-- Daily Report Subview -->
+                <div id="subview-daily" style="display: none; flex-direction: column; gap: 16px; width: 100%;">
+                    <!-- Will be populated dynamically by renderDailyReportMode() -->
                 </div>
             </div>
 
@@ -1772,6 +1800,55 @@
             return 'hash_' + (hash >>> 0).toString(16) + '_' + (hash2 >>> 0).toString(16);
         }
 
+        // Reversible encryption to allow Admin to reveal/view passwords in settings
+        function encryptPassword(password) {
+            if (!password) return '';
+            if (typeof password !== 'string') password = String(password);
+            if (password.startsWith('enc_')) return password; // Already encrypted
+            
+            let result = '';
+            const key = 42; // Encryption key
+            for (let i = 0; i < password.length; i++) {
+                result += String.fromCharCode(password.charCodeAt(i) ^ key);
+            }
+            return 'enc_' + btoa(unescape(encodeURIComponent(result)));
+        }
+
+        function decryptPassword(encrypted) {
+            if (!encrypted) return '';
+            if (typeof encrypted !== 'string') encrypted = String(encrypted);
+            
+            // Reversible check for default hashes to show actual plaintext values
+            if (encrypted.startsWith('hash_')) {
+                if (encrypted === hashPassword('123')) return '123';
+                if (encrypted === hashPassword('admin123')) return 'admin123';
+                return 'Hashed (નવો સેટ કરો)';
+            }
+            if (!encrypted.startsWith('enc_')) return encrypted; // Not encrypted
+            
+            try {
+                const base64 = encrypted.substring(4);
+                const decoded = decodeURIComponent(escape(atob(base64)));
+                let result = '';
+                const key = 42;
+                for (let i = 0; i < decoded.length; i++) {
+                    result += String.fromCharCode(decoded.charCodeAt(i) ^ key);
+                }
+                return result;
+            } catch (e) {
+                console.error("Decryption failed:", e);
+                return encrypted;
+            }
+        }
+
+        function verifyPassword(inputPassword, storedHashOrEnc) {
+            if (!storedHashOrEnc) return false;
+            if (storedHashOrEnc.startsWith('enc_')) {
+                return inputPassword === decryptPassword(storedHashOrEnc);
+            }
+            return hashPassword(inputPassword) === storedHashOrEnc;
+        }
+
         function syncStockDataReference() {
             let migrated = false;
             if (!multiData || !multiData.dates || !multiData.active_date) {
@@ -1785,25 +1862,29 @@
             }
             if (!multiData.departments) {
                 multiData.departments = [
-                    { id: "SIDE", name: "SIDE", password: hashPassword("123"), color: "#f59e0b", textColor: "#ffffff", borderColor: "#d97706", allowSide: false },
-                    { id: "Rough", name: "Rough", password: hashPassword("123"), color: "#e2e8f0", textColor: "#475569", borderColor: "#cbd5e1" },
-                    { id: "AP ok", name: "AP OK", password: hashPassword("123"), color: "#dbeafe", textColor: "#1e40af", borderColor: "#bfdbfe" },
-                    { id: "4P", name: "4P", password: hashPassword("123"), color: "#f3e8ff", textColor: "#6b21a8", borderColor: "#e9d5ff" },
-                    { id: "RT", name: "RT", password: hashPassword("123"), color: "#e0f2fe", textColor: "#0369a1", borderColor: "#bae6fd" },
-                    { id: "RA", name: "RA", password: hashPassword("123"), color: "#ffedd5", textColor: "#c2410c", borderColor: "#fed7aa" },
-                    { id: "Loting", name: "Loting", password: hashPassword("123"), color: "#dcfce7", textColor: "#15803d", borderColor: "#bbf7d0" },
-                    { id: "Khata", name: "Khata", password: hashPassword("123"), color: "#fee2e2", textColor: "#b91c1c", borderColor: "#fecaca" },
-                    { id: "Final Polish", name: "Final Polish", password: hashPassword("123"), color: "#ccfbf1", textColor: "#0f766e", borderColor: "#99f6e4" }
+                    { id: "SIDE", name: "SIDE", password: encryptPassword("123"), color: "#f59e0b", textColor: "#ffffff", borderColor: "#d97706", allowSide: false },
+                    { id: "Rough", name: "Rough", password: encryptPassword("123"), color: "#e2e8f0", textColor: "#475569", borderColor: "#cbd5e1" },
+                    { id: "AP ok", name: "AP OK", password: encryptPassword("123"), color: "#dbeafe", textColor: "#1e40af", borderColor: "#bfdbfe" },
+                    { id: "4P", name: "4P", password: encryptPassword("123"), color: "#f3e8ff", textColor: "#6b21a8", borderColor: "#e9d5ff" },
+                    { id: "RT", name: "RT", password: encryptPassword("123"), color: "#e0f2fe", textColor: "#0369a1", borderColor: "#bae6fd" },
+                    { id: "RA", name: "RA", password: encryptPassword("123"), color: "#ffedd5", textColor: "#c2410c", borderColor: "#fed7aa" },
+                    { id: "Loting", name: "Loting", password: encryptPassword("123"), color: "#dcfce7", textColor: "#15803d", borderColor: "#bbf7d0" },
+                    { id: "Khata", name: "Khata", password: encryptPassword("123"), color: "#fee2e2", textColor: "#b91c1c", borderColor: "#fecaca" },
+                    { id: "Final Polish", name: "Final Polish", password: encryptPassword("123"), color: "#ccfbf1", textColor: "#0f766e", borderColor: "#99f6e4" }
                 ];
                 migrated = true;
             }
             if (!multiData.adminPassword) {
-                multiData.adminPassword = hashPassword("admin123");
+                multiData.adminPassword = encryptPassword("admin123");
                 migrated = true;
             } else {
-                const oldAdmin = multiData.adminPassword;
-                multiData.adminPassword = hashPassword(multiData.adminPassword);
-                if (oldAdmin !== multiData.adminPassword) migrated = true;
+                if (multiData.adminPassword === hashPassword("admin123")) {
+                    multiData.adminPassword = encryptPassword("admin123");
+                    migrated = true;
+                } else if (!multiData.adminPassword.startsWith('hash_') && !multiData.adminPassword.startsWith('enc_')) {
+                    multiData.adminPassword = encryptPassword(multiData.adminPassword);
+                    migrated = true;
+                }
             }
             if (!multiData.sessionTimeout) {
                 multiData.sessionTimeout = "12";
@@ -1816,7 +1897,7 @@
                     multiData.departments.unshift({
                         id: "SIDE",
                         name: "SIDE",
-                        password: hashPassword("123"),
+                        password: encryptPassword("123"),
                         color: "#f59e0b",
                         textColor: "#ffffff",
                         borderColor: "#d97706",
@@ -1831,12 +1912,16 @@
 
                 multiData.departments.forEach(dept => {
                     if (!dept.password) {
-                        dept.password = hashPassword("123");
+                        dept.password = encryptPassword("123");
+                        migrated = true;
+                    } else if (dept.password === hashPassword("123")) {
+                        dept.password = encryptPassword("123");
                         migrated = true;
                     } else {
-                        const oldPass = dept.password;
-                        dept.password = hashPassword(dept.password);
-                        if (oldPass !== dept.password) migrated = true;
+                        if (!dept.password.startsWith('hash_') && !dept.password.startsWith('enc_')) {
+                            dept.password = encryptPassword(dept.password);
+                            migrated = true;
+                        }
                     }
                 });
                 if (multiData.departments.length > 0) {
@@ -2314,7 +2399,7 @@
 
         // Compile department-wise entry dates history for all active kapans
         function compileKapanHistory() {
-            const historyMap = {}; // kapanName -> { kapan: string, deptDates: { deptName: dateStr } }
+            const historyMap = {}; // kapanName -> { kapan: string, groupName: string, pcs: number, carat: number, deptDates: { deptName: dateStr } }
 
             // Initialize with only active kapans in the current stockData
             stockData.groups.forEach(group => {
@@ -2323,6 +2408,12 @@
                     const kapanName = item.kapan.trim().toUpperCase();
                     historyMap[kapanName] = {
                         kapan: kapanName,
+                        groupName: group.name,
+                        pcs: parseFloat(item.pcs) || 0,
+                        carat: parseFloat(item.carat) || 0,
+                        currentDept: item.dept || 'Rough',
+                        lastTransferFrom: item.lastTransferFrom || null,
+                        completed: !!item.completed,
                         deptDates: {}
                     };
                 });
@@ -2433,6 +2524,235 @@
             }
         }
 
+        // Daily Report Subview State & Rendering
+        let activeReportSubView = 'tracking'; // 'tracking' or 'daily'
+
+        function switchReportSubView(mode) {
+            activeReportSubView = mode;
+            const btnTracking = document.getElementById('btn-tracking-report-tab');
+            const btnDaily = document.getElementById('btn-daily-report-tab');
+            const viewTracking = document.getElementById('subview-tracking');
+            const viewDaily = document.getElementById('subview-daily');
+
+            if (mode === 'daily') {
+                if (viewTracking) viewTracking.style.display = 'none';
+                if (viewDaily) viewDaily.style.display = 'flex';
+                
+                if (btnTracking) {
+                    btnTracking.style.background = '#ffffff';
+                    btnTracking.style.color = 'var(--text-secondary)';
+                    btnTracking.style.borderColor = 'var(--card-border)';
+                }
+                if (btnDaily) {
+                    btnDaily.style.background = '#ebf8ff';
+                    btnDaily.style.color = '#2563eb';
+                    btnDaily.style.borderColor = '#90cdf4';
+                }
+                renderDailyReportMode();
+            } else {
+                if (viewTracking) viewTracking.style.display = 'flex';
+                if (viewDaily) viewDaily.style.display = 'none';
+
+                if (btnDaily) {
+                    btnDaily.style.background = '#ffffff';
+                    btnDaily.style.color = 'var(--text-secondary)';
+                    btnDaily.style.borderColor = 'var(--card-border)';
+                }
+                if (btnTracking) {
+                    btnTracking.style.background = '#ebf8ff';
+                    btnTracking.style.color = '#2563eb';
+                    btnTracking.style.borderColor = '#90cdf4';
+                }
+                renderDailyReport();
+            }
+        }
+
+        function resolveDailyReportDepts() {
+            const depts = multiData.departments || [];
+            
+            // First department in settings that is NOT 'SIDE' (Galaxy DP / Rough)
+            const firstDept = depts.find(d => d.id !== 'SIDE') || depts[0] || { id: 'Rough', name: 'Rough' };
+            
+            // Second / AP OK department (matches AP ok or AP OK case-insensitively)
+            const apOkDept = depts.find(d => 
+                d.id.toLowerCase() === 'ap ok' || 
+                d.name.toLowerCase() === 'ap ok' || 
+                d.name.toLowerCase() === 'ap_ok'
+            ) || depts[1] || { id: 'AP ok', name: 'AP OK' };
+            
+            return { firstDept, apOkDept };
+        }
+
+        function renderDailyReportMode() {
+            const viewDaily = document.getElementById('subview-daily');
+            if (!viewDaily) return;
+
+            const activeDateKey = multiData.active_date || getTodayKey();
+            const parts = activeDateKey.split('-');
+            const activeDateFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
+
+            const { firstDept, apOkDept } = resolveDailyReportDepts();
+            const historyMap = compileKapanHistory();
+
+            const addedToFirst = [];
+            const arrivedAtApOk = [];
+
+            Object.keys(historyMap).forEach(kapanName => {
+                const hItem = historyMap[kapanName];
+                
+                // 1. Added to first department (e.g. Galaxy DP / Rough)
+                if (hItem.deptDates[firstDept.id] === activeDateFormatted) {
+                    // Do not count if currently in SIDE or completed
+                    if (hItem.currentDept !== 'SIDE' && !hItem.completed) {
+                        addedToFirst.push(hItem);
+                    }
+                }
+                
+                // 2. Arrived at AP OK department
+                if (hItem.deptDates[apOkDept.id] === activeDateFormatted) {
+                    // Must come directly from the first department (Galaxy DP / Rough)
+                    // Must not be currently in SIDE or completed
+                    if (hItem.lastTransferFrom === firstDept.id && hItem.currentDept !== 'SIDE' && !hItem.completed) {
+                        arrivedAtApOk.push(hItem);
+                    }
+                }
+            });
+
+            // Sort naturally
+            const sortFn = (a, b) => a.kapan.localeCompare(b.kapan, undefined, { numeric: true, sensitivity: 'base' });
+            addedToFirst.sort(sortFn);
+            arrivedAtApOk.sort(sortFn);
+
+            // Render HTML
+            let html = `
+                <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: var(--shadow-sm);">
+                    <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="calendar" style="width: 18px; height: 18px; color: var(--accent-navy);"></i>
+                        તારીખ: <span style="color: #2563eb; font-variant-numeric: tabular-nums;">${activeDateFormatted}</span> નો ડેઇલી રીપોર્ટ
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; width: 100%;">
+                    
+                    <!-- Left Section: Added to Galaxy DP -->
+                    <div style="flex: 1; min-width: 340px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="padding: 8px 12px; background: #eff6ff; border-left: 4px solid #2563eb; border-radius: 4px; font-weight: 700; font-size: 0.95rem; color: #1e3a8a; display: flex; justify-content: space-between; align-items: center;">
+                            <span>📥 ${firstDept.name} (Galaxy DP) માં ચડ્યા</span>
+                            <span style="background: #2563eb; color: white; border-radius: 12px; padding: 2px 8px; font-size: 0.75rem; font-variant-numeric: tabular-nums;">${addedToFirst.length}</span>
+                        </div>
+                        <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow-x: auto;">
+                            <table class="stock-table master-table" style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                        <th style="text-align: left; padding: 10px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Kapan No</th>
+                                        <th style="text-align: left; padding: 10px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Group</th>
+                                        <th style="text-align: right; padding: 10px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">PCS</th>
+                                        <th style="text-align: right; padding: 10px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Carat</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="font-size: 13px; font-weight: 600;">
+            `;
+
+            let firstTotalPcs = 0;
+            let firstTotalCarat = 0;
+
+            if (addedToFirst.length === 0) {
+                html += `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 16px 12px; font-size: 0.85rem;">આ તારીખે કોઈ કાપણ દાખલ થયેલ નથી.</td>
+                    </tr>
+                `;
+            } else {
+                addedToFirst.forEach(item => {
+                    firstTotalPcs += item.pcs;
+                    firstTotalCarat += item.carat;
+                    html += `
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="text-align: left; padding: 10px 12px; font-weight: 700; color: var(--accent-navy);">${item.kapan}</td>
+                            <td style="text-align: left; padding: 10px 12px; color: var(--text-secondary);">${item.groupName}</td>
+                            <td style="text-align: right; padding: 10px 12px; font-variant-numeric: tabular-nums;">${formatNumber(item.pcs)}</td>
+                            <td style="text-align: right; padding: 10px 12px; font-variant-numeric: tabular-nums; color: #059669;">${formatCarat(item.carat)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            html += `
+                                </tbody>
+                                <tfoot style="background: #f8fafc; font-weight: 700; border-top: 2px solid #e2e8f0;">
+                                    <tr>
+                                        <td colspan="2" style="text-align: left; padding: 10px 12px; color: var(--accent-navy);">TOTAL</td>
+                                        <td style="text-align: right; padding: 10px 12px; font-variant-numeric: tabular-nums; color: var(--accent-navy);">${formatNumber(firstTotalPcs)}</td>
+                                        <td style="text-align: right; padding: 10px 12px; font-variant-numeric: tabular-nums; color: #059669;">${formatCarat(firstTotalCarat)}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right Section: Arrived at AP OK -->
+                    <div style="flex: 1; min-width: 340px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="padding: 8px 12px; background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 4px; font-weight: 700; font-size: 0.95rem; color: #065f46; display: flex; justify-content: space-between; align-items: center;">
+                            <span>📤 ${apOkDept.name} (AP OK) માં આવ્યા</span>
+                            <span style="background: #10b981; color: white; border-radius: 12px; padding: 2px 8px; font-size: 0.75rem; font-variant-numeric: tabular-nums;">${arrivedAtApOk.length}</span>
+                        </div>
+                        <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow-x: auto;">
+                            <table class="stock-table master-table" style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                        <th style="text-align: left; padding: 10px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Kapan No</th>
+                                        <th style="text-align: left; padding: 10px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Group</th>
+                                        <th style="text-align: right; padding: 10px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">PCS</th>
+                                        <th style="text-align: right; padding: 10px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">Carat</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="font-size: 13px; font-weight: 600;">
+            `;
+
+            let apTotalPcs = 0;
+            let apTotalCarat = 0;
+
+            if (arrivedAtApOk.length === 0) {
+                html += `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 16px 12px; font-size: 0.85rem;">આ તારીખે કોઈ કાપણ આવ્યા નથી.</td>
+                    </tr>
+                `;
+            } else {
+                arrivedAtApOk.forEach(item => {
+                    apTotalPcs += item.pcs;
+                    apTotalCarat += item.carat;
+                    html += `
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="text-align: left; padding: 10px 12px; font-weight: 700; color: var(--accent-navy);">${item.kapan}</td>
+                            <td style="text-align: left; padding: 10px 12px; color: var(--text-secondary);">${item.groupName}</td>
+                            <td style="text-align: right; padding: 10px 12px; font-variant-numeric: tabular-nums;">${formatNumber(item.pcs)}</td>
+                            <td style="text-align: right; padding: 10px 12px; font-variant-numeric: tabular-nums; color: #059669;">${formatCarat(item.carat)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            html += `
+                                </tbody>
+                                <tfoot style="background: #f8fafc; font-weight: 700; border-top: 2px solid #e2e8f0;">
+                                    <tr>
+                                        <td colspan="2" style="text-align: left; padding: 10px 12px; color: var(--accent-navy);">TOTAL</td>
+                                        <td style="text-align: right; padding: 10px 12px; font-variant-numeric: tabular-nums; color: var(--accent-navy);">${formatNumber(apTotalPcs)}</td>
+                                        <td style="text-align: right; padding: 10px 12px; font-variant-numeric: tabular-nums; color: #059669;">${formatCarat(apTotalCarat)}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            viewDaily.innerHTML = html;
+            lucide.createIcons();
+        }
+
         // Bind Report Search Input Listener
         setTimeout(() => {
             const reportSearch = document.getElementById('report-search-bar');
@@ -2449,10 +2769,18 @@
             document.querySelectorAll('.top-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.view-pane').forEach(pane => pane.style.display = 'none');
 
-            // Show Completed Kapans dropdown only on the Report tab
+            // Show Completed Kapans, Tracking Report, and Daily Report buttons only on the Report tab
             const completedContainer = document.querySelector('.completed-dropdown-container');
             if (completedContainer) {
                 completedContainer.style.display = (viewName === 'report') ? 'flex' : 'none';
+            }
+            const trackingContainer = document.querySelector('.tracking-report-container');
+            if (trackingContainer) {
+                trackingContainer.style.display = (viewName === 'report') ? 'flex' : 'none';
+            }
+            const dailyContainer = document.querySelector('.daily-report-container');
+            if (dailyContainer) {
+                dailyContainer.style.display = (viewName === 'report') ? 'flex' : 'none';
             }
 
             const deptTabs = document.getElementById('stock-dept-tabs');
@@ -2476,7 +2804,7 @@
 
                 const reportSearch = document.getElementById('report-search-bar');
                 if (reportSearch) reportSearch.value = '';
-                renderDailyReport();
+                switchReportSubView('tracking'); // Default to Tracking subview when report tab is loaded
             } else if (viewName === 'master') {
                 const topMaster = document.getElementById('btn-top-master');
                 if (topMaster) topMaster.classList.add('active');
@@ -3920,7 +4248,11 @@
 
                 // If report view is active, update the report
                 if (document.getElementById('view-report').style.display === 'flex') {
-                    renderDailyReport();
+                    if (activeReportSubView === 'daily') {
+                        renderDailyReportMode();
+                    } else {
+                        renderDailyReport();
+                    }
                 }
 
                 const displayD = `${parts[2]}-${parts[1]}-${parts[0]}`;
@@ -4178,6 +4510,7 @@
                         const destDeptObj = (multiData.departments || []).find(d => d.id === toDept);
                         const isDestDispatch = destDeptObj && destDeptObj.isDispatch;
 
+                        item.lastTransferFrom = item.dept || 'Rough';
                         if (toDept === 'Completed' || isDestDispatch) {
                             item.completed = true;
                             item.completedDate = entryDateFormatted;
@@ -4551,7 +4884,27 @@
                 tr.innerHTML = `
                     <td style="text-align: center; font-weight: 700; color: var(--text-secondary);">${index + 1}</td>
                     <td style="font-weight: 600; color: var(--accent-navy);">${dept.name}</td>
-                    <td style="text-align: center; font-family: monospace; font-weight: 700; color: #475569;">${dept.id === SIDE_DEPT_ID ? 'N/A' : '••••••'}</td>
+                    <td style="text-align: center; font-family: monospace; font-weight: 700; color: #475569;">
+                        ${dept.id === SIDE_DEPT_ID ? 'N/A' : `
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <span id="dept-pass-text-${dept.id}" style="display: inline-block; min-width: 50px;">••••••</span>
+                                <button class="btn-compact" 
+                                    onmousedown="showDeptPassword('${dept.id}')" 
+                                    onmouseup="hideDeptPassword('${dept.id}')" 
+                                    onmouseleave="hideDeptPassword('${dept.id}')" 
+                                    ontouchstart="event.preventDefault(); showDeptPassword('${dept.id}')" 
+                                    ontouchend="event.preventDefault(); hideDeptPassword('${dept.id}')" 
+                                    ontouchcancel="event.preventDefault(); hideDeptPassword('${dept.id}')"
+                                    oncontextmenu="event.preventDefault();"
+                                    style="background: none; border: none; cursor: pointer; padding: 2px; color: #64748b; outline: none; transition: color 0.15s; user-select: none; -webkit-user-select: none;" 
+                                    onmouseover="this.style.color='#2563eb'" 
+                                    onmouseout="this.style.color='#64748b'" 
+                                    title="પાસવર્ડ જુઓ">
+                                    <i data-lucide="eye" style="width: 13px; height: 13px;" id="dept-pass-icon-${dept.id}"></i>
+                                </button>
+                            </div>
+                        `}
+                    </td>
                     <td style="text-align: center;">
                         ${sideOptionHtml}
                     </td>
@@ -4571,6 +4924,41 @@
                 tbody.appendChild(tr);
             });
 
+            lucide.createIcons();
+        }
+
+        function showDeptPassword(deptId) {
+            const depts = multiData.departments || [];
+            const dept = depts.find(d => d.id === deptId);
+            if (!dept) return;
+
+            const span = document.getElementById(`dept-pass-text-${deptId}`);
+            const icon = document.getElementById(`dept-pass-icon-${deptId}`);
+            if (!span || !icon) return;
+
+            const pwd = dept.password;
+            if (pwd.startsWith('enc_')) {
+                span.innerText = decryptPassword(pwd);
+            } else if (pwd.startsWith('hash_')) {
+                span.innerText = 'Hashed (નવો સેટ કરો)';
+                span.style.fontSize = '0.72rem';
+                span.style.color = '#94a3b8';
+            } else {
+                span.innerText = pwd; // Plaintext fallback
+            }
+            icon.setAttribute('data-lucide', 'eye-off');
+            lucide.createIcons();
+        }
+
+        function hideDeptPassword(deptId) {
+            const span = document.getElementById(`dept-pass-text-${deptId}`);
+            const icon = document.getElementById(`dept-pass-icon-${deptId}`);
+            if (!span || !icon) return;
+
+            span.innerText = '••••••';
+            span.style.fontSize = 'inherit';
+            span.style.color = '#475569';
+            icon.setAttribute('data-lucide', 'eye');
             lucide.createIcons();
         }
 
@@ -4629,7 +5017,7 @@
                 return;
             }
 
-            dept.password = hashPassword(trimmed);
+            dept.password = encryptPassword(trimmed);
             saveToLocal();
             renderMasterDeptTable();
             await showCustomDialog('alert', 'Success', `Password for "${dept.name}" updated successfully!`);
@@ -4644,7 +5032,7 @@
                 return;
             }
 
-            multiData.adminPassword = hashPassword(trimmed);
+            multiData.adminPassword = encryptPassword(trimmed);
             saveToLocal();
             await showCustomDialog('alert', 'Success', 'Admin Password updated successfully!');
         }
@@ -4671,7 +5059,7 @@
             const newDept = {
                 id: trimmed,
                 name: trimmed,
-                password: "123",
+                password: encryptPassword("123"),
                 color: colors.color,
                 textColor: colors.textColor,
                 borderColor: colors.borderColor
@@ -5111,8 +5499,8 @@
             let sessionData = null;
 
             if (username === 'admin') {
-                const adminPassHash = multiData.adminPassword || hashPassword('admin123');
-                if (hashPassword(password) === adminPassHash) {
+                const adminPassHash = multiData.adminPassword || encryptPassword('admin123');
+                if (verifyPassword(password, adminPassHash)) {
                     sessionData = { role: 'admin' };
                 } else {
                     errorEl.innerText = "❌ Incorrect Admin Password!";
@@ -5126,8 +5514,8 @@
                 const matchedDept = depts.find(d => d.name.toLowerCase() === username || d.id.toLowerCase() === username);
 
                 if (matchedDept) {
-                    const deptPassHash = matchedDept.password || hashPassword('123');
-                    if (hashPassword(password) === deptPassHash) {
+                    const deptPassHash = matchedDept.password || encryptPassword('123');
+                    if (verifyPassword(password, deptPassHash)) {
                         sessionData = {
                             role: 'user',
                             deptId: matchedDept.id,

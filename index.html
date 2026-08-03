@@ -17,16 +17,14 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDSBNsdBdb9a7pCgm-lOCMkJsKJUVuZoaQ",
-            authDomain: "galaxy-gaytri.firebaseapp.com",
-            databaseURL: "https://galaxy-gaytri-default-rtdb.firebaseio.com",
-            projectId: "galaxy-gaytri",
-            storageBucket: "galaxy-gaytri.firebasestorage.app",
-            messagingSenderId: "817366375093",
-            appId: "1:817366375093:web:bfe35655985e3eca153cfc"
-        };
-        firebase.initializeApp(firebaseConfig);
+        const firebaseConfigRaw = "==QfiMmZjNTNxE2YlNTZ1gTO1UjN1MTZmJmOiV2d6MTOwUzNzYjNzcTM4oTMiAiOiQWSwBXYiACLiMTOwUzNzYjNzcTM4ICI6ICZJJXZk5WZTdmbpdWYzNXZtJCIsICcwFmLldWYy9GdzV2chJWZylmZukmc0lXYn1Se4FGbhdmIgojI0V2ajVnQldWYy9GdzJCIsISayRXehdWL5hXYsF2ZiAiOiQWS0NWZq9mcwJCIsISbvNmLvlWZzFmYlJXam5iYkRnctQHb1FmZlRWLpJHd5F2ZtkHehxWYn9yL6MHc0RHaiAiOiwkUVV2chJWY0FGZiACLi02bj5CcwFWZzFmYlJXam5SayRXehdWL5hXYsF2ZiAiOi4Wah12bEhGd1FmIgwiIRF2baVnVVp0Szp0aNN0Ts1SbnNEc3EWOiRmQkNnTCNFR5NVY6lUQiAiOikXZLlGchJye";
+        
+        function decodeConfig(str) {
+            const reversed = str.split('').reverse().join('');
+            return JSON.parse(decodeURIComponent(escape(atob(reversed))));
+        }
+        
+        firebase.initializeApp(decodeConfig(firebaseConfigRaw));
         const db = firebase.database();
         const DB_PATH = 'galaxy_stock';
     </script>
@@ -1652,6 +1650,25 @@
         // DATA ARCHITECTURE: LocalStorage (Primary) + Firebase (Authoritative Sync)
         // Instant load, absolute consistency, no stale overwrites!
         // ════════════════════════════════════════════════════════
+        function obfuscate(str) {
+            try {
+                const b64 = btoa(unescape(encodeURIComponent(str)));
+                return b64.split('').reverse().join('');
+            } catch (e) {
+                return str;
+            }
+        }
+
+        function deobfuscate(str) {
+            try {
+                if (!str) return '';
+                const reversed = str.split('').reverse().join('');
+                return decodeURIComponent(escape(atob(reversed)));
+            } catch (e) {
+                return str;
+            }
+        }
+
         const LS_KEY = 'galaxy_stock_multi_data';
         let multiData;
         let _appReady = false; // blocks saves/edits until Firebase completes first sync
@@ -1660,7 +1677,11 @@
         try {
             const cached = localStorage.getItem(LS_KEY);
             if (cached) {
-                multiData = JSON.parse(cached);
+                try {
+                    multiData = JSON.parse(deobfuscate(cached));
+                } catch (err) {
+                    multiData = JSON.parse(cached);
+                }
                 // Ensure today's date slot exists in local cache
                 if (!multiData.dates[_todayKey]) {
                     const sorted = Object.keys(multiData.dates).sort();
@@ -1829,6 +1850,29 @@
                     }
                 }
             }
+            
+            // Automatically set today's date for any existing items that are currently in SIDE
+            const todayDateFormatted = getTodayKey().split('-').reverse().join('-'); // returns DD-MM-YYYY
+            let updatedSideDates = false;
+            Object.keys(multiData.dates).forEach(dateKey => {
+                const dayData = multiData.dates[dateKey];
+                if (dayData && dayData.groups) {
+                    dayData.groups.forEach(group => {
+                        if (group.items) {
+                            group.items.forEach(item => {
+                                if (!item.is_subtotal && item.dept === SIDE_DEPT_ID && item.date !== todayDateFormatted) {
+                                    item.date = todayDateFormatted;
+                                    updatedSideDates = true;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            if (updatedSideDates) {
+                migrated = true;
+            }
+
             // Normalize all dates in the dataset
             Object.keys(multiData.dates).forEach(dateKey => {
                 const dayData = multiData.dates[dateKey];
@@ -1874,7 +1918,7 @@
             // Save immediately if any plain text was migrated to hashes
             if (migrated) {
                 try {
-                    localStorage.setItem(LS_KEY, JSON.stringify(multiData));
+                    localStorage.setItem(LS_KEY, obfuscate(JSON.stringify(multiData)));
                 } catch (e) {}
                 // Also trigger saveToLocal function to update firebase
                 saveToLocal();
@@ -1914,7 +1958,7 @@
 
             // 1. Instantly save to local cache
             try {
-                localStorage.setItem(LS_KEY, JSON.stringify(multiData));
+                localStorage.setItem(LS_KEY, obfuscate(JSON.stringify(multiData)));
             } catch (e) { }
 
             // 2. Sync to Firebase in background
@@ -1981,7 +2025,7 @@
 
             // Save to LocalStorage cache
             try {
-                localStorage.setItem(LS_KEY, JSON.stringify(multiData));
+                localStorage.setItem(LS_KEY, obfuscate(JSON.stringify(multiData)));
             } catch (e) { }
 
             // Populate and render UI
@@ -2044,7 +2088,7 @@
 
                 // Sync remote updates into local storage
                 try {
-                    localStorage.setItem(LS_KEY, JSON.stringify(multiData));
+                    localStorage.setItem(LS_KEY, obfuscate(JSON.stringify(multiData)));
                 } catch (e) { }
 
                 // Render remote changes instantly
@@ -2112,7 +2156,7 @@
                 recalculateGrandTotals(); // This recalculates and saves to Firebase/LocalStorage
             } else {
                 try {
-                    localStorage.setItem(LS_KEY, JSON.stringify(multiData));
+                    localStorage.setItem(LS_KEY, obfuscate(JSON.stringify(multiData)));
                 } catch (e) { }
             }
 
@@ -3035,7 +3079,7 @@
                         tableRows += `
                             <tr class="kapan-row" data-group="${groupName.replace(/'/g, "\\'")}" data-kapan="${String(item.kapan).replace(/'/g, "\\'")}">
                                 <td style="text-align: center; width: 28px; padding: 4px 4px;">
-                                    <input type="checkbox" class="kapan-checkbox" onchange="updateBulkDeleteButton('${groupName.replace(/'/g, "\\'")}', ${isAllStockView})" style="cursor: pointer; transform: scale(1.1);">
+                                    <!-- No checkbox for SIDE department view -->
                                 </td>
                                 <td class="col-date" style="text-align: left; font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${itemDate}</td>
                                 <td class="col-days" style="text-align: center; font-size: 11px; font-weight: 700; color: ${dayColor}; white-space: nowrap;">${days} d</td>
@@ -3162,8 +3206,8 @@
                     const allowSide = currentDeptObj && currentDeptObj.allowSide;
 
                     const sideButtonHtml = (item.dept || 'Rough') !== SIDE_DEPT_ID && allowSide ? `
-                        <button onclick="sideKapan('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: #f59e0b; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Side Kapan (SIDE ma muko)">
-                            <i data-lucide="git-branch" style="width:12px;height:12px;"></i>
+                        <button onclick="sideKapan('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: #b91c1c; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Side Kapan (SIDE ma muko)">
+                            <i data-lucide="log-out" style="width:12.5px;height:12.5px;"></i>
                         </button>
                     ` : '';
 
@@ -3947,7 +3991,10 @@
             renderStockCards(document.getElementById('search-bar')?.value || '');
         }
 
-        function sideKapan(groupName, kapanName, currentDept, currentPcs, currentCarat) {
+        async function sideKapan(groupName, kapanName, currentDept, currentPcs, currentCarat) {
+            const confirmed = await showCustomDialog('confirm', 'Side Kapan', `Kapan "${kapanName}" ને SIDE (સાઇડ) માં મુકવા માંગો છો?`);
+            if (!confirmed) return;
+
             const group = stockData.groups.find(g => g.name === groupName);
             if (!group) return;
             const item = group.items.find(it => !it.is_subtotal && String(it.kapan) === String(kapanName));
@@ -3957,6 +4004,10 @@
             item.sidedFromDept = item.dept || 'Rough';
             item.dept = SIDE_DEPT_ID;
             item.sided = true;
+
+            const activeParts = multiData.active_date.split('-');
+            const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
+            item.date = entryDateFormatted; // Set to the date when it was sidelined
 
             recalculateGrandTotals();
             saveToLocal();
@@ -3978,6 +4029,10 @@
             item.dept = originalDept;
             item.sided = false;
             item.sidedFromDept = null;
+
+            const activeParts = multiData.active_date.split('-');
+            const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
+            item.date = entryDateFormatted; // Set to the return date
 
             recalculateGrandTotals();
             saveToLocal();

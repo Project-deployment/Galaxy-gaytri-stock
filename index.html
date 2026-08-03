@@ -752,6 +752,35 @@
             color: #ffffff;
         }
 
+        /* SIDE Department Button */
+        #btn-side-dept {
+            background: #ffffff;
+            border: 1px solid #f59e0b;
+            border-radius: 4px;
+            padding: 3px 10px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #92400e;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            height: 22px;
+            transition: all 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        #btn-side-dept:hover {
+            background: #fef3c7;
+        }
+        #btn-side-dept.active {
+            background: #f59e0b;
+            color: #ffffff;
+            border-color: #d97706;
+        }
+
         /* Department Badges styles */
         .badge-dept {
             display: inline-block;
@@ -785,14 +814,26 @@
 
         <!-- Date selection dropdown/picker in navbar -->
         <div
-            style="margin-left: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">
+            style="margin-left: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">
             <input type="date" id="header-date-picker" min="2020-01-01" max="2035-12-31"
                 style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
         </div>
 
+        <!-- SIDE Fixed Department Button -->
+        <button id="btn-side-dept" onclick="switchToSide()" title="SIDE – Kapan that are temporarily aside">
+            ⟂ SIDE
+        </button>
+
+        <!-- Collapsed Departments Dropdown -->
+        <select id="extra-depts-select" onchange="switchToExtraDept(this.value)"
+            style="display: none; border: 1px solid var(--card-border); background: #ffffff; color: var(--text-secondary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer; height: 28px; margin-left: 4px; vertical-align: middle; transition: all 0.15s;">
+            <option value="" disabled selected>MORE DEPTS</option>
+        </select>
+
+
         <!-- Completed Kapans Dropdown -->
         <div class="completed-dropdown-container"
-            style="margin-left: 20px; position: relative; display: none; align-items: center;">
+            style="margin-left: 8px; position: relative; display: none; align-items: center;">
             <button class="top-tab" id="btn-completed-dropdown" onclick="toggleCompletedDropdown(event)"
                 style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none;"
                 onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
@@ -1081,6 +1122,9 @@
                                             <th style="width: 50px; text-align: center;">Order</th>
                                             <th>Department</th>
                                             <th style="text-align: center; width: 100px;">Password</th>
+                                            <th style="text-align: center; width: 90px;">Side Option</th>
+                                            <th style="text-align: center; width: 110px;">Dropdown Option</th>
+                                            <th style="text-align: center; width: 90px;">Khata Option</th>
                                             <th style="text-align: center; width: 160px;">Actions</th>
                                         </tr>
                                     </thead>
@@ -1398,6 +1442,10 @@
                             style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
                     </div>
                 </div>
+                <div id="transfer-to-khata-container" style="display: none; align-items: center; gap: 6px; margin-top: -4px; padding: 2px 4px;">
+                    <input type="checkbox" id="transfer-checkbox-khata" onchange="onTransferKhataToggle(this.checked)" style="cursor: pointer; transform: scale(1.15);">
+                    <label for="transfer-checkbox-khata" style="font-size: 0.78rem; font-weight: 700; color: #1e3a8a; cursor: pointer; user-select: none;">Transfer directly to Khata (ખાતા માં મોકલો)</label>
+                </div>
                 <div>
                     <label
                         style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px;">New
@@ -1446,6 +1494,10 @@
             groups: [],
             subtotals: []
         };
+
+        // ── SIDE Department constant (fixed, not in departments list) ──
+        const SIDE_DEPT_ID = 'SIDE';
+
 
         // Custom Dialog Manager
         const dialogOverlay = document.getElementById('custom-dialog-overlay');
@@ -1694,6 +1746,7 @@
             }
             if (!multiData.departments) {
                 multiData.departments = [
+                    { id: "SIDE", name: "SIDE", password: "123", color: "#f59e0b", textColor: "#ffffff", borderColor: "#d97706", allowSide: false },
                     { id: "Rough", name: "Rough", password: "123", color: "#e2e8f0", textColor: "#475569", borderColor: "#cbd5e1" },
                     { id: "AP ok", name: "AP OK", password: "123", color: "#dbeafe", textColor: "#1e40af", borderColor: "#bfdbfe" },
                     { id: "4P", name: "4P", password: "123", color: "#f3e8ff", textColor: "#6b21a8", borderColor: "#e9d5ff" },
@@ -1711,15 +1764,35 @@
                 multiData.sessionTimeout = "12";
             }
             if (multiData.departments) {
+                // Ensure SIDE exists and is at index 0
+                let sideIdx = multiData.departments.findIndex(d => d.id === 'SIDE');
+                if (sideIdx === -1) {
+                    multiData.departments.unshift({
+                        id: "SIDE",
+                        name: "SIDE",
+                        password: "123",
+                        color: "#f59e0b",
+                        textColor: "#ffffff",
+                        borderColor: "#d97706",
+                        allowSide: false
+                    });
+                } else if (sideIdx > 0) {
+                    const [sideDept] = multiData.departments.splice(sideIdx, 1);
+                    multiData.departments.unshift(sideDept);
+                }
+
                 multiData.departments.forEach(dept => {
                     if (!dept.password) {
                         dept.password = "123";
                     }
                 });
                 if (multiData.departments.length > 0) {
-                    const exists = multiData.departments.some(x => x.id === activeDeptFilter);
+                    // SIDE should not be the default selected department on load/refresh.
+                    // If activeDeptFilter is SIDE, or it does not exist, set it to the first regular department.
+                    const exists = multiData.departments.some(x => x.id === activeDeptFilter && x.id !== SIDE_DEPT_ID);
                     if (!exists) {
-                        activeDeptFilter = multiData.departments[0].id;
+                        const firstRegular = multiData.departments.find(d => d.id !== SIDE_DEPT_ID);
+                        activeDeptFilter = firstRegular ? firstRegular.id : multiData.departments[0].id;
                     }
                 }
             }
@@ -2875,10 +2948,124 @@
             let filteredPcsCount = 0;
             let filteredCaratCount = 0.0;
 
+            // ── SIDE VIEW: group sided kapans by their source department ──
+            if (deptFilter === SIDE_DEPT_ID) {
+                // Collect all sided items across all groups
+                const sidedBySourceDept = {}; // { sourceDeptId: [{item, groupName}] }
+
+                stockData.groups.forEach(group => {
+                    group.items.forEach(item => {
+                        if (item.is_subtotal || item.completed) return;
+                        if (!item.sided || item.dept !== SIDE_DEPT_ID) return;
+
+                        const srcDept = item.sidedFromDept || 'Rough';
+
+                        const matchesQuery = !query ||
+                            (item.kapan && item.kapan.toLowerCase().includes(query));
+                        if (!matchesQuery) return;
+
+                        if (!sidedBySourceDept[srcDept]) sidedBySourceDept[srcDept] = [];
+                        sidedBySourceDept[srcDept].push({ item, groupName: group.name });
+                    });
+                });
+
+                const sourceDepts = Object.keys(sidedBySourceDept);
+                totalCardsRendered = sourceDepts.length;
+
+                sourceDepts.forEach(srcDept => {
+                    const entries = sidedBySourceDept[srcDept];
+                    const srcDeptName = getDeptDisplayName(srcDept);
+
+                    let deptPcs = 0, deptCarat = 0;
+                    entries.forEach(({ item }) => {
+                        deptPcs += parseInt(item.pcs) || 0;
+                        deptCarat += parseFloat(item.carat) || 0;
+                    });
+                    filteredKapanCount += entries.length;
+                    filteredPcsCount += deptPcs;
+                    filteredCaratCount += deptCarat;
+
+                    let tableRows = '';
+                    entries.forEach(({ item, groupName }) => {
+                        const itemDate = item.date ? item.date.substring(0, 5) : '-';
+                        const days = calculateDaysInProcess(item.date, multiData.active_date);
+                        const dayColor = days > 10 ? 'var(--accent-red, #dc2626)' : (days > 5 ? '#f97316' : '#059669');
+                        tableRows += `
+                            <tr class="kapan-row" data-group="${groupName.replace(/'/g, "\\'")}" data-kapan="${String(item.kapan).replace(/'/g, "\\'")}">
+                                <td style="text-align: center; width: 28px; padding: 4px 4px;">
+                                    <input type="checkbox" class="kapan-checkbox" onchange="updateBulkDeleteButton('${groupName.replace(/'/g, "\\'")}', ${isAllStockView})" style="cursor: pointer; transform: scale(1.1);">
+                                </td>
+                                <td class="col-date" style="text-align: left; font-size: 12px; color: var(--text-secondary); white-space: nowrap;">${itemDate}</td>
+                                <td class="col-days" style="text-align: center; font-size: 11px; font-weight: 700; color: ${dayColor}; white-space: nowrap;">${days} d</td>
+                                <td class="col-kapan" style="font-size: 11px; color:#6b7280;">${groupName}</td>
+                                <td class="col-kapan">${item.kapan || '-'}</td>
+                                <td class="col-num col-pcs" style="text-align: right;">${formatNumber(item.pcs)}</td>
+                                <td class="col-num col-cts" style="text-align: right;">${formatCarat(item.carat)}</td>
+                                <td style="text-align: center; width: 52px; padding: 4px 2px; white-space: nowrap;">
+                                    <button onclick="openTransferKapanModal('${groupName.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', 'SIDE', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: #059669; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.7; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Resume to Working (Working ma pachi lavo)">
+                                        <i data-lucide="play-circle" style="width:12px;height:12px;"></i>
+                                    </button>
+                                    <button onclick="undoSideKapan('${groupName.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}')" style="background: none; border: none; color: #dc2626; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.7; transition: opacity 0.15s; margin-left: 4px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Return As It Is (Same department ma pachi lavo)">
+                                        <i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    const card = document.createElement('div');
+                    card.className = 'stock-card';
+                    card.style.borderTop = '3px solid #f59e0b';
+                    card.innerHTML = `
+                        <div class="card-header-bar" style="background: linear-gradient(135deg, #92400e 0%, #b45309 100%);">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <div class="group-title" style="color:#ffffff;">⟂ SIDE &mdash; from ${srcDeptName}</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="group-badge-summary" style="background: #f59e0b; color: #fff;">${entries.length} Lots</div>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="stock-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 28px; text-align: center; padding: 2px 4px;"></th>
+                                        <th style="text-align: left; width: 55px; white-space: nowrap;">Date</th>
+                                        <th style="text-align: center; width: 45px; white-space: nowrap;">Days</th>
+                                        <th style="text-align: left; width: 65px;">Group</th>
+                                        <th style="text-align: left; width: 75px;">Kapan</th>
+                                        <th style="text-align: right; width: 65px;">PCS</th>
+                                        <th style="text-align: right; width: 75px;">CARAT</th>
+                                        <th style="width: 52px; text-align: center;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>${tableRows}</tbody>
+                            </table>
+                        </div>
+                    `;
+                    targetGrid.appendChild(card);
+                });
+
+                const noResultsEl = document.getElementById(isAllStockView ? 'all-stock-no-results' : 'no-results');
+                if (noResultsEl) noResultsEl.style.display = (totalCardsRendered === 0) ? 'flex' : 'none';
+
+                const inlineKapan = document.getElementById(isAllStockView ? 'all-stock-kpi-kapan' : 'ctrl-kpi-kapan');
+                const inlinePcs = document.getElementById(isAllStockView ? 'all-stock-kpi-pcs' : 'ctrl-kpi-pcs');
+                const inlineCarats = document.getElementById(isAllStockView ? 'all-stock-kpi-carats' : 'ctrl-kpi-carats');
+                if (inlineKapan) inlineKapan.innerText = filteredKapanCount.toString();
+                if (inlinePcs) inlinePcs.innerText = filteredPcsCount.toString();
+                if (inlineCarats) inlineCarats.innerText = filteredCaratCount.toFixed(2);
+
+                lucide.createIcons();
+                return; // Exit early – SIDE view rendered
+            }
+
+            // ── REGULAR VIEW ──
             stockData.groups.forEach(group => {
-                // Filter items
+                // Filter items – exclude sided items from regular view
                 const matchedItems = group.items.filter(item => {
                     if (item.is_subtotal || item.completed) return false;
+                    if (item.sided && item.dept === SIDE_DEPT_ID) return false; // hide from regular view
                     const matchesQuery = !query ||
                         (item.kapan && item.kapan.toLowerCase().includes(query)) ||
                         (item.s_no && item.s_no.toString().includes(query));
@@ -2928,6 +3115,16 @@
                     const transferIcon = isFinalPolish ? 'check-circle' : 'arrow-right-left';
                     const transferIconColor = isFinalPolish ? '#059669' : '#3b82f6';
 
+                    // Check if current department has side option enabled in settings
+                    const currentDeptObj = (multiData.departments || []).find(d => d.id === (item.dept || 'Rough'));
+                    const allowSide = currentDeptObj && currentDeptObj.allowSide;
+
+                    const sideButtonHtml = (item.dept || 'Rough') !== SIDE_DEPT_ID && allowSide ? `
+                        <button onclick="sideKapan('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: #f59e0b; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Side Kapan (SIDE ma muko)">
+                            <i data-lucide="git-branch" style="width:12px;height:12px;"></i>
+                        </button>
+                    ` : '';
+
                     tableRows += `
                         <tr class="kapan-row" data-group="${group.name.replace(/'/g, "\\'")}" data-kapan="${String(item.kapan).replace(/'/g, "\\'")}">
                             <td style="text-align: center; width: 28px; padding: 4px 4px;">
@@ -2938,10 +3135,11 @@
                             <td class="col-kapan">${item.kapan || '-'}</td>
                             <td class="col-num col-pcs" style="text-align: right;">${formatNumber(item.pcs)}</td>
                             <td class="col-num col-cts" style="text-align: right;">${formatCarat(item.carat)}</td>
-                            <td style="text-align: center; width: 28px; padding: 4px 2px;">
-                                <button onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: ${transferIconColor}; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s; margin: 0 auto;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="${transferTooltip}">
+                            <td style="text-align: center; width: 52px; padding: 4px 2px; white-space: nowrap;">
+                                <button onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: ${transferIconColor}; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="${transferTooltip}">
                                     <i data-lucide="${transferIcon}" style="width:12px;height:12px;"></i>
                                 </button>
+                                ${sideButtonHtml}
                             </td>
                         </tr>
                     `;
@@ -3642,6 +3840,8 @@
 
         let targetTransferGroup = '';
         let targetTransferKapan = '';
+        let originalNextDeptVal = '';
+        let originalNextDeptName = '';
 
         if (btnTransferKapanClose) {
             btnTransferKapanClose.addEventListener('click', () => {
@@ -3650,6 +3850,8 @@
         }
 
         function getNextDept(currentDept) {
+            // If SIDE, use sidedFromDept's next (handled in openTransferKapanModal)
+            if (currentDept === SIDE_DEPT_ID) return null;
             const depts = multiData.departments || [];
             const index = depts.findIndex(x => x.id === currentDept);
             if (index !== -1 && index < depts.length - 1) {
@@ -3659,8 +3861,89 @@
         }
 
         function getDeptDisplayName(deptId) {
+            if (deptId === SIDE_DEPT_ID) return 'SIDE';
             const dept = (multiData.departments || []).find(x => x.id === deptId);
             return dept ? dept.name : deptId;
+        }
+
+        // ── SIDE Department Functions ──
+        function switchToSide() {
+            // Deactivate regular dept tabs
+            document.querySelectorAll('#stock-dept-tabs .dept-tab').forEach(t => t.classList.remove('active'));
+            // Activate SIDE button
+            const sideBtn = document.getElementById('btn-side-dept');
+            if (sideBtn) sideBtn.classList.add('active');
+            activeDeptFilter = SIDE_DEPT_ID;
+            
+            // Show SIDE dropdown
+            const sideFilter = document.getElementById('side-dept-filter');
+            if (sideFilter) {
+                sideFilter.style.display = 'inline-block';
+                populateSideDeptFilterDropdown();
+            }
+            
+            renderStockCards(document.getElementById('search-bar')?.value || '');
+        }
+
+        function populateSideDeptFilterDropdown() {
+            const select = document.getElementById('side-dept-filter');
+            if (!select) return;
+            const currentVal = select.value || 'all';
+            select.innerHTML = '<option value="all">ALL SIDE DEPTS</option>';
+            const depts = multiData.departments || [];
+            depts.forEach(dept => {
+                if (dept.id === SIDE_DEPT_ID) return;
+                const opt = document.createElement('option');
+                opt.value = dept.id;
+                opt.innerText = dept.name;
+                select.appendChild(opt);
+            });
+            select.value = currentVal;
+        }
+
+        function filterSideDepts(val) {
+            renderStockCards(document.getElementById('search-bar')?.value || '');
+        }
+
+        function sideKapan(groupName, kapanName, currentDept, currentPcs, currentCarat) {
+            const group = stockData.groups.find(g => g.name === groupName);
+            if (!group) return;
+            const item = group.items.find(it => !it.is_subtotal && String(it.kapan) === String(kapanName));
+            if (!item) return;
+
+            // Save source dept before moving to SIDE
+            item.sidedFromDept = item.dept || 'Rough';
+            item.dept = SIDE_DEPT_ID;
+            item.sided = true;
+
+            recalculateGrandTotals();
+            saveToLocal();
+            renderStockCards(document.getElementById('search-bar')?.value || '');
+            renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
+            lucide.createIcons();
+            showCustomDialog('alert', 'Success', `Kapan "${kapanName}" moved to SIDE (from ${getDeptDisplayName(item.sidedFromDept)})`);
+        }
+
+        async function undoSideKapan(groupName, kapanName) {
+            const group = stockData.groups.find(g => g.name === groupName);
+            if (!group) return;
+            const item = group.items.find(it => !it.is_subtotal && String(it.kapan) === String(kapanName));
+            if (!item) return;
+
+            const originalDept = item.sidedFromDept || 'Rough';
+
+            // Return to original department and clear SIDE flags
+            item.dept = originalDept;
+            item.sided = false;
+            item.sidedFromDept = null;
+
+            recalculateGrandTotals();
+            saveToLocal();
+            renderStockCards(document.getElementById('search-bar')?.value || '');
+            renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
+            lucide.createIcons();
+
+            showCustomDialog('alert', 'Success', `Kapan "${kapanName}" returned to ${getDeptDisplayName(originalDept)} as it is.`);
         }
 
         function openTransferKapanModal(groupName, kapanName, currentDept, currentPcs, currentCarat) {
@@ -3671,16 +3954,57 @@
 
             resetModalPosition('modal-transfer-kapan-content');
             document.getElementById('transfer-input-kapan-name').value = kapanName;
-            document.getElementById('transfer-input-from-dept').value = getDeptDisplayName(currentVal);
 
             const toDeptInput = document.getElementById('transfer-input-to-dept');
-            const nextDeptVal = getNextDept(currentVal);
-            if (!nextDeptVal) {
-                toDeptInput.value = 'Complete / Dispatch (પ્રોસેસ પૂર્ણ)';
-                toDeptInput.dataset.val = 'Completed';
+
+            if (currentVal === SIDE_DEPT_ID) {
+                // SIDE kapan: find the item's sidedFromDept and go to its next dept
+                const group = stockData.groups.find(g => g.name === groupName);
+                const item = group ? group.items.find(it => !it.is_subtotal && String(it.kapan) === String(kapanName)) : null;
+                const sourceDept = item ? (item.sidedFromDept || 'Rough') : 'Rough';
+                const resumeDept = getNextDept(sourceDept);
+
+                document.getElementById('transfer-input-from-dept').value = `SIDE (from: ${getDeptDisplayName(sourceDept)})`;
+
+                if (!resumeDept) {
+                    toDeptInput.value = 'Complete / Dispatch (પ્રોસેસ પૂર્ણ)';
+                    toDeptInput.dataset.val = 'Completed';
+                } else {
+                    toDeptInput.value = getDeptDisplayName(resumeDept);
+                    toDeptInput.dataset.val = resumeDept;
+                }
             } else {
-                toDeptInput.value = getDeptDisplayName(nextDeptVal);
-                toDeptInput.dataset.val = nextDeptVal; // Store the exact database schema value
+                document.getElementById('transfer-input-from-dept').value = getDeptDisplayName(currentVal);
+                const nextDeptVal = getNextDept(currentVal);
+                if (!nextDeptVal) {
+                    toDeptInput.value = 'Complete / Dispatch (પ્રોસેસ પૂર્ણ)';
+                    toDeptInput.dataset.val = 'Completed';
+                } else {
+                    toDeptInput.value = getDeptDisplayName(nextDeptVal);
+                    toDeptInput.dataset.val = nextDeptVal;
+                }
+            }
+
+            // Save the original calculated destination
+            originalNextDeptVal = toDeptInput.dataset.val || '';
+            originalNextDeptName = toDeptInput.value || '';
+
+            // Handle Direct to Khata Option
+            const khataContainer = document.getElementById('transfer-to-khata-container');
+            const khataCheckbox = document.getElementById('transfer-checkbox-khata');
+            if (khataCheckbox) khataCheckbox.checked = false; // Reset
+
+            if (khataContainer) {
+                const currentDeptObj = (multiData.departments || []).find(d => d.id === currentVal);
+                const allowKhata = currentDeptObj && currentDeptObj.allowKhata;
+                const khataExists = (multiData.departments || []).some(d => d.id === 'Khata');
+
+                // Can only transfer to Khata if current department allows it, Khata exists, and current is not Khata or SIDE
+                if (allowKhata && khataExists && currentVal !== 'Khata' && currentVal !== SIDE_DEPT_ID) {
+                    khataContainer.style.display = 'flex';
+                } else {
+                    khataContainer.style.display = 'none';
+                }
             }
 
             document.getElementById('transfer-input-pcs').value = currentPcs;
@@ -3696,6 +4020,20 @@
                     pcsInput.select();
                 }
             }, 50);
+        }
+
+        function onTransferKhataToggle(checked) {
+            const toInput = document.getElementById('transfer-input-to-dept');
+            if (!toInput) return;
+
+            if (checked) {
+                const khataDept = (multiData.departments || []).find(d => d.id === 'Khata');
+                toInput.value = khataDept ? khataDept.name : 'Khata';
+                toInput.dataset.val = 'Khata';
+            } else {
+                toInput.value = originalNextDeptName;
+                toInput.dataset.val = originalNextDeptVal;
+            }
         }
 
         if (formTransferKapan) {
@@ -3734,6 +4072,11 @@
                         } else {
                             item.dept = toDept;
                             item.date = entryDateFormatted; // Set Kapan entry date in the new department to the transfer date
+                            // Clear SIDE flags when resuming to working
+                            if (item.sided) {
+                                item.sided = false;
+                                item.sidedFromDept = null;
+                            }
                             if (!item.deptDates) {
                                 item.deptDates = {};
                             }
@@ -4003,11 +4346,31 @@
                 const isFirst = index === 0;
                 const isLast = index === depts.length - 1;
 
-                tr.innerHTML = `
-                    <td style="text-align: center; font-weight: 700; color: var(--text-secondary);">${index + 1}</td>
-                    <td style="font-weight: 600; color: var(--accent-navy);">${dept.name}</td>
-                    <td style="text-align: center; font-family: monospace; font-weight: 700; color: #475569;">${dept.password || '123'}</td>
-                    <td style="text-align: center; white-space: nowrap; vertical-align: middle;">
+                const sideChecked = dept.allowSide ? 'checked' : '';
+                const dropdownChecked = dept.inDropdown ? 'checked' : '';
+
+                let actionButtonsHtml = '';
+                if (dept.id === SIDE_DEPT_ID) {
+                    // For SIDE dept, disable movement and deletion
+                    actionButtonsHtml = `
+                        <button class="btn-compact" disabled style="opacity: 0.3; cursor: not-allowed; background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); margin-right: 2px; padding: 2px 4px;">
+                            <i data-lucide="arrow-up" style="width:11px;height:11px;"></i>
+                        </button>
+                        <button class="btn-compact" disabled style="opacity: 0.3; cursor: not-allowed; background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); margin-right: 4px; padding: 2px 4px;">
+                            <i data-lucide="arrow-down" style="width:11px;height:11px;"></i>
+                        </button>
+                        <button class="btn-compact" disabled style="opacity: 0.3; cursor: not-allowed; background: #fef08a; border: 1px solid #fde047; color: #854d0e; margin-right: 2px; padding: 2px 4px;">
+                            <i data-lucide="key" style="width:11px;height:11px;"></i>
+                        </button>
+                        <button class="btn-compact" disabled style="opacity: 0.3; cursor: not-allowed; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 2px; padding: 2px 4px;">
+                            <i data-lucide="edit-2" style="width:11px;height:11px;"></i>
+                        </button>
+                        <button class="btn-compact" disabled style="opacity: 0.3; cursor: not-allowed; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 2px 4px;">
+                            <i data-lucide="trash-2" style="width:11px;height:11px;"></i>
+                        </button>
+                    `;
+                } else {
+                    actionButtonsHtml = `
                         <button class="btn-compact" onclick="moveDepartmentUp(${index})" ${isFirst ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''} style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); margin-right: 2px; padding: 2px 4px;" title="ઉપર ખસેડો">
                             <i data-lucide="arrow-up" style="width:11px;height:11px;"></i>
                         </button>
@@ -4023,6 +4386,45 @@
                         <button class="btn-compact" onclick="deleteDepartment('${dept.id}')" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 2px 4px;" title="ડિલીટ કરો">
                             <i data-lucide="trash-2" style="width:11px;height:11px;"></i>
                         </button>
+                    `;
+                }
+
+                // SIDE doesn't have allowSide and inDropdown options
+                const sideOptionHtml = dept.id === SIDE_DEPT_ID ? `
+                    <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">N/A</span>
+                ` : `
+                    <input type="checkbox" onchange="toggleDeptAllowSide('${dept.id}', this.checked)" ${sideChecked} style="cursor: pointer; transform: scale(1.15);">
+                `;
+
+                const dropdownOptionHtml = dept.id === SIDE_DEPT_ID ? `
+                    <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">N/A</span>
+                ` : `
+                    <input type="checkbox" onchange="toggleDeptInDropdown('${dept.id}', this.checked)" ${dropdownChecked} style="cursor: pointer; transform: scale(1.15);">
+                `;
+
+                const khataChecked = dept.allowKhata ? 'checked' : '';
+                // SIDE and Khata don't have allowKhata option
+                const khataOptionHtml = (dept.id === SIDE_DEPT_ID || dept.id === 'Khata') ? `
+                    <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">N/A</span>
+                ` : `
+                    <input type="checkbox" onchange="toggleDeptAllowKhata('${dept.id}', this.checked)" ${khataChecked} style="cursor: pointer; transform: scale(1.15);">
+                `;
+
+                tr.innerHTML = `
+                    <td style="text-align: center; font-weight: 700; color: var(--text-secondary);">${index + 1}</td>
+                    <td style="font-weight: 600; color: var(--accent-navy);">${dept.name}</td>
+                    <td style="text-align: center; font-family: monospace; font-weight: 700; color: #475569;">${dept.id === SIDE_DEPT_ID ? 'N/A' : (dept.password || '123')}</td>
+                    <td style="text-align: center;">
+                        ${sideOptionHtml}
+                    </td>
+                    <td style="text-align: center;">
+                        ${dropdownOptionHtml}
+                    </td>
+                    <td style="text-align: center;">
+                        ${khataOptionHtml}
+                    </td>
+                    <td style="text-align: center; white-space: nowrap; vertical-align: middle;">
+                        ${actionButtonsHtml}
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -4031,7 +4433,39 @@
             lucide.createIcons();
         }
 
+        function toggleDeptAllowSide(deptId, checked) {
+            const depts = multiData.departments || [];
+            const dept = depts.find(d => d.id === deptId);
+            if (dept) {
+                dept.allowSide = checked;
+                saveToLocal();
+                renderStockCards(document.getElementById('search-bar')?.value || '');
+            }
+        }
+
+        function toggleDeptInDropdown(deptId, checked) {
+            const depts = multiData.departments || [];
+            const dept = depts.find(d => d.id === deptId);
+            if (dept) {
+                dept.inDropdown = checked;
+                saveToLocal();
+                renderDeptTabs();
+                renderStockCards(document.getElementById('search-bar')?.value || '');
+            }
+        }
+
+        function toggleDeptAllowKhata(deptId, checked) {
+            const depts = multiData.departments || [];
+            const dept = depts.find(d => d.id === deptId);
+            if (dept) {
+                dept.allowKhata = checked;
+                saveToLocal();
+                renderStockCards(document.getElementById('search-bar')?.value || '');
+            }
+        }
+
         async function changeDepartmentPassword(deptId) {
+            if (deptId === SIDE_DEPT_ID) return; // SIDE is system protected
             const depts = multiData.departments || [];
             const dept = depts.find(d => d.id === deptId);
             if (!dept) return;
@@ -4075,7 +4509,8 @@
             }
 
             const exists = (multiData.departments || []).some(d => d.name.toLowerCase() === trimmed.toLowerCase() || d.id.toLowerCase() === trimmed.toLowerCase());
-            if (exists) {
+            // Prevent using reserved 'SIDE' name
+            if (exists || trimmed.toUpperCase() === SIDE_DEPT_ID) {
                 await showCustomDialog('alert', 'Error', 'This department name already exists!');
                 return;
             }
@@ -4108,6 +4543,7 @@
         }
 
         async function editDepartmentName(deptId) {
+            if (deptId === SIDE_DEPT_ID) return; // SIDE is system protected
             const depts = multiData.departments || [];
             const dept = depts.find(d => d.id === deptId);
             if (!dept) return;
@@ -4169,6 +4605,7 @@
         }
 
         async function deleteDepartment(deptId) {
+            if (deptId === SIDE_DEPT_ID) return; // SIDE is system protected
             const depts = multiData.departments || [];
             if (depts.length <= 1) {
                 await showCustomDialog('alert', 'Error', 'At least one department is required in the system!');
@@ -4223,7 +4660,8 @@
 
         function moveDepartmentUp(index) {
             const depts = multiData.departments || [];
-            if (index <= 0 || index >= depts.length) return;
+            // SIDE is at index 0. The first regular department is at index 1 and cannot move up.
+            if (index <= 1 || index >= depts.length) return;
 
             const temp = depts[index];
             depts[index] = depts[index - 1];
@@ -4238,7 +4676,8 @@
 
         function moveDepartmentDown(index) {
             const depts = multiData.departments || [];
-            if (index < 0 || index >= depts.length - 1) return;
+            // SIDE is at index 0. The last department cannot move down.
+            if (index <= 0 || index >= depts.length - 1) return;
 
             const temp = depts[index];
             depts[index] = depts[index + 1];
@@ -4259,8 +4698,15 @@
             if (!container) return;
             container.innerHTML = '';
 
+            const select = document.getElementById('extra-depts-select');
             const depts = multiData.departments || [];
-            depts.forEach((dept, index) => {
+
+            // Separate direct tabs and dropdown depts, skip SIDE
+            const directDepts = depts.filter(d => d.id !== SIDE_DEPT_ID && !d.inDropdown);
+            const dropdownDepts = depts.filter(d => d.id !== SIDE_DEPT_ID && d.inDropdown);
+
+            // Render direct tabs
+            directDepts.forEach((dept) => {
                 const btn = document.createElement('button');
                 btn.className = 'dept-tab' + (activeDeptFilter === dept.id ? ' active' : '');
                 btn.setAttribute('data-dept', dept.id);
@@ -4268,11 +4714,68 @@
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('#stock-dept-tabs .dept-tab').forEach(t => t.classList.remove('active'));
                     btn.classList.add('active');
+
+                    // Deactivate SIDE button
+                    const sideBtn = document.getElementById('btn-side-dept');
+                    if (sideBtn) sideBtn.classList.remove('active');
+
+                    // Reset dropdown select to default
+                    if (select) select.selectedIndex = 0;
+
                     activeDeptFilter = dept.id;
                     renderStockCards(document.getElementById('search-bar')?.value || '');
                 });
                 container.appendChild(btn);
             });
+
+            // Populate collapsed depts dropdown
+            if (select) {
+                const activeView = activeViewName || 'stock';
+                if (dropdownDepts.length === 0 || activeView !== 'stock') {
+                    select.style.display = 'none';
+                } else {
+                    select.style.display = 'inline-block';
+                    select.innerHTML = '<option value="" disabled selected>MORE DEPTS</option>';
+                    dropdownDepts.forEach(dept => {
+                        const opt = document.createElement('option');
+                        opt.value = dept.id;
+                        opt.innerText = dept.name;
+                        select.appendChild(opt);
+                    });
+
+                    // If active filter is in the dropdown, select it
+                    const isActiveInDropdown = dropdownDepts.some(d => d.id === activeDeptFilter);
+                    if (isActiveInDropdown) {
+                        select.value = activeDeptFilter;
+                    } else {
+                        select.selectedIndex = 0;
+                    }
+                }
+            }
+
+            // Sync SIDE button state
+            const sideBtn = document.getElementById('btn-side-dept');
+            if (sideBtn) {
+                if (activeDeptFilter === SIDE_DEPT_ID) {
+                    sideBtn.classList.add('active');
+                } else {
+                    sideBtn.classList.remove('active');
+                }
+            }
+        }
+
+        function switchToExtraDept(deptId) {
+            if (!deptId) return;
+
+            // Deactivate direct tabs
+            document.querySelectorAll('#stock-dept-tabs .dept-tab').forEach(t => t.classList.remove('active'));
+
+            // Deactivate SIDE button
+            const sideBtn = document.getElementById('btn-side-dept');
+            if (sideBtn) sideBtn.classList.remove('active');
+
+            activeDeptFilter = deptId;
+            renderStockCards(document.getElementById('search-bar')?.value || '');
         }
 
         function populateAddKapanDeptSelect() {
@@ -4281,6 +4784,8 @@
             select.innerHTML = '';
             const depts = multiData.departments || [];
             depts.forEach(dept => {
+                // SIDE is a system dept, not selectable when adding new kapan
+                if (dept.id === SIDE_DEPT_ID) return;
                 const opt = document.createElement('option');
                 opt.value = dept.id;
                 opt.innerText = dept.name;
@@ -4379,6 +4884,17 @@
             const switcher = document.getElementById('stock-dept-tabs');
             if (switcher && activeViewName === 'stock') switcher.style.display = 'flex';
 
+            // Show SIDE button only in stock view
+            const sideBtn = document.getElementById('btn-side-dept');
+            if (sideBtn) sideBtn.style.display = (activeViewName === 'stock') ? 'flex' : 'none';
+
+            // Show collapsed depts dropdown only in stock view and if there are dropdown depts
+            const extraSelect = document.getElementById('extra-depts-select');
+            if (extraSelect) {
+                const hasDropdownDepts = (multiData.departments || []).some(d => d.id !== SIDE_DEPT_ID && d.inDropdown);
+                extraSelect.style.display = (activeViewName === 'stock' && hasDropdownDepts) ? 'inline-block' : 'none';
+            }
+
             const selectDept = document.getElementById('input-kapan-dept');
             if (selectDept) {
                 selectDept.disabled = false;
@@ -4398,13 +4914,24 @@
                 initSettingsTimeoutDropdown();
             }
 
+            if (viewName === 'stock') {
+                renderDeptTabs(); // Force refresh tabs and dropdown when entering stock view
+            }
+
             const switcher = document.getElementById('stock-dept-tabs');
             if (switcher) {
-                if (viewName === 'stock') {
-                    switcher.style.display = 'flex';
-                } else {
-                    switcher.style.display = 'none';
-                }
+                switcher.style.display = (viewName === 'stock') ? 'flex' : 'none';
+            }
+            // SIDE button visible only on stock view
+            const sideBtn = document.getElementById('btn-side-dept');
+            if (sideBtn) {
+                sideBtn.style.display = (viewName === 'stock') ? 'flex' : 'none';
+            }
+            // Collapsed depts dropdown visible only on stock view if there are dropdown depts
+            const extraSelect = document.getElementById('extra-depts-select');
+            if (extraSelect) {
+                const hasDropdownDepts = (multiData.departments || []).some(d => d.id !== SIDE_DEPT_ID && d.inDropdown);
+                extraSelect.style.display = (viewName === 'stock' && hasDropdownDepts) ? 'inline-block' : 'none';
             }
         };
 

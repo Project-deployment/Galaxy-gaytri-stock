@@ -1735,8 +1735,24 @@
             return chunksA.length - chunksB.length;
         }
 
-        // Bulletproof helper to safely normalize data structures and prevent undefined property crashes
+        function hashPassword(password) {
+            if (!password) return '';
+            if (typeof password !== 'string') password = String(password);
+            if (password.startsWith('hash_')) return password; // Already hashed
+
+            let hash = 5381;
+            for (let i = 0; i < password.length; i++) {
+                hash = (hash * 33) ^ password.charCodeAt(i);
+            }
+            let hash2 = 0;
+            for (let i = password.length - 1; i >= 0; i--) {
+                hash2 = (hash2 * 37) ^ password.charCodeAt(i);
+            }
+            return 'hash_' + (hash >>> 0).toString(16) + '_' + (hash2 >>> 0).toString(16);
+        }
+
         function syncStockDataReference() {
+            let migrated = false;
             if (!multiData || !multiData.dates || !multiData.active_date) {
                 multiData = {
                     active_date: _todayKey,
@@ -1744,25 +1760,33 @@
                         [_todayKey]: JSON.parse(JSON.stringify(defaultData))
                     }
                 };
+                migrated = true;
             }
             if (!multiData.departments) {
                 multiData.departments = [
-                    { id: "SIDE", name: "SIDE", password: "123", color: "#f59e0b", textColor: "#ffffff", borderColor: "#d97706", allowSide: false },
-                    { id: "Rough", name: "Rough", password: "123", color: "#e2e8f0", textColor: "#475569", borderColor: "#cbd5e1" },
-                    { id: "AP ok", name: "AP OK", password: "123", color: "#dbeafe", textColor: "#1e40af", borderColor: "#bfdbfe" },
-                    { id: "4P", name: "4P", password: "123", color: "#f3e8ff", textColor: "#6b21a8", borderColor: "#e9d5ff" },
-                    { id: "RT", name: "RT", password: "123", color: "#e0f2fe", textColor: "#0369a1", borderColor: "#bae6fd" },
-                    { id: "RA", name: "RA", password: "123", color: "#ffedd5", textColor: "#c2410c", borderColor: "#fed7aa" },
-                    { id: "Loting", name: "Loting", password: "123", color: "#dcfce7", textColor: "#15803d", borderColor: "#bbf7d0" },
-                    { id: "Khata", name: "Khata", password: "123", color: "#fee2e2", textColor: "#b91c1c", borderColor: "#fecaca" },
-                    { id: "Final Polish", name: "Final Polish", password: "123", color: "#ccfbf1", textColor: "#0f766e", borderColor: "#99f6e4" }
+                    { id: "SIDE", name: "SIDE", password: hashPassword("123"), color: "#f59e0b", textColor: "#ffffff", borderColor: "#d97706", allowSide: false },
+                    { id: "Rough", name: "Rough", password: hashPassword("123"), color: "#e2e8f0", textColor: "#475569", borderColor: "#cbd5e1" },
+                    { id: "AP ok", name: "AP OK", password: hashPassword("123"), color: "#dbeafe", textColor: "#1e40af", borderColor: "#bfdbfe" },
+                    { id: "4P", name: "4P", password: hashPassword("123"), color: "#f3e8ff", textColor: "#6b21a8", borderColor: "#e9d5ff" },
+                    { id: "RT", name: "RT", password: hashPassword("123"), color: "#e0f2fe", textColor: "#0369a1", borderColor: "#bae6fd" },
+                    { id: "RA", name: "RA", password: hashPassword("123"), color: "#ffedd5", textColor: "#c2410c", borderColor: "#fed7aa" },
+                    { id: "Loting", name: "Loting", password: hashPassword("123"), color: "#dcfce7", textColor: "#15803d", borderColor: "#bbf7d0" },
+                    { id: "Khata", name: "Khata", password: hashPassword("123"), color: "#fee2e2", textColor: "#b91c1c", borderColor: "#fecaca" },
+                    { id: "Final Polish", name: "Final Polish", password: hashPassword("123"), color: "#ccfbf1", textColor: "#0f766e", borderColor: "#99f6e4" }
                 ];
+                migrated = true;
             }
             if (!multiData.adminPassword) {
-                multiData.adminPassword = "admin123";
+                multiData.adminPassword = hashPassword("admin123");
+                migrated = true;
+            } else {
+                const oldAdmin = multiData.adminPassword;
+                multiData.adminPassword = hashPassword(multiData.adminPassword);
+                if (oldAdmin !== multiData.adminPassword) migrated = true;
             }
             if (!multiData.sessionTimeout) {
                 multiData.sessionTimeout = "12";
+                migrated = true;
             }
             if (multiData.departments) {
                 // Ensure SIDE exists and is at index 0
@@ -1771,20 +1795,27 @@
                     multiData.departments.unshift({
                         id: "SIDE",
                         name: "SIDE",
-                        password: "123",
+                        password: hashPassword("123"),
                         color: "#f59e0b",
                         textColor: "#ffffff",
                         borderColor: "#d97706",
                         allowSide: false
                     });
+                    migrated = true;
                 } else if (sideIdx > 0) {
                     const [sideDept] = multiData.departments.splice(sideIdx, 1);
                     multiData.departments.unshift(sideDept);
+                    migrated = true;
                 }
 
                 multiData.departments.forEach(dept => {
                     if (!dept.password) {
-                        dept.password = "123";
+                        dept.password = hashPassword("123");
+                        migrated = true;
+                    } else {
+                        const oldPass = dept.password;
+                        dept.password = hashPassword(dept.password);
+                        if (oldPass !== dept.password) migrated = true;
                     }
                 });
                 if (multiData.departments.length > 0) {
@@ -1794,6 +1825,7 @@
                     if (!exists) {
                         const firstRegular = multiData.departments.find(d => d.id !== SIDE_DEPT_ID);
                         activeDeptFilter = firstRegular ? firstRegular.id : multiData.departments[0].id;
+                        migrated = true;
                     }
                 }
             }
@@ -1838,6 +1870,15 @@
                 multiData.dates[multiData.active_date] = JSON.parse(JSON.stringify(defaultData));
             }
             stockData = multiData.dates[multiData.active_date];
+
+            // Save immediately if any plain text was migrated to hashes
+            if (migrated) {
+                try {
+                    localStorage.setItem(LS_KEY, JSON.stringify(multiData));
+                } catch (e) {}
+                // Also trigger saveToLocal function to update firebase
+                saveToLocal();
+            }
         }
 
         // Initialize first reference
@@ -4443,7 +4484,7 @@
                 tr.innerHTML = `
                     <td style="text-align: center; font-weight: 700; color: var(--text-secondary);">${index + 1}</td>
                     <td style="font-weight: 600; color: var(--accent-navy);">${dept.name}</td>
-                    <td style="text-align: center; font-family: monospace; font-weight: 700; color: #475569;">${dept.id === SIDE_DEPT_ID ? 'N/A' : (dept.password || '123')}</td>
+                    <td style="text-align: center; font-family: monospace; font-weight: 700; color: #475569;">${dept.id === SIDE_DEPT_ID ? 'N/A' : '••••••'}</td>
                     <td style="text-align: center;">
                         ${sideOptionHtml}
                     </td>
@@ -4513,7 +4554,7 @@
             const dept = depts.find(d => d.id === deptId);
             if (!dept) return;
 
-            const newPass = await showCustomDialog('prompt', 'Change Password', `Enter new password for "${dept.name}":`, dept.password || '123');
+            const newPass = await showCustomDialog('prompt', 'Change Password', `Enter new password for "${dept.name}":`, '');
             if (newPass === null) return;
             const trimmed = newPass.trim();
             if (!trimmed) {
@@ -4521,15 +4562,14 @@
                 return;
             }
 
-            dept.password = trimmed;
+            dept.password = hashPassword(trimmed);
             saveToLocal();
             renderMasterDeptTable();
             await showCustomDialog('alert', 'Success', `Password for "${dept.name}" updated successfully!`);
         }
 
         async function changeAdminPassword() {
-            const currentPass = multiData.adminPassword || 'admin123';
-            const newPass = await showCustomDialog('prompt', 'Admin Password', 'Enter new Admin Password:', currentPass);
+            const newPass = await showCustomDialog('prompt', 'Admin Password', 'Enter new Admin Password:', '');
             if (newPass === null) return;
             const trimmed = newPass.trim();
             if (!trimmed) {
@@ -4537,7 +4577,7 @@
                 return;
             }
 
-            multiData.adminPassword = trimmed;
+            multiData.adminPassword = hashPassword(trimmed);
             saveToLocal();
             await showCustomDialog('alert', 'Success', 'Admin Password updated successfully!');
         }
@@ -5004,8 +5044,8 @@
             let sessionData = null;
 
             if (username === 'admin') {
-                const adminPass = multiData.adminPassword || 'admin123';
-                if (password === adminPass) {
+                const adminPassHash = multiData.adminPassword || hashPassword('admin123');
+                if (hashPassword(password) === adminPassHash) {
                     sessionData = { role: 'admin' };
                 } else {
                     errorEl.innerText = "❌ Incorrect Admin Password!";
@@ -5019,7 +5059,8 @@
                 const matchedDept = depts.find(d => d.name.toLowerCase() === username || d.id.toLowerCase() === username);
 
                 if (matchedDept) {
-                    if (password === (matchedDept.password || '123')) {
+                    const deptPassHash = matchedDept.password || hashPassword('123');
+                    if (hashPassword(password) === deptPassHash) {
                         sessionData = {
                             role: 'user',
                             deptId: matchedDept.id,

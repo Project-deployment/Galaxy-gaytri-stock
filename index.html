@@ -1125,6 +1125,7 @@
                                             <th style="text-align: center; width: 90px;">Side Option</th>
                                             <th style="text-align: center; width: 110px;">Dropdown Option</th>
                                             <th style="text-align: center; width: 90px;">Khata Option</th>
+                                            <th style="text-align: center; width: 90px;">Dispatch Option</th>
                                             <th style="text-align: center; width: 160px;">Actions</th>
                                         </tr>
                                     </thead>
@@ -4066,9 +4067,13 @@
                         const activeParts = multiData.active_date.split('-');
                         const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
 
-                        if (toDept === 'Completed') {
+                        const destDeptObj = (multiData.departments || []).find(d => d.id === toDept);
+                        const isDestDispatch = destDeptObj && destDeptObj.isDispatch;
+
+                        if (toDept === 'Completed' || isDestDispatch) {
                             item.completed = true;
                             item.completedDate = entryDateFormatted;
+                            item.dept = toDept; // Keep track of final department it went to
                         } else {
                             item.dept = toDept;
                             item.date = entryDateFormatted; // Set Kapan entry date in the new department to the transfer date
@@ -4103,8 +4108,8 @@
                         }
 
                         modalTransferKapan.style.display = 'none';
-                        if (toDept === 'Completed') {
-                            showCustomDialog('alert', 'Success', `Kapan "${targetTransferKapan}" completed and dispatched successfully!`);
+                        if (toDept === 'Completed' || isDestDispatch) {
+                            showCustomDialog('alert', 'Success', `Kapan "${targetTransferKapan}" completed and dispatched to ${getDeptDisplayName(toDept)} successfully!`);
                         } else {
                             showCustomDialog('alert', 'Success', `Kapan "${targetTransferKapan}" successfully transferred to ${getDeptDisplayName(toDept)}!`);
                         }
@@ -4146,7 +4151,24 @@
                 if (item) {
                     item.completed = false;
                     delete item.completedDate;
-                    item.dept = 'Final Polish';
+                    
+                    // Determine which department to restore to.
+                    // If the current item.dept is a dispatch department, restore it to the department right before it.
+                    // Otherwise, default to first regular department.
+                    let targetDeptId = 'Rough';
+                    const depts = multiData.departments || [];
+                    const currentIdx = depts.findIndex(d => d.id === item.dept);
+                    if (currentIdx > 1) { // 0 is SIDE, so we must go to index 1 or greater
+                        const prevDept = depts[currentIdx - 1];
+                        if (prevDept && prevDept.id !== SIDE_DEPT_ID) {
+                            targetDeptId = prevDept.id;
+                        }
+                    } else {
+                        const firstRegular = depts.find(d => d.id !== SIDE_DEPT_ID);
+                        if (firstRegular) targetDeptId = firstRegular.id;
+                    }
+                    
+                    item.dept = targetDeptId;
 
                     recalculateGrandTotals();
                     renderStockCards(document.getElementById('search-bar')?.value || '');
@@ -4156,7 +4178,7 @@
 
                     renderCompletedDropdown();
 
-                    showCustomDialog('alert', 'Success', `Kapan "${kapanName}" has been restored back to Final Polish!`);
+                    showCustomDialog('alert', 'Success', `Kapan "${kapanName}" has been restored back to ${getDeptDisplayName(targetDeptId)}!`);
                 }
             }
         }
@@ -4410,6 +4432,14 @@
                     <input type="checkbox" onchange="toggleDeptAllowKhata('${dept.id}', this.checked)" ${khataChecked} style="cursor: pointer; transform: scale(1.15);">
                 `;
 
+                const isDispatchChecked = dept.isDispatch ? 'checked' : '';
+                // SIDE doesn't have isDispatch option
+                const dispatchOptionHtml = dept.id === SIDE_DEPT_ID ? `
+                    <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">N/A</span>
+                ` : `
+                    <input type="checkbox" onchange="toggleDeptIsDispatch('${dept.id}', this.checked)" ${isDispatchChecked} style="cursor: pointer; transform: scale(1.15);">
+                `;
+
                 tr.innerHTML = `
                     <td style="text-align: center; font-weight: 700; color: var(--text-secondary);">${index + 1}</td>
                     <td style="font-weight: 600; color: var(--accent-navy);">${dept.name}</td>
@@ -4422,6 +4452,9 @@
                     </td>
                     <td style="text-align: center;">
                         ${khataOptionHtml}
+                    </td>
+                    <td style="text-align: center;">
+                        ${dispatchOptionHtml}
                     </td>
                     <td style="text-align: center; white-space: nowrap; vertical-align: middle;">
                         ${actionButtonsHtml}
@@ -4459,6 +4492,16 @@
             const dept = depts.find(d => d.id === deptId);
             if (dept) {
                 dept.allowKhata = checked;
+                saveToLocal();
+                renderStockCards(document.getElementById('search-bar')?.value || '');
+            }
+        }
+
+        function toggleDeptIsDispatch(deptId, checked) {
+            const depts = multiData.departments || [];
+            const dept = depts.find(d => d.id === deptId);
+            if (dept) {
+                dept.isDispatch = checked;
                 saveToLocal();
                 renderStockCards(document.getElementById('search-bar')?.value || '');
             }

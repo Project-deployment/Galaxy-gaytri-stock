@@ -1710,9 +1710,11 @@
                 } catch (err) {
                     multiData = JSON.parse(cached);
                 }
-                // Ensure today's date slot exists in local cache
-                if (!multiData.dates[_todayKey]) {
-                    const sorted = Object.keys(multiData.dates).sort();
+                // Ensure today's date slot exists and is not empty in local cache
+                const todaySlot = multiData.dates[_todayKey];
+                const isTodayEmpty = !todaySlot || !todaySlot.groups || todaySlot.groups.length === 0;
+                if (isTodayEmpty) {
+                    const sorted = Object.keys(multiData.dates).filter(d => d < _todayKey).sort();
                     const last = sorted[sorted.length - 1];
                     const cloned = JSON.parse(JSON.stringify(multiData.dates[last] || defaultData));
                     const [y, mo, da] = _todayKey.split('-');
@@ -2079,16 +2081,18 @@
         Promise.race([firebasePromise, timeoutPromise]).then(snapshot => {
             const fbData = snapshot.val();
             const todayNow = getTodayKey();
+            let isNewDateCreated = false;
 
             if (fbData && fbData.dates) {
                 // Firebase is the authoritative copy, load it
                 migrateOldEntries(fbData.dates);
                 multiData = fbData;
 
-                // Ensure today's date slot exists
-                let isNewDateCreated = false;
-                if (!multiData.dates[todayNow]) {
-                    const sorted = Object.keys(multiData.dates).sort();
+                // Ensure today's date slot exists and is not empty
+                const todaySlot = multiData.dates[todayNow];
+                const isTodayEmpty = !todaySlot || !todaySlot.groups || todaySlot.groups.length === 0;
+                if (isTodayEmpty) {
+                    const sorted = Object.keys(multiData.dates).filter(d => d < todayNow).sort();
                     const last = sorted[sorted.length - 1];
                     const cloned = JSON.parse(JSON.stringify(multiData.dates[last] || defaultData));
                     const [y, mo, da] = todayNow.split('-');
@@ -2121,6 +2125,11 @@
             try {
                 localStorage.setItem(LS_KEY, obfuscate(JSON.stringify(multiData)));
             } catch (e) { }
+
+            // Sync the healed/created today's slot to Firebase now that _appReady is true
+            if (isNewDateCreated) {
+                saveToLocal();
+            }
 
             // Populate and render UI
             renderDeptTabs();
@@ -2173,8 +2182,8 @@
 
             if (fbDatesJson !== localDatesJson || fbDeptsJson !== localDeptsJson) {
                 const localActiveDate = multiData.active_date;
-                // Overwrite dates with newer remote updates
-                multiData.dates = fbData.dates;
+                // Merge dates non-destructively to preserve locally created slots not yet in Firebase
+                multiData.dates = { ...multiData.dates, ...fbData.dates };
                 if (fbData.departments) {
                     multiData.departments = fbData.departments;
                 }
@@ -4896,7 +4905,7 @@
                                     ontouchend="event.preventDefault(); hideDeptPassword('${dept.id}')" 
                                     ontouchcancel="event.preventDefault(); hideDeptPassword('${dept.id}')"
                                     oncontextmenu="event.preventDefault();"
-                                    style="background: none; border: none; cursor: pointer; padding: 2px; color: #64748b; outline: none; transition: color 0.15s; user-select: none; -webkit-user-select: none;" 
+                                    style="background: none; border: none; cursor: pointer; padding: 2px; color: #64748b; outline: none; transition: color 0.15s; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;" 
                                     onmouseover="this.style.color='#2563eb'" 
                                     onmouseout="this.style.color='#64748b'" 
                                     title="પાસવર્ડ જુઓ">

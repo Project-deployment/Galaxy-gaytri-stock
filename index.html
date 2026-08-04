@@ -818,8 +818,8 @@
         </div>
 
         <!-- SIDE Fixed Department Button -->
-        <button id="btn-side-dept" onclick="switchToSide()" title="SIDE – Kapan that are temporarily aside">
-            ⟂ SIDE
+        <button id="btn-side-dept" onclick="switchToSide()" title="SIDE – Kapan that are temporarily aside" style="display:flex; align-items:center; gap:5px;">
+            <i data-lucide="log-in" style="width:13px;height:13px;"></i> SIDE
         </button>
 
         <!-- Collapsed Departments Dropdown -->
@@ -950,7 +950,7 @@
                         <div id="all-stock-side-card" style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
                             <div style="padding: 10px 16px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
                                 <div style="font-size: 1rem; font-weight: 800; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
-                                    <i data-lucide="layers" style="width:18px; height:18px; color:#f59e0b;"></i>
+                                    <i data-lucide="log-in" style="width:18px; height:18px; color:#f59e0b;"></i>
                                     SIDE — સાઇડ સ્ટોક
                                 </div>
                                 <span id="side-card-lots" style="background: #f59e0b; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 0.8rem; font-weight: 800;">0 Lots</span>
@@ -991,7 +991,7 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td style="padding:5px 14px; font-weight:700; color:#92400e; font-size:12px;">⟂ SIDE</td>
+                                        <td style="padding:5px 14px; font-weight:700; color:#92400e; font-size:12px; display:flex; align-items:center; gap:4px;"><i data-lucide="log-in" style="width:12px;height:12px;"></i> SIDE</td>
                                         <td id="combined-side-pcs" style="text-align:center; padding:5px 10px; font-weight:700; color:#dc2626; font-size:12px; font-variant-numeric:tabular-nums;">0</td>
                                         <td id="combined-side-carats" style="text-align:right; padding:5px 10px; font-weight:700; color:#059669; font-size:12px; font-variant-numeric:tabular-nums;">0.00</td>
                                         <td id="combined-side-lots" style="text-align:center; padding:5px 14px; font-weight:700; color:#92400e; font-size:12px;">0</td>
@@ -3583,7 +3583,8 @@
                     card.innerHTML = `
                         <div class="card-header-bar" style="background: linear-gradient(135deg, #92400e 0%, #b45309 100%);">
                             <div style="display: flex; align-items: center; gap: 6px;">
-                                <div class="group-title" style="color:#ffffff;">⟂ SIDE &mdash; from ${srcDeptName}</div>
+                                <i data-lucide="log-in" style="width:14px;height:14px;color:#fff;"></i>
+                                <div class="group-title" style="color:#ffffff;">SIDE &mdash; from ${srcDeptName}</div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <div class="group-badge-summary" style="background: #f59e0b; color: #fff;">${entries.length} Lots</div>

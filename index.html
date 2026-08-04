@@ -3383,6 +3383,15 @@
                 });
 
                 const sourceDepts = Object.keys(sidedBySourceDept);
+
+                // Sort by department order as defined in Settings
+                const deptOrder = (multiData.departments || []).map(d => d.id);
+                sourceDepts.sort((a, b) => {
+                    const ia = deptOrder.indexOf(a);
+                    const ib = deptOrder.indexOf(b);
+                    return (ia === -1 ? 9999 : ia) - (ib === -1 ? 9999 : ib);
+                });
+
                 totalCardsRendered = sourceDepts.length;
 
                 sourceDepts.forEach(srcDept => {
@@ -3453,6 +3462,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>${tableRows}</tbody>
+                                <tfoot>
+                                    <tr style="background: #fef3c7; border-top: 2px solid #f59e0b;">
+                                        <td colspan="5" style="text-align: right; padding: 6px 8px; font-size: 12px; font-weight: 700; color: #92400e;">TOTAL</td>
+                                        <td style="text-align: right; padding: 6px 8px; font-size: 12px; font-weight: 700; color: #92400e;">${formatNumber(deptPcs)}</td>
+                                        <td style="text-align: right; padding: 6px 8px; font-size: 12px; font-weight: 700; color: #92400e;">${formatCarat(deptCarat)}</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     `;

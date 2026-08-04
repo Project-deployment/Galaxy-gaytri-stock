@@ -1822,8 +1822,8 @@
             
             // Reversible check for default hashes to show actual plaintext values
             if (encrypted.startsWith('hash_')) {
-                if (encrypted === hashPassword('123')) return '123';
-                if (encrypted === hashPassword('admin123')) return 'admin123';
+                if (encrypted === hashPassword('123') || encrypted === hashPassword(encryptPassword('123'))) return '123';
+                if (encrypted === hashPassword('admin123') || encrypted === hashPassword(encryptPassword('admin123'))) return 'admin123';
                 return 'Hashed (નવો સેટ કરો)';
             }
             if (!encrypted.startsWith('enc_')) return encrypted; // Not encrypted
@@ -1848,7 +1848,8 @@
             if (storedHashOrEnc.startsWith('enc_')) {
                 return inputPassword === decryptPassword(storedHashOrEnc);
             }
-            return hashPassword(inputPassword) === storedHashOrEnc;
+            return hashPassword(inputPassword) === storedHashOrEnc || 
+                   hashPassword(encryptPassword(inputPassword)) === storedHashOrEnc;
         }
 
         function syncStockDataReference() {
@@ -1937,27 +1938,7 @@
                     }
                 }
             }
-            // Automatically set today's date for any existing items that are currently in SIDE
-            const todayDateFormatted = getTodayKey().split('-').reverse().join('-'); // returns DD-MM-YYYY
-            let updatedSideDates = false;
-            Object.keys(multiData.dates).forEach(dateKey => {
-                const dayData = multiData.dates[dateKey];
-                if (dayData && dayData.groups) {
-                    dayData.groups.forEach(group => {
-                        if (group && group.items) {
-                            group.items.forEach(item => {
-                                if (item && !item.is_subtotal && item.dept === SIDE_DEPT_ID && item.date !== todayDateFormatted) {
-                                    item.date = todayDateFormatted;
-                                    updatedSideDates = true;
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-            if (updatedSideDates) {
-                migrated = true;
-            }
+
 
             // Normalize all dates in the dataset
             Object.keys(multiData.dates).forEach(dateKey => {
@@ -4949,9 +4930,15 @@
             if (pwd.startsWith('enc_')) {
                 span.innerText = decryptPassword(pwd);
             } else if (pwd.startsWith('hash_')) {
-                span.innerText = 'Hashed (નવો સેટ કરો)';
-                span.style.fontSize = '0.72rem';
-                span.style.color = '#94a3b8';
+                if (pwd === 'hash_1fceedf0_9ae54289' || pwd === hashPassword('123')) {
+                    span.innerText = '123';
+                } else if (pwd === hashPassword('admin123')) {
+                    span.innerText = 'admin123';
+                } else {
+                    span.innerText = 'Hashed (નવો સેટ કરો)';
+                    span.style.fontSize = '0.72rem';
+                    span.style.color = '#94a3b8';
+                }
             } else {
                 span.innerText = pwd; // Plaintext fallback
             }

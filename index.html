@@ -2523,44 +2523,65 @@
             };
         }
 
-        // Heal sided flags for previously sidelined active kapans
-        function healSidedKapans() {
+        // Heal lost SIDE entry dates for historically sidelined active kapans
+        function healHistoricalSideDates() {
             if (!multiData || !multiData.dates || !stockData || !stockData.groups) return;
-            let healedAny = false;
-            
-            // Build a lookup map of all kapans that were ever sided in history
-            const everSided = {}; // { kapanName: sidedFromDept }
-            
-            const sortedDates = Object.keys(multiData.dates).sort();
-            sortedDates.forEach(dateKey => {
-                const dateData = multiData.dates[dateKey];
-                if (!dateData || !dateData.groups) return;
-                dateData.groups.forEach(group => {
-                    group.items.forEach(item => {
-                        if (item.is_subtotal || !item.kapan) return;
-                        const kName = item.kapan.trim().toUpperCase();
-                        if (item.sided || item.dept === 'SIDE') {
-                            everSided[kName] = item.sidedFromDept || 'Rough';
-                        }
-                    });
-                });
-            });
-
-            // Now check today's/active date's items
+            let changed = false;
             stockData.groups.forEach(group => {
                 group.items.forEach(item => {
                     if (item.is_subtotal || item.completed || !item.kapan) return;
-                    const kName = item.kapan.trim().toUpperCase();
-                    if (!item.sided && everSided[kName] && !item.sideUndone) {
-                        item.sided = true;
-                        item.sidedFromDept = everSided[kName];
-                        healedAny = true;
-                        console.log(`Healed SIDED flag for Kapan "${item.kapan}" (from ${item.sidedFromDept})`);
+                    if (item.lastTransferFrom === 'SIDE') {
+                        if (!item.deptDates) {
+                            item.deptDates = {};
+                        }
+                        
+                        // Find the earliest historical date when this Kapan was in SIDE
+                        const kName = item.kapan.trim().toUpperCase();
+                        let sideDate = null;
+                        const sortedDates = Object.keys(multiData.dates).sort();
+                        for (let i = 0; i < sortedDates.length; i++) {
+                            const dKey = sortedDates[i];
+                            if (dKey >= multiData.active_date) continue; // Only search in the past
+                            
+                            const dData = multiData.dates[dKey];
+                            if (dData && dData.groups) {
+                                let foundInSide = false;
+                                for (let g = 0; g < dData.groups.length; g++) {
+                                    const grp = dData.groups[g];
+                                    const foundItem = grp.items.find(it => !it.is_subtotal && it.kapan && it.kapan.trim().toUpperCase() === kName && (it.dept === 'SIDE' || it.sided));
+                                    if (foundItem) {
+                                        foundInSide = true;
+                                        break;
+                                    }
+                                }
+                                if (foundInSide) {
+                                    const parts = dKey.split('-');
+                                    sideDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (sideDate) {
+                            // Correct the SIDE entry date if it is different
+                            if (item.deptDates['SIDE'] !== sideDate) {
+                                item.deptDates['SIDE'] = sideDate;
+                                changed = true;
+                                console.log(`Corrected historical SIDE date for Kapan "${item.kapan}" to ${sideDate}`);
+                            }
+                        } else if (!item.deptDates['SIDE']) {
+                            // Fallback to current department's date if not found in history and not set at all
+                            const entryDate = item.deptDates[item.dept] || item.date;
+                            if (entryDate) {
+                                item.deptDates['SIDE'] = entryDate;
+                                changed = true;
+                                console.log(`Healed historical SIDE date for Kapan "${item.kapan}" to ${entryDate}`);
+                            }
+                        }
                     }
                 });
             });
-
-            if (healedAny) {
+            if (changed) {
                 saveToLocal();
             }
         }
@@ -2568,7 +2589,7 @@
         // Recalculate Grand Totals dynamically in JS
         function recalculateGrandTotals() {
             syncStockDataReference();
-            healSidedKapans();
+            healHistoricalSideDates();
             recalculateTotalsForDate(multiData.active_date);
             saveToLocal();
             updateKPIs();
@@ -3292,8 +3313,7 @@
                 stockData.groups.forEach(group => {
                     group.items.forEach(item => {
                         if (item.is_subtotal || item.completed) return;
-                        const matchesDept = (dept === 'SIDE') ? !!item.sided : ((item.dept || 'Rough') === dept);
-                        if (matchesDept) {
+                        if ((item.dept || 'Rough') === dept) {
                             deptLots++;
                             deptPcs += parseInt(item.pcs) || 0;
                             deptCarat += parseFloat(item.carat) || 0.0;
@@ -3308,7 +3328,7 @@
                     stockData.groups.forEach(group => {
                         group.items.forEach(item => {
                             if (item.is_subtotal || item.completed) return;
-                            if (!item.sided) return;
+                            if (!item.sided || item.dept !== 'SIDE') return;
                             const fromDept = item.sidedFromDept || 'Rough';
                             if (!byFromDept[fromDept]) byFromDept[fromDept] = { lots: 0, pcs: 0, carat: 0 };
                             byFromDept[fromDept].lots++;
@@ -3770,7 +3790,7 @@
                 stockData.groups.forEach(group => {
                     group.items.forEach(item => {
                         if (item.is_subtotal || item.completed) return;
-                        if (!item.sided) return;
+                        if (!item.sided || item.dept !== SIDE_DEPT_ID) return;
 
                         const srcDept = item.sidedFromDept || 'Rough';
 
@@ -3813,19 +3833,6 @@
                         const itemDate = item.date ? item.date.substring(0, 5) : '-';
                         const days = calculateDaysInProcess(item.date, multiData.active_date);
                         const dayColor = days > 10 ? 'var(--accent-red, #dc2626)' : (days > 5 ? '#f97316' : '#059669');
-
-                        const isStillInSideDept = item.dept === SIDE_DEPT_ID;
-                        const currentDeptDisplayName = getDeptDisplayName(item.dept);
-                        const statusHtml = isStillInSideDept ? `
-                            <button onclick="openTransferKapanModal('${groupName.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', 'SIDE', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: #059669; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.7; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Resume to Working (Working ma pachi lavo)">
-                                <i data-lucide="play-circle" style="width:12px;height:12px;"></i>
-                            </button>
-                        ` : `
-                            <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; display: inline-block; vertical-align: middle; font-family: inherit;" title="Currently working in ${currentDeptDisplayName}">
-                                ${currentDeptDisplayName}
-                            </span>
-                        `;
-
                         tableRows += `
                             <tr class="kapan-row" data-group="${groupName.replace(/'/g, "\\'")}" data-kapan="${String(item.kapan).replace(/'/g, "\\'")}">
                                 <td style="text-align: center; width: 28px; padding: 4px 4px;">
@@ -3837,8 +3844,10 @@
                                 <td class="col-kapan">${item.kapan || '-'}</td>
                                 <td class="col-num col-pcs" style="text-align: right;">${formatNumber(item.pcs)}</td>
                                 <td class="col-num col-cts" style="text-align: right;">${formatCarat(item.carat)}</td>
-                                <td style="text-align: center; width: 75px; padding: 4px 2px; white-space: nowrap;">
-                                    ${statusHtml}
+                                <td style="text-align: center; width: 52px; padding: 4px 2px; white-space: nowrap;">
+                                    <button onclick="openTransferKapanModal('${groupName.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', 'SIDE', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: none; border: none; color: #059669; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.7; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Resume to Working (Working ma pachi lavo)">
+                                        <i data-lucide="play-circle" style="width:12px;height:12px;"></i>
+                                    </button>
                                     <button onclick="undoSideKapan('${groupName.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}')" style="background: none; border: none; color: #dc2626; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 2px; opacity: 0.7; transition: opacity 0.15s; margin-left: 4px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Return As It Is (Same department ma pachi lavo)">
                                         <i data-lucide="rotate-ccw" style="width:12px;height:12px;"></i>
                                     </button>
@@ -3871,7 +3880,7 @@
                                         <th style="text-align: left; width: 75px;">Kapan</th>
                                         <th style="text-align: right; width: 65px;">PCS</th>
                                         <th style="text-align: right; width: 75px;">CARAT</th>
-                                        <th style="width: 75px; text-align: center;"></th>
+                                        <th style="width: 52px; text-align: center;"></th>
                                     </tr>
                                 </thead>
                                 <tbody>${tableRows}</tbody>
@@ -4768,10 +4777,13 @@
             item.sidedFromDept = item.dept || 'Rough';
             item.dept = SIDE_DEPT_ID;
             item.sided = true;
-            delete item.sideUndone;
+            if (!item.deptDates) {
+                item.deptDates = {};
+            }
 
             const activeParts = multiData.active_date.split('-');
             const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
+            item.deptDates[SIDE_DEPT_ID] = entryDateFormatted;
             item.date = entryDateFormatted; // Set to the date when it was sidelined
 
             recalculateGrandTotals();
@@ -4794,7 +4806,9 @@
             item.dept = originalDept;
             item.sided = false;
             item.sidedFromDept = null;
-            item.sideUndone = true;
+            if (item.deptDates) {
+                delete item.deptDates[SIDE_DEPT_ID];
+            }
 
             const activeParts = multiData.active_date.split('-');
             const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
@@ -4940,11 +4954,11 @@
                         } else {
                             item.dept = toDept;
                             item.date = entryDateFormatted; // Set Kapan entry date in the new department to the transfer date
-                            // Do NOT clear SIDE flags when resuming to working, so they remain in SIDE!
-                            // if (item.sided) {
-                            //     item.sided = false;
-                            //     item.sidedFromDept = null;
-                            // }
+                            // Clear SIDE flags when resuming to working
+                            if (item.sided) {
+                                item.sided = false;
+                                item.sidedFromDept = null;
+                            }
                             if (!item.deptDates) {
                                 item.deptDates = {};
                             }

@@ -2552,6 +2552,8 @@
                         currentDept: item.dept || 'Rough',
                         lastTransferFrom: item.lastTransferFrom || null,
                         completed: !!item.completed,
+                        sided: !!item.sided,
+                        sidedFromDept: item.sidedFromDept || null,
                         deptDates: {}
                     };
                 });
@@ -2708,7 +2710,7 @@
             }
         }
 
-        window.showKapanDetailModal = function(kapanName, groupName, pcs, carat) {
+        window.showKapanDetailModal = function(kapanName, groupName, pcs, carat, fromDeptName = '', toDeptName = '') {
             const existing = document.getElementById('kapan-detail-popover');
             if (existing) existing.remove();
 
@@ -2739,6 +2741,26 @@
             card.style.transform = 'scale(0.95)';
             card.style.transition = 'transform 0.15s ease-out';
 
+            let fromDeptHtml = '';
+            if (fromDeptName) {
+                fromDeptHtml = `
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #f1f5f9; padding-bottom:4px;">
+                        <span style="color:var(--text-secondary);">From Dept (વિભાગમાંથી):</span>
+                        <span style="color:#2563eb; font-weight:800;">${fromDeptName}</span>
+                    </div>
+                `;
+            }
+
+            let toDeptHtml = '';
+            if (toDeptName) {
+                toDeptHtml = `
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #f1f5f9; padding-bottom:4px;">
+                        <span style="color:var(--text-secondary);">To Dept (આગળનો વિભાગ):</span>
+                        <span style="color:#10b981; font-weight:800;">${toDeptName}</span>
+                    </div>
+                `;
+            }
+
             card.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
                     <div style="font-size:1.05rem; font-weight:800; color:var(--accent-navy); display:flex; align-items:center; gap:6px;">
@@ -2758,6 +2780,8 @@
                         <span style="color:var(--text-secondary);">Group:</span>
                         <span>${groupName}</span>
                     </div>
+                    ${fromDeptHtml}
+                    ${toDeptHtml}
                     <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #f1f5f9; padding-bottom:4px;">
                         <span style="color:var(--text-secondary);">Total PCS (નંગ):</span>
                         <span style="color:#dc2626; font-weight:800; font-variant-numeric:tabular-nums;">${pcs}</span>
@@ -2801,15 +2825,23 @@
                 }
             });
             
-            const deptOrder = (multiData.departments || []).map(d => d.id);
+            const regularDepts = (multiData.departments || []).filter(d => d.id !== 'SIDE').map(d => d.id);
+            const getDeptSortIndex = (deptId) => {
+                if (deptId === 'SIDE') {
+                    const srcId = hItem.sidedFromDept || 'Rough';
+                    const srcIdx = regularDepts.indexOf(srcId);
+                    return srcIdx === -1 ? 999.5 : srcIdx + 0.5;
+                } else {
+                    const idx = regularDepts.indexOf(deptId);
+                    return idx === -1 ? 999 : idx;
+                }
+            };
             
             entries.sort((a, b) => {
                 if (a.dateObj.getTime() !== b.dateObj.getTime()) {
                     return a.dateObj - b.dateObj;
                 }
-                const idxA = deptOrder.indexOf(a.deptId) === -1 ? 999 : deptOrder.indexOf(a.deptId);
-                const idxB = deptOrder.indexOf(b.deptId) === -1 ? 999 : deptOrder.indexOf(b.deptId);
-                return idxA - idxB;
+                return getDeptSortIndex(a.deptId) - getDeptSortIndex(b.deptId);
             });
             
             for (let i = 0; i < entries.length - 1; i++) {
@@ -2881,8 +2913,15 @@
                     arrivedHtml = '<div style="text-align: center; color: #94a3b8; font-size: 0.75rem; padding: 12px 0;">નથી</div>';
                 } else {
                     arrived.forEach(item => {
+                        let fromDeptName = '';
+                        if (item.sidedFromDept) {
+                            const fromDeptObj = depts.find(d => d.id === item.sidedFromDept);
+                            fromDeptName = fromDeptObj ? fromDeptObj.name : item.sidedFromDept;
+                        }
+                        const fromDeptParam = (dept.id === 'SIDE' && fromDeptName) ? fromDeptName : '';
+
                         arrivedHtml += `
-                            <div onclick="window.showKapanDetailModal('${item.kapan}', '${item.groupName}', '${formatNumber(item.pcs)}', '${formatCarat(item.carat)}')" 
+                            <div onclick="window.showKapanDetailModal('${item.kapan}', '${item.groupName}', '${formatNumber(item.pcs)}', '${formatCarat(item.carat)}', '${fromDeptParam.replace(/'/g, "\\'")}', '')" 
                                  style="background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; border-radius: 4px; padding: 4px 6px; font-size: 0.8rem; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 4px;"
                                  onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
                                 ${item.kapan}
@@ -2897,8 +2936,17 @@
                     departedHtml = '<div style="text-align: center; color: #94a3b8; font-size: 0.75rem; padding: 12px 0;">નથી</div>';
                 } else {
                     departed.forEach(item => {
+                        let toDeptName = '';
+                        const departures = getDepartureDates(item);
+                        const depInfo = departures[dept.id];
+                        if (depInfo && depInfo.nextDeptId) {
+                            const toDeptObj = depts.find(d => d.id === depInfo.nextDeptId);
+                            toDeptName = toDeptObj ? toDeptObj.name : depInfo.nextDeptId;
+                        }
+                        const toDeptParam = (dept.id === 'SIDE' && toDeptName) ? toDeptName : '';
+
                         departedHtml += `
-                            <div onclick="window.showKapanDetailModal('${item.kapan}', '${item.groupName}', '${formatNumber(item.pcs)}', '${formatCarat(item.carat)}')" 
+                            <div onclick="window.showKapanDetailModal('${item.kapan}', '${item.groupName}', '${formatNumber(item.pcs)}', '${formatCarat(item.carat)}', '', '${toDeptParam.replace(/'/g, "\\'")}')" 
                                  style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 4px; padding: 4px 6px; font-size: 0.8rem; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 4px;"
                                  onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
                                 ${item.kapan}

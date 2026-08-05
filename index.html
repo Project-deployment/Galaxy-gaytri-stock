@@ -936,7 +936,7 @@
                     <div
                         style="font-size: 1.15rem; font-weight: 700; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
                         <i data-lucide="package" style="width: 22px; height: 22px; color: var(--accent-navy);"></i>
-                        વિભાગ વાઈઝ કુલ સ્ટોક સમરી (Department-wise Stock Summary)
+                        Department-wise Stock Summary
                     </div>
                 </div>
 
@@ -2661,20 +2661,15 @@
                 const hItem = historyMap[kapanName];
                 
                 // 1. Added to first department (e.g. Galaxy DP / Rough)
+                // Date match = always show, regardless of current dept (kapan report mathi nikalvi na pade)
                 if (hItem.deptDates[firstDept.id] === activeDateFormatted) {
-                    // Do not count if currently in SIDE or completed
-                    if (hItem.currentDept !== 'SIDE' && !hItem.completed) {
-                        addedToFirst.push(hItem);
-                    }
+                    addedToFirst.push(hItem);
                 }
                 
                 // 2. Arrived at AP OK department
+                // Date match = always show, regardless of current dept (kapan report mathi nikalvi na pade)
                 if (hItem.deptDates[apOkDept.id] === activeDateFormatted) {
-                    // Must come directly from the first department (Galaxy DP / Rough)
-                    // Must not be currently in SIDE or completed
-                    if (hItem.lastTransferFrom === firstDept.id && hItem.currentDept !== 'SIDE' && !hItem.completed) {
-                        arrivedAtApOk.push(hItem);
-                    }
+                    arrivedAtApOk.push(hItem);
                 }
             });
 

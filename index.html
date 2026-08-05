@@ -903,7 +903,7 @@
         <!-- Collapsed Departments Dropdown -->
         <select id="extra-depts-select" onchange="switchToExtraDept(this.value)"
             style="display: none; border: 1px solid var(--card-border); background: #ffffff; color: var(--text-secondary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer; height: 28px; margin-left: 4px; vertical-align: middle; transition: all 0.15s;">
-            <option value="" disabled selected>MORE DEPTS</option>
+            <option value="" disabled selected>OK DEPTS</option>
         </select>
 
 
@@ -1297,7 +1297,7 @@
                                             <th>Department</th>
                                             <th style="text-align: center; width: 100px;">Password</th>
                                             <th style="text-align: center; width: 90px;">Side Option</th>
-                                            <th style="text-align: center; width: 110px;">Dropdown Option</th>
+                                            <th style="text-align: center; width: 110px;">OK Depts Option</th>
                                             <th style="text-align: center; width: 90px;">Khata Option</th>
                                             <th style="text-align: center; width: 90px;">Dispatch Option</th>
                                             <th style="text-align: center; width: 160px;">Actions</th>
@@ -5644,7 +5644,7 @@
                     select.style.display = 'none';
                 } else {
                     select.style.display = 'inline-block';
-                    select.innerHTML = '<option value="" disabled selected>MORE DEPTS</option>';
+                    select.innerHTML = '<option value="" disabled selected>OK DEPTS</option>';
                     dropdownDepts.forEach(dept => {
                         const opt = document.createElement('option');
                         opt.value = dept.id;

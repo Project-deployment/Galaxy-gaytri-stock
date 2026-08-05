@@ -1069,10 +1069,10 @@
                     </div>
 
                     <div
-                        style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow-x: auto; width: 100%;">
+                        style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow-x: auto; width: 100%; max-height: calc(100vh - 140px); overflow-y: auto;">
                         <table class="stock-table master-table" id="report-tracking-table"
                             style="width: 100%; border-collapse: collapse; min-width: 900px;">
-                            <thead>
+                            <thead style="position: sticky; top: 0; z-index: 10;">
                                 <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
                                     <th
                                         style="text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; width: 120px;">
@@ -2536,12 +2536,15 @@
             // Render headers dynamically in report table
             const thead = document.querySelector('#report-tracking-table thead');
             if (thead) {
+                thead.style.position = 'sticky';
+                thead.style.top = '0';
+                thead.style.zIndex = '10';
                 let headerHtml = `
                     <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                        <th style="text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; width: 120px;">Kapan No</th>
+                        <th style="text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; width: 120px; background: #f8fafc;">Kapan No</th>
                 `;
                 (multiData.departments || []).forEach(dept => {
-                    headerHtml += `<th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569;">${dept.name}</th>`;
+                    headerHtml += `<th style="text-align: center; padding: 12px 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; background: #f8fafc;">${dept.name}</th>`;
                 });
                 headerHtml += `</tr>`;
                 thead.innerHTML = headerHtml;

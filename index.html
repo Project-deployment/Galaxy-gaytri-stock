@@ -13,6 +13,84 @@
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Storage Encryption Script for Firebase Protection -->
+    <script>
+        (function() {
+            const originalGet = Storage.prototype.getItem;
+            const originalSet = Storage.prototype.setItem;
+            const originalRemove = Storage.prototype.removeItem;
+            const originalKey = Storage.prototype.key;
+
+            // Simple reversible obfuscation
+            function encrypt(str) {
+                if (!str) return str;
+                const reversed = str.split('').reverse().join('');
+                return 'enc_' + btoa(unescape(encodeURIComponent(reversed)));
+            }
+
+            function decrypt(str) {
+                if (!str || !str.startsWith('enc_')) return str;
+                try {
+                    const base64Part = str.substring(4);
+                    const reversed = decodeURIComponent(escape(atob(base64Part)));
+                    return reversed.split('').reverse().join('');
+                } catch (e) {
+                    return str;
+                }
+            }
+
+            // Intercept getItem
+            Storage.prototype.getItem = function(key) {
+                if (typeof key === 'string' && (key.includes('firebase') || key.startsWith('enc_'))) {
+                    const encKey = encrypt(key);
+                    const val = originalGet.call(this, encKey);
+                    return decrypt(val);
+                }
+                return originalGet.call(this, key);
+            };
+
+            // Intercept setItem
+            Storage.prototype.setItem = function(key, value) {
+                if (typeof key === 'string' && (key.includes('firebase') || key.startsWith('enc_') || (typeof value === 'string' && value.includes('firebase')))) {
+                    const encKey = encrypt(key);
+                    const encValue = encrypt(value);
+                    return originalSet.call(this, encKey, encValue);
+                }
+                return originalSet.call(this, key, value);
+            };
+
+            // Intercept removeItem
+            Storage.prototype.removeItem = function(key) {
+                if (typeof key === 'string' && (key.includes('firebase') || key.startsWith('enc_'))) {
+                    const encKey = encrypt(key);
+                    originalRemove.call(this, encKey);
+                }
+                return originalRemove.call(this, key);
+            };
+
+            // Intercept key
+            Storage.prototype.key = function(index) {
+                const rawKey = originalKey.call(this, index);
+                if (typeof rawKey === 'string' && rawKey.startsWith('enc_')) {
+                    return decrypt(rawKey);
+                }
+                return rawKey;
+            };
+
+            // Cleanup plain-text firebase keys
+            try {
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const key = originalKey.call(localStorage, i);
+                    if (key && key.includes('firebase') && !key.startsWith('enc_')) {
+                        originalRemove.call(localStorage, key);
+                    }
+                }
+            } catch (e) {
+                console.error("Cleanup failed:", e);
+            }
+        })();
+    </script>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>

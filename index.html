@@ -2847,6 +2847,8 @@
             const depts = multiData.departments || [];
             const historyMap = compileKapanHistory();
 
+            const firstRegularDept = depts.find(d => d.id !== 'SIDE') || depts[0];
+
             let cardsHtml = '';
             
             depts.forEach(dept => {
@@ -2905,6 +2907,44 @@
                     });
                 }
 
+                const isFirstDept = (dept.id === firstRegularDept.id);
+
+                let columnsHtml = '';
+                if (isFirstDept) {
+                    columnsHtml = `
+                        <!-- Receive (Left - Full Width) -->
+                        <div style="flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 4px; background: #fafbfc;">
+                            <div style="font-size: 0.72rem; font-weight: 800; color: #2563eb; border-bottom: 1px solid #eff6ff; padding-bottom: 4px; margin-bottom: 6px; text-align: center; text-transform: uppercase;">
+                                CREATE <span style="background:#2563eb; color:white; border-radius:10px; padding: 1px 5px; font-size:0.65rem; font-variant-numeric: tabular-nums;">${arrived.length}</span>
+                            </div>
+                            <div style="flex: 1; overflow-y: auto; max-height: 250px;">
+                                ${arrivedHtml}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    columnsHtml = `
+                        <!-- Receive (Left) -->
+                        <div style="flex: 1; border-right: 1px solid #f1f5f9; padding: 8px; display: flex; flex-direction: column; gap: 4px; background: #fafbfc;">
+                            <div style="font-size: 0.72rem; font-weight: 800; color: #2563eb; border-bottom: 1px solid #eff6ff; padding-bottom: 4px; margin-bottom: 6px; text-align: center; text-transform: uppercase;">
+                                Receive (લીધેલ) <span style="background:#2563eb; color:white; border-radius:10px; padding: 1px 5px; font-size:0.65rem; font-variant-numeric: tabular-nums;">${arrived.length}</span>
+                            </div>
+                            <div style="flex: 1; overflow-y: auto; max-height: 250px;">
+                                ${arrivedHtml}
+                            </div>
+                        </div>
+                        <!-- Issue (Right) -->
+                        <div style="flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 4px; background: #fdfdfd;">
+                            <div style="font-size: 0.72rem; font-weight: 800; color: #ef4444; border-bottom: 1px solid #fef2f2; padding-bottom: 4px; margin-bottom: 6px; text-align: center; text-transform: uppercase;">
+                                Issue (આપેલ) <span style="background:#ef4444; color:white; border-radius:10px; padding: 1px 5px; font-size:0.65rem; font-variant-numeric: tabular-nums;">${departed.length}</span>
+                            </div>
+                            <div style="flex: 1; overflow-y: auto; max-height: 250px;">
+                                ${departedHtml}
+                            </div>
+                        </div>
+                    `;
+                }
+
                 cardsHtml += `
                     <!-- Department Card -->
                     <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; min-height: 160px; transition: transform 0.2s, box-shadow 0.2s;"
@@ -2916,24 +2956,7 @@
                         </div>
                         <!-- Issue / Receive Columns -->
                         <div style="display: flex; flex: 1; min-height: 100px;">
-                            <!-- Issue (Left) -->
-                            <div style="flex: 1; border-right: 1px solid #f1f5f9; padding: 8px; display: flex; flex-direction: column; gap: 4px; background: #fafbfc;">
-                                <div style="font-size: 0.72rem; font-weight: 800; color: #2563eb; border-bottom: 1px solid #eff6ff; padding-bottom: 4px; margin-bottom: 6px; text-align: center; text-transform: uppercase;">
-                                    Issue (આપેલ) <span style="background:#2563eb; color:white; border-radius:10px; padding: 1px 5px; font-size:0.65rem; font-variant-numeric: tabular-nums;">${arrived.length}</span>
-                                </div>
-                                <div style="flex: 1; overflow-y: auto; max-height: 250px;">
-                                    ${arrivedHtml}
-                                </div>
-                            </div>
-                            <!-- Receive (Right) -->
-                            <div style="flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 4px; background: #fdfdfd;">
-                                <div style="font-size: 0.72rem; font-weight: 800; color: #ef4444; border-bottom: 1px solid #fef2f2; padding-bottom: 4px; margin-bottom: 6px; text-align: center; text-transform: uppercase;">
-                                    Receive (લીધેલ) <span style="background:#ef4444; color:white; border-radius:10px; padding: 1px 5px; font-size:0.65rem; font-variant-numeric: tabular-nums;">${departed.length}</span>
-                                </div>
-                                <div style="flex: 1; overflow-y: auto; max-height: 250px;">
-                                    ${departedHtml}
-                                </div>
-                            </div>
+                            ${columnsHtml}
                         </div>
                     </div>
                 `;
@@ -3142,8 +3165,8 @@
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatNumber(parseInt(item.pcs) || 0)}</td>
                         <td style="text-align: right; font-variant-numeric: tabular-nums;">${formatCarat(parseFloat(item.carat) || 0)}</td>
                         <td style="text-align: center; white-space: nowrap;">
-                            <button class="btn-compact" onclick="openTransferKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', '${item.dept || 'Rough'}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; margin-right: 4px;" title="Transfer">
-                                <i data-lucide="arrow-right-left" style="width:11px;height:11px;"></i>
+                            <button class="btn-compact" onclick="deleteKapan('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}')" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; margin-right: 4px;" title="Delete">
+                                <i data-lucide="trash-2" style="width:11px;height:11px;"></i>
                             </button>
                             <button class="btn-compact" onclick="openEditKapanModal('${group.name.replace(/'/g, "\\'")}', '${String(item.kapan).replace(/'/g, "\\'")}', ${parseInt(item.pcs) || 0}, ${parseFloat(item.carat) || 0.0})" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;" title="Edit">
                                 <i data-lucide="edit-3" style="width:11px;height:11px;"></i>

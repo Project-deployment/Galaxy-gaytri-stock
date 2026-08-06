@@ -2715,7 +2715,9 @@
                         completed: !!item.completed,
                         sided: !!item.sided,
                         sidedFromDept: item.sidedFromDept || null,
-                        deptDates: {}
+                        completedTime: item.completedTime || null,
+                        deptDates: {},
+                        deptTimes: {}
                     };
                 });
             });
@@ -2750,6 +2752,13 @@
                                     }
                                     historyMap[kapanName].deptDates[deptName] = val;
                                 }
+                            });
+                        }
+
+                        // Use item.deptTimes if it exists
+                        if (item.deptTimes) {
+                            Object.keys(item.deptTimes).forEach(deptName => {
+                                historyMap[kapanName].deptTimes[deptName] = item.deptTimes[deptName];
                             });
                         }
 
@@ -2871,7 +2880,7 @@
             }
         }
 
-        window.showKapanDetailModal = function (kapanName, groupName, pcs, carat, fromDeptName = '', toDeptName = '') {
+        window.showKapanDetailModal = function (kapanName, groupName, pcs, carat, fromDeptName = '', toDeptName = '', entryTime = '') {
             const existing = document.getElementById('kapan-detail-popover');
             if (existing) existing.remove();
 
@@ -2922,6 +2931,16 @@
                 `;
             }
 
+            let timeHtml = '';
+            if (entryTime) {
+                timeHtml = `
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #f1f5f9; padding-bottom:4px;">
+                        <span style="color:var(--text-secondary);">Entry Time (સમય):</span>
+                        <span style="color:#2563eb; font-weight:800;">${entryTime}</span>
+                    </div>
+                `;
+            }
+
             card.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
                     <div style="font-size:1.05rem; font-weight:800; color:var(--accent-navy); display:flex; align-items:center; gap:6px;">
@@ -2941,6 +2960,7 @@
                         <span style="color:var(--text-secondary);">Group:</span>
                         <span>${groupName}</span>
                     </div>
+                    ${timeHtml}
                     ${fromDeptHtml}
                     ${toDeptHtml}
                     <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #f1f5f9; padding-bottom:4px;">
@@ -3006,9 +3026,11 @@
             });
 
             for (let i = 0; i < entries.length - 1; i++) {
+                const nextEntry = entries[i + 1];
                 departures[entries[i].deptId] = {
-                    date: entries[i + 1].dateStr,
-                    nextDeptId: entries[i + 1].deptId
+                    date: nextEntry.dateStr,
+                    time: (hItem.deptTimes && hItem.deptTimes[nextEntry.deptId]) || '',
+                    nextDeptId: nextEntry.deptId
                 };
             }
 
@@ -3022,6 +3044,7 @@
                 }
                 departures[entries[entries.length - 1].deptId] = {
                     date: compDateStr,
+                    time: hItem.completedTime || '',
                     nextDeptId: 'Completed'
                 };
             }
@@ -3082,7 +3105,7 @@
                         const fromDeptParam = (dept.id === 'SIDE' && fromDeptName) ? fromDeptName : '';
 
                         arrivedHtml += `
-                            <div onclick="window.showKapanDetailModal('${item.kapan}', '${item.groupName}', '${formatNumber(item.pcs)}', '${formatCarat(item.carat)}', '${fromDeptParam.replace(/'/g, "\\'")}', '')" 
+                            <div onclick="window.showKapanDetailModal('${item.kapan}', '${item.groupName}', '${formatNumber(item.pcs)}', '${formatCarat(item.carat)}', '${fromDeptParam.replace(/'/g, "\\'")}', '', '${(item.deptTimes && item.deptTimes[dept.id]) || ''}')" 
                                  style="background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; border-radius: 4px; padding: 4px 6px; font-size: 0.8rem; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 4px;"
                                  onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
                                 ${item.kapan}
@@ -3107,7 +3130,7 @@
                         const toDeptParam = (dept.id === 'SIDE' && toDeptName) ? toDeptName : '';
 
                         departedHtml += `
-                            <div onclick="window.showKapanDetailModal('${item.kapan}', '${item.groupName}', '${formatNumber(item.pcs)}', '${formatCarat(item.carat)}', '', '${toDeptParam.replace(/'/g, "\\'")}')" 
+                            <div onclick="window.showKapanDetailModal('${item.kapan}', '${item.groupName}', '${formatNumber(item.pcs)}', '${formatCarat(item.carat)}', '', '${toDeptParam.replace(/'/g, "\\'")}', '${(depInfo && depInfo.time) || ''}')" 
                                  style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 4px; padding: 4px 6px; font-size: 0.8rem; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 4px;"
                                  onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
                                 ${item.kapan}
@@ -4645,6 +4668,10 @@
                 const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
                 const dept = document.getElementById('input-kapan-dept').value || 'Rough';
 
+                const now = new Date();
+                const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+                const entryTimeFormatted = now.toLocaleTimeString('en-US', timeOptions);
+
                 const newItem = {
                     s_no: newSno,
                     kapan: kapan,
@@ -4654,6 +4681,9 @@
                     dept: dept,
                     deptDates: {
                         [dept]: entryDateFormatted
+                    },
+                    deptTimes: {
+                        [dept]: entryTimeFormatted
                     },
                     is_subtotal: false
                 };
@@ -4906,6 +4936,13 @@
             const activeParts = multiData.active_date.split('-');
             const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
             item.deptDates[SIDE_DEPT_ID] = entryDateFormatted;
+            
+            if (!item.deptTimes) {
+                item.deptTimes = {};
+            }
+            const now = new Date();
+            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+            item.deptTimes[SIDE_DEPT_ID] = now.toLocaleTimeString('en-US', timeOptions);
             item.date = entryDateFormatted; // Set to the date when it was sidelined
 
             recalculateGrandTotals();
@@ -4930,6 +4967,9 @@
             item.sidedFromDept = null;
             if (item.deptDates) {
                 delete item.deptDates[SIDE_DEPT_ID];
+            }
+            if (item.deptTimes) {
+                delete item.deptTimes[SIDE_DEPT_ID];
             }
 
             const activeParts = multiData.active_date.split('-');
@@ -5069,9 +5109,14 @@
                         const isDestDispatch = destDeptObj && destDeptObj.isDispatch;
 
                         item.lastTransferFrom = item.dept || 'Rough';
+                        const now = new Date();
+                        const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+                        const entryTimeFormatted = now.toLocaleTimeString('en-US', timeOptions);
+
                         if (toDept === 'Completed' || isDestDispatch) {
                             item.completed = true;
                             item.completedDate = entryDateFormatted;
+                            item.completedTime = entryTimeFormatted;
                             item.dept = toDept; // Keep track of final department it went to
                         } else {
                             item.dept = toDept;
@@ -5085,6 +5130,10 @@
                                 item.deptDates = {};
                             }
                             item.deptDates[toDept] = entryDateFormatted;
+                            if (!item.deptTimes) {
+                                item.deptTimes = {};
+                            }
+                            item.deptTimes[toDept] = entryTimeFormatted;
                         }
 
                         console.log("✅ Kapan Transferred Successfully:", {
@@ -5150,6 +5199,7 @@
                 if (item) {
                     item.completed = false;
                     delete item.completedDate;
+                    delete item.completedTime;
 
                     // Determine which department to restore to.
                     // If the current item.dept is a dispatch department, restore it to the department right before it.

@@ -3868,9 +3868,10 @@
             if (!targetGrid) return;
             targetGrid.innerHTML = '';
 
-            const sessionVal = sessionStorage.getItem('galaxy_session');
+            const sessionVal = sessionStorage.getItem('galaxy_session') || localStorage.getItem('galaxy_session');
             const session = sessionVal ? JSON.parse(sessionVal) : null;
-            const isAdmin = session && session.role === 'admin';
+            const hasLoginScreen = document.getElementById('login-screen') || document.querySelector('.login-overlay');
+            const isAdmin = !hasLoginScreen || (session && session.role === 'admin');
 
             let totalCardsRendered = 0;
             const query = filterText.toLowerCase().trim();
@@ -4118,12 +4119,12 @@
                     <div class="card-header-bar" id="card-header-${safeId}">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <div class="group-title">${group.name}</div>
-                            ${addKapanBtnHtml}
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <button class="btn-bulk-delete" id="btn-bulk-delete-${safeId}" onclick="performBulkDelete('${group.name.replace(/'/g, "\\'")}', ${isAllStockView})" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
                                 <i data-lucide="trash-2" style="width:12px;height:12px;"></i> Delete (<span class="bulk-count">0</span>)
                             </button>
+                            ${addKapanBtnHtml}
                             <div class="group-badge-summary">${matchedItems.length} Lots</div>
                         </div>
                     </div>
@@ -4203,15 +4204,33 @@
             }
 
             const groupPrefix = selectedGroupName.split(' ')[0].trim();
-            if (!kapan.toLowerCase().startsWith(groupPrefix.toLowerCase())) {
+            const gpLower = groupPrefix.toLowerCase();
+            const kpLower = kapan.toLowerCase();
+            const escapedPrefix = gpLower.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const startsWithOptionalAlphabet = new RegExp('^[a-z\\-]+' + escapedPrefix, 'i').test(kpLower);
+            const isValidKapan = kpLower.startsWith(gpLower) || startsWithOptionalAlphabet;
+
+            if (!isValidKapan) {
                 modalError.innerHTML = '⚠️ આ ગ્રુપમાં માત્ર <span style="color:#002d62;font-weight:700;">' + groupPrefix + '</span> થી શરૂ થતો જ કાપણ નંબર ઉમેરી શકાશે!';
                 modalError.style.display = 'block';
                 inputKapan.style.borderColor = '#dc2626';
                 if (submitBtn) submitBtn.disabled = true;
             } else {
-                modalError.style.display = 'none';
-                inputKapan.style.borderColor = '#cbd5e1';
-                if (submitBtn) submitBtn.disabled = false;
+                const group = stockData.groups.find(g => g.name === selectedGroupName);
+                const isDuplicate = group && group.items.some(item =>
+                    !item.is_subtotal && item.kapan && item.kapan.trim().toLowerCase() === kpLower
+                );
+
+                if (isDuplicate) {
+                    modalError.innerHTML = '<span style="color:#dc2626;font-weight:700;">⚠️ આ Kapan No. <b>' + kapan.toUpperCase() + '</b> પહેલેથી જ આ ગ્રુપમાં જમા છે! બીજો નંબર વાપરો.</span>';
+                    modalError.style.display = 'block';
+                    inputKapan.style.borderColor = '#dc2626';
+                    if (submitBtn) submitBtn.disabled = true;
+                } else {
+                    modalError.style.display = 'none';
+                    inputKapan.style.borderColor = '#cbd5e1';
+                    if (submitBtn) submitBtn.disabled = false;
+                }
             }
         }
         if (inputKapan) {
@@ -4593,7 +4612,13 @@
 
                 // Validate that Kapan No starts with the group prefix (first word)
                 const groupPrefix = selectedGroupName.split(' ')[0].trim();
-                if (!kapan.toLowerCase().startsWith(groupPrefix.toLowerCase())) {
+                const gpLower = groupPrefix.toLowerCase();
+                const kpLower = kapan.toLowerCase();
+                const escapedPrefix = gpLower.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                const startsWithOptionalAlphabet = new RegExp('^[a-z\\-]+' + escapedPrefix, 'i').test(kpLower);
+                const isValidKapan = kpLower.startsWith(gpLower) || startsWithOptionalAlphabet;
+
+                if (!isValidKapan) {
                     modalError.innerHTML = '⚠️ આ ગ્રુપમાં માત્ર <span style="color:#002d62;font-weight:700;">' + groupPrefix + '</span> થી શરૂ થતો જ કાપણ નંબર ઉમેરી શકાશે!';
                     modalError.style.display = 'block';
                     const kapanInput = document.getElementById('input-kapan');

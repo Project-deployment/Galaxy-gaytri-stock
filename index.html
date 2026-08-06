@@ -10,12 +10,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Storage Encryption Script for Firebase Protection -->
     <script>
-        (function() {
+        (function () {
             const originalGet = Storage.prototype.getItem;
             const originalSet = Storage.prototype.setItem;
             const originalRemove = Storage.prototype.removeItem;
@@ -40,7 +41,7 @@
             }
 
             // Intercept getItem
-            Storage.prototype.getItem = function(key) {
+            Storage.prototype.getItem = function (key) {
                 if (typeof key === 'string' && (key.includes('firebase') || key.startsWith('enc_'))) {
                     const encKey = encrypt(key);
                     const val = originalGet.call(this, encKey);
@@ -50,7 +51,7 @@
             };
 
             // Intercept setItem
-            Storage.prototype.setItem = function(key, value) {
+            Storage.prototype.setItem = function (key, value) {
                 if (typeof key === 'string' && (key.includes('firebase') || key.startsWith('enc_') || (typeof value === 'string' && value.includes('firebase')))) {
                     const encKey = encrypt(key);
                     const encValue = encrypt(value);
@@ -60,7 +61,7 @@
             };
 
             // Intercept removeItem
-            Storage.prototype.removeItem = function(key) {
+            Storage.prototype.removeItem = function (key) {
                 if (typeof key === 'string' && (key.includes('firebase') || key.startsWith('enc_'))) {
                     const encKey = encrypt(key);
                     originalRemove.call(this, encKey);
@@ -69,7 +70,7 @@
             };
 
             // Intercept key
-            Storage.prototype.key = function(index) {
+            Storage.prototype.key = function (index) {
                 const rawKey = originalKey.call(this, index);
                 if (typeof rawKey === 'string' && rawKey.startsWith('enc_')) {
                     return decrypt(rawKey);
@@ -96,12 +97,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <script>
         const firebaseConfigRaw = "==QfiMmZjNTNxE2YlNTZ1gTO1UjN1MTZmJmOiV2d6MTOwUzNzYjNzcTM4oTMiAiOiQWSwBXYiACLiMTOwUzNzYjNzcTM4ICI6ICZJJXZk5WZTdmbpdWYzNXZtJCIsICcwFmLldWYy9GdzV2chJWZylmZukmc0lXYn1Se4FGbhdmIgojI0V2ajVnQldWYy9GdzJCIsISayRXehdWL5hXYsF2ZiAiOiQWS0NWZq9mcwJCIsISbvNmLvlWZzFmYlJXam5iYkRnctQHb1FmZlRWLpJHd5F2ZtkHehxWYn9yL6MHc0RHaiAiOiwkUVV2chJWY0FGZiACLi02bj5CcwFWZzFmYlJXam5SayRXehdWL5hXYsF2ZiAiOi4Wah12bEhGd1FmIgwiIRF2baVnVVp0Szp0aNN0Ts1SbnNEc3EWOiRmQkNnTCNFR5NVY6lUQiAiOikXZLlGchJye";
-        
+
         function decodeConfig(str) {
             const reversed = str.split('').reverse().join('');
             return JSON.parse(decodeURIComponent(escape(atob(reversed))));
         }
-        
+
         firebase.initializeApp(decodeConfig(firebaseConfigRaw));
         const db = firebase.database();
         const DB_PATH = 'galaxy_stock';
@@ -640,7 +641,7 @@
             height: 10px;
             border-radius: 50%;
             transition: all 0.3s ease;
-            cursor: default;
+            cursor: pointer;
             user-select: none;
             margin-left: auto;
         }
@@ -848,9 +849,11 @@
             letter-spacing: 0.5px;
             flex-shrink: 0;
         }
+
         #btn-side-dept:hover {
             background: #fef3c7;
         }
+
         #btn-side-dept.active {
             background: #f59e0b;
             color: #ffffff;
@@ -896,7 +899,8 @@
         </div>
 
         <!-- SIDE Fixed Department Button -->
-        <button id="btn-side-dept" onclick="switchToSide()" title="SIDE – Kapan that are temporarily aside" style="display:flex; align-items:center; gap:5px;">
+        <button id="btn-side-dept" onclick="switchToSide()" title="SIDE – Kapan that are temporarily aside"
+            style="display:flex; align-items:center; gap:5px;">
             <i data-lucide="log-in" style="width:13px;height:13px;"></i> SIDE
         </button>
 
@@ -924,8 +928,7 @@
         </div>
 
         <!-- Tracking Report Tab Button -->
-        <div class="tracking-report-container"
-            style="margin-left: 8px; display: none; align-items: center;">
+        <div class="tracking-report-container" style="margin-left: 8px; display: none; align-items: center;">
             <button class="top-tab" id="btn-tracking-report-tab" onclick="switchReportSubView('tracking')"
                 style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none;"
                 onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
@@ -934,8 +937,7 @@
         </div>
 
         <!-- Daily Report Tab Button -->
-        <div class="daily-report-container"
-            style="margin-left: 8px; display: none; align-items: center;">
+        <div class="daily-report-container" style="margin-left: 8px; display: none; align-items: center;">
             <button class="top-tab" id="btn-daily-report-tab" onclick="switchReportSubView('daily')"
                 style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none;"
                 onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
@@ -949,7 +951,7 @@
         <input type="file" id="file-restore" style="display: none;" accept=".json" onchange="restoreBackup(event)">
 
         <!-- Cloud Sync Indicator -->
-        <div id="sync-indicator" class="syncing" title="Connecting..."></div>
+        <div id="sync-indicator" class="syncing" title="Connecting..." onclick="location.reload()"></div>
 
     </div>
 
@@ -1025,67 +1027,117 @@
                     <div style="flex: 1 1 0; min-width: 280px; display: flex; flex-direction: column; gap: 12px;">
 
                         <!-- SIDE Summary Card -->
-                        <div id="all-stock-side-card" style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
-                            <div style="padding: 10px 16px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
-                                <div style="font-size: 1rem; font-weight: 800; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
+                        <div id="all-stock-side-card"
+                            style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+                            <div
+                                style="padding: 10px 16px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+                                <div
+                                    style="font-size: 1rem; font-weight: 800; color: var(--accent-navy); display: flex; align-items: center; gap: 8px;">
                                     <i data-lucide="log-in" style="width:18px; height:18px; color:#f59e0b;"></i>
                                     SIDE — સાઇડ સ્ટોક
                                 </div>
-                                <span id="side-card-lots" style="background: #f59e0b; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 0.8rem; font-weight: 800;">0 Lots</span>
+                                <span id="side-card-lots"
+                                    style="background: #f59e0b; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 0.8rem; font-weight: 800;">0
+                                    Lots</span>
                             </div>
                             <table class="stock-table" style="width:100%; border-collapse:collapse;">
                                 <thead>
                                     <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                                        <th style="text-align:left; padding:8px 14px; font-size:12px; font-weight:800; text-transform:uppercase; color:#475569;">From Dept</th>
-                                        <th style="text-align:center; padding:8px 10px; font-size:12px; font-weight:800; text-transform:uppercase; color:#dc2626;">Total PCS</th>
-                                        <th style="text-align:right; padding:8px 10px; font-size:12px; font-weight:800; text-transform:uppercase; color:#475569;">Total Carats</th>
-                                        <th style="text-align:center; padding:8px 14px; font-size:12px; font-weight:800; text-transform:uppercase; color:#475569;">Total Kapan</th>
+                                        <th
+                                            style="text-align:left; padding:8px 14px; font-size:12px; font-weight:800; text-transform:uppercase; color:#475569;">
+                                            From Dept</th>
+                                        <th
+                                            style="text-align:center; padding:8px 10px; font-size:12px; font-weight:800; text-transform:uppercase; color:#dc2626;">
+                                            Total PCS</th>
+                                        <th
+                                            style="text-align:right; padding:8px 10px; font-size:12px; font-weight:800; text-transform:uppercase; color:#475569;">
+                                            Total Carats</th>
+                                        <th
+                                            style="text-align:center; padding:8px 14px; font-size:12px; font-weight:800; text-transform:uppercase; color:#475569;">
+                                            Total Kapan</th>
                                     </tr>
                                 </thead>
                                 <tbody id="side-card-dept-tbody">
                                     <!-- filled by JS -->
                                 </tbody>
                                 <tfoot>
-                                    <tr style="background: #cbd5e1; border-top: 2px solid #94a3b8; font-weight: 800; font-size: 15px; color: var(--text-primary);">
+                                    <tr
+                                        style="background: #cbd5e1; border-top: 2px solid #94a3b8; font-weight: 800; font-size: 15px; color: var(--text-primary);">
                                         <td style="padding: 7px 14px;">GRAND TOTAL</td>
-                                        <td id="side-card-pcs" style="text-align:center; padding:7px 10px; color:#dc2626; font-variant-numeric:tabular-nums;">0</td>
-                                        <td id="side-card-carats" style="text-align:right; padding:7px 10px; color:#059669; font-variant-numeric:tabular-nums;">0.00</td>
-                                        <td id="side-card-total-lots" style="text-align:center; padding:7px 14px; color:var(--text-primary);">0</td>
+                                        <td id="side-card-pcs"
+                                            style="text-align:center; padding:7px 10px; color:#dc2626; font-variant-numeric:tabular-nums;">
+                                            0</td>
+                                        <td id="side-card-carats"
+                                            style="text-align:right; padding:7px 10px; color:#059669; font-variant-numeric:tabular-nums;">
+                                            0.00</td>
+                                        <td id="side-card-total-lots"
+                                            style="text-align:center; padding:7px 14px; color:var(--text-primary);">0
+                                        </td>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
 
                         <!-- Grand Total mini card (below SIDE) -->
-                        <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+                        <div
+                            style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
                             <table class="stock-table" style="width:100%;">
                                 <thead>
                                     <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                                        <th style="text-align:left; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 14px; color:#475569;">Stock</th>
-                                        <th style="text-align:center; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 10px; color:#dc2626;">Total PCS</th>
-                                        <th style="text-align:right; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 10px; color:#475569;">Carats</th>
-                                        <th style="text-align:center; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 14px; color:#475569;">Kapan</th>
+                                        <th
+                                            style="text-align:left; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 14px; color:#475569;">
+                                            Stock</th>
+                                        <th
+                                            style="text-align:center; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 10px; color:#dc2626;">
+                                            Total PCS</th>
+                                        <th
+                                            style="text-align:right; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 10px; color:#475569;">
+                                            Carats</th>
+                                        <th
+                                            style="text-align:center; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 14px; color:#475569;">
+                                            Kapan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td style="padding:5px 14px; font-weight:700; color:#92400e; font-size:12px; display:flex; align-items:center; gap:4px;"><i data-lucide="log-in" style="width:12px;height:12px;"></i> SIDE</td>
-                                        <td id="combined-side-pcs" style="text-align:center; padding:5px 10px; font-weight:700; color:#dc2626; font-size:12px; font-variant-numeric:tabular-nums;">0</td>
-                                        <td id="combined-side-carats" style="text-align:right; padding:5px 10px; font-weight:700; color:#059669; font-size:12px; font-variant-numeric:tabular-nums;">0.00</td>
-                                        <td id="combined-side-lots" style="text-align:center; padding:5px 14px; font-weight:700; color:#92400e; font-size:12px;">0</td>
+                                        <td
+                                            style="padding:5px 14px; font-weight:700; color:#92400e; font-size:12px; display:flex; align-items:center; gap:4px;">
+                                            <i data-lucide="log-in" style="width:12px;height:12px;"></i> SIDE</td>
+                                        <td id="combined-side-pcs"
+                                            style="text-align:center; padding:5px 10px; font-weight:700; color:#dc2626; font-size:12px; font-variant-numeric:tabular-nums;">
+                                            0</td>
+                                        <td id="combined-side-carats"
+                                            style="text-align:right; padding:5px 10px; font-weight:700; color:#059669; font-size:12px; font-variant-numeric:tabular-nums;">
+                                            0.00</td>
+                                        <td id="combined-side-lots"
+                                            style="text-align:center; padding:5px 14px; font-weight:700; color:#92400e; font-size:12px;">
+                                            0</td>
                                     </tr>
                                     <tr>
-                                        <td style="padding:5px 14px; font-weight:700; color:var(--accent-navy); font-size:12px;">✦ Chalu</td>
-                                        <td id="combined-active-pcs" style="text-align:center; padding:5px 10px; font-weight:700; color:#dc2626; font-size:12px; font-variant-numeric:tabular-nums;">0</td>
-                                        <td id="combined-active-carats" style="text-align:right; padding:5px 10px; font-weight:700; color:#059669; font-size:12px; font-variant-numeric:tabular-nums;">0.00</td>
-                                        <td id="combined-active-lots" style="text-align:center; padding:5px 14px; font-weight:700; color:var(--accent-navy); font-size:12px;">0</td>
+                                        <td
+                                            style="padding:5px 14px; font-weight:700; color:var(--accent-navy); font-size:12px;">
+                                            ✦ Chalu</td>
+                                        <td id="combined-active-pcs"
+                                            style="text-align:center; padding:5px 10px; font-weight:700; color:#dc2626; font-size:12px; font-variant-numeric:tabular-nums;">
+                                            0</td>
+                                        <td id="combined-active-carats"
+                                            style="text-align:right; padding:5px 10px; font-weight:700; color:#059669; font-size:12px; font-variant-numeric:tabular-nums;">
+                                            0.00</td>
+                                        <td id="combined-active-lots"
+                                            style="text-align:center; padding:5px 14px; font-weight:700; color:var(--accent-navy); font-size:12px;">
+                                            0</td>
                                     </tr>
                                 </tbody>
                                 <tfoot>
-                                    <tr style="background:#cbd5e1; border-top:2px solid #94a3b8; font-weight:800; font-size:13px; color:var(--text-primary);">
+                                    <tr
+                                        style="background:#cbd5e1; border-top:2px solid #94a3b8; font-weight:800; font-size:13px; color:var(--text-primary);">
                                         <td style="padding:6px 14px;">★ GRAND TOTAL</td>
-                                        <td id="combined-total-pcs" style="text-align:center; padding:6px 10px; color:#dc2626; font-variant-numeric:tabular-nums;">0</td>
-                                        <td id="combined-total-carats" style="text-align:right; padding:6px 10px; color:#059669; font-variant-numeric:tabular-nums;">0.00</td>
+                                        <td id="combined-total-pcs"
+                                            style="text-align:center; padding:6px 10px; color:#dc2626; font-variant-numeric:tabular-nums;">
+                                            0</td>
+                                        <td id="combined-total-carats"
+                                            style="text-align:right; padding:6px 10px; color:#059669; font-variant-numeric:tabular-nums;">
+                                            0.00</td>
                                         <td id="combined-total-lots" style="text-align:center; padding:6px 14px;">0</td>
                                     </tr>
                                 </tfoot>
@@ -1096,31 +1148,47 @@
 
                     <!-- RIGHT COLUMN (50%): Chalu dept table -->
                     <div style="flex: 1 1 0; min-width: 280px;">
-                    <div style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; width: 100%;">
-                        <table class="stock-table" id="all-stock-summary-table" style="width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th style="width: 60px; text-align: center; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">S.No</th>
-                                    <th style="text-align: center; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">Department</th>
-                                    <th style="text-align: center; width: 180px; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px; color:#dc2626;">Total PCS</th>
-                                    <th style="text-align: center; width: 180px; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">Total Carats</th>
-                                    <th style="text-align: center; width: 160px; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">Total Kapan</th>
-                                </tr>
-                            </thead>
-                            <tbody id="all-stock-summary-tbody" style="font-size: 15px; font-weight: 700;">
-                                <!-- Dynamic rows -->
-                            </tbody>
-                            <tfoot>
-                                <tr style="background: #cbd5e1; font-weight: 800; font-size: 16px; border-top: 2px solid #94a3b8; color: var(--text-primary);">
-                                    <td style="text-align: center; padding: 4px 4px;">-</td>
-                                    <td style="text-align: center; padding: 4px 4px; letter-spacing: 0.5px;">GRAND TOTAL</td>
-                                    <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums; color: #dc2626;" id="all-stock-summary-grand-pcs">0</td>
-                                    <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums; color: #059669;" id="all-stock-summary-grand-carats">0.00</td>
-                                    <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums;" id="all-stock-summary-grand-lots">0</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                        <div
+                            style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; width: 100%;">
+                            <table class="stock-table" id="all-stock-summary-table" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th
+                                            style="width: 60px; text-align: center; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">
+                                            S.No</th>
+                                        <th
+                                            style="text-align: center; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">
+                                            Department</th>
+                                        <th
+                                            style="text-align: center; width: 180px; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px; color:#dc2626;">
+                                            Total PCS</th>
+                                        <th
+                                            style="text-align: center; width: 180px; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">
+                                            Total Carats</th>
+                                        <th
+                                            style="text-align: center; width: 160px; font-size: 15px; font-weight: 800; text-transform: uppercase; padding: 2px 4px;">
+                                            Total Kapan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="all-stock-summary-tbody" style="font-size: 15px; font-weight: 700;">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                                <tfoot>
+                                    <tr
+                                        style="background: #cbd5e1; font-weight: 800; font-size: 16px; border-top: 2px solid #94a3b8; color: var(--text-primary);">
+                                        <td style="text-align: center; padding: 4px 4px;">-</td>
+                                        <td style="text-align: center; padding: 4px 4px; letter-spacing: 0.5px;">GRAND
+                                            TOTAL</td>
+                                        <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums; color: #dc2626;"
+                                            id="all-stock-summary-grand-pcs">0</td>
+                                        <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums; color: #059669;"
+                                            id="all-stock-summary-grand-carats">0.00</td>
+                                        <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums;"
+                                            id="all-stock-summary-grand-lots">0</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div><!-- end right column -->
 
                 </div><!-- end 50/50 layout -->
@@ -1268,7 +1336,7 @@
             <!-- VIEW F: SETTING VIEW -->
             <div id="view-setting" class="view-pane" style="display: none; flex-direction: column; gap: 16px;">
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;">
-                    
+
                     <!-- Left Column: Department Master (60% width) -->
                     <div style="flex: 1.5; min-width: 450px; display: flex; flex-direction: column; gap: 10px;">
                         <div class="stock-controls" style="padding: 4px 10px;">
@@ -1319,57 +1387,82 @@
                                 <i data-lucide="database"></i> Backup & Restore (બેકઅપ અને રીસ્ટોર)
                             </div>
                         </div>
-                        
+
                         <div
                             style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); padding: 20px; display: flex; flex-direction: column; gap: 16px;">
-                            
+
                             <!-- Backup Card -->
-                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+                            <div
+                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
                                 <div style="display: flex; align-items: flex-start; gap: 10px;">
-                                    <div style="background: #eff6ff; color: #2563eb; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <div
+                                        style="background: #eff6ff; color: #2563eb; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
                                         <i data-lucide="download" style="width: 20px; height: 20px;"></i>
                                     </div>
                                     <div>
-                                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">ડાઉનલોડ બેકઅપ (Download Backup)</div>
-                                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">તમામ તારીખોનો ડેટા ફાઇલમાં સેવ કરવા માટે ડાઉનલોડ કરો.</div>
+                                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">
+                                            ડાઉનલોડ બેકઅપ (Download Backup)</div>
+                                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+                                            તમામ તારીખોનો ડેટા ફાઇલમાં સેવ કરવા માટે ડાઉનલોડ કરો.</div>
                                     </div>
                                 </div>
-                                <button type="button" onclick="downloadBackup()" style="margin-top: 6px; width: 100%; background: #2563eb; color: white; border: none; border-radius: 6px; padding: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
-                                    <i data-lucide="download" style="width: 14px; height: 14px;"></i> Download Backup (.json)
+                                <button type="button" onclick="downloadBackup()"
+                                    style="margin-top: 6px; width: 100%; background: #2563eb; color: white; border: none; border-radius: 6px; padding: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s;"
+                                    onmouseover="this.style.background='#1d4ed8'"
+                                    onmouseout="this.style.background='#2563eb'">
+                                    <i data-lucide="download" style="width: 14px; height: 14px;"></i> Download Backup
+                                    (.json)
                                 </button>
                             </div>
 
                             <!-- Restore Card -->
-                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+                            <div
+                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
                                 <div style="display: flex; align-items: flex-start; gap: 10px;">
-                                    <div style="background: #f0fdf4; color: #16a34a; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <div
+                                        style="background: #f0fdf4; color: #16a34a; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
                                         <i data-lucide="upload" style="width: 20px; height: 20px;"></i>
                                     </div>
                                     <div>
-                                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">રીસ્ટોર ડેટા (Restore Data)</div>
-                                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">બેકઅપ ફાઈલમાંથી ડેટા પાછો મેળવવા માટે ફાઈલ અપલોડ કરો.</div>
+                                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">
+                                            રીસ્ટોર ડેટા (Restore Data)</div>
+                                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+                                            બેકઅપ ફાઈલમાંથી ડેટા પાછો મેળવવા માટે ફાઈલ અપલોડ કરો.</div>
                                     </div>
                                 </div>
-                                <button type="button" onclick="triggerRestore()" style="margin-top: 6px; width: 100%; background: #16a34a; color: white; border: none; border-radius: 6px; padding: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
-                                    <i data-lucide="upload" style="width: 14px; height: 14px;"></i> Restore Backup (.json)
+                                <button type="button" onclick="triggerRestore()"
+                                    style="margin-top: 6px; width: 100%; background: #16a34a; color: white; border: none; border-radius: 6px; padding: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s;"
+                                    onmouseover="this.style.background='#15803d'"
+                                    onmouseout="this.style.background='#16a34a'">
+                                    <i data-lucide="upload" style="width: 14px; height: 14px;"></i> Restore Backup
+                                    (.json)
                                 </button>
                             </div>
 
                             <!-- Session Timeout Card -->
-                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+                            <div
+                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
                                 <div style="display: flex; align-items: flex-start; gap: 10px;">
-                                    <div style="background: #fee2e2; color: #dc2626; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <div
+                                        style="background: #fee2e2; color: #dc2626; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
                                         <i data-lucide="clock" style="width: 20px; height: 20px;"></i>
                                     </div>
                                     <div style="flex: 1;">
-                                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">ઓટો લોગઆઉટ સમય (Auto Logout Timeout)</div>
-                                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">લોગિન થયા પછી આટલા કલાક પછી ઓટોમેટીક લોગઆઉટ થઈ જશે. (0 અથવા ખાલી રાખવા પર ક્યારેય લોગઆઉટ નહીં થાય)</div>
+                                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">
+                                            ઓટો લોગઆઉટ સમય (Auto Logout Timeout)</div>
+                                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+                                            લોગિન થયા પછી આટલા કલાક પછી ઓટોમેટીક લોગઆઉટ થઈ જશે. (0 અથવા ખાલી રાખવા પર
+                                            ક્યારેય લોગઆઉટ નહીં થાય)</div>
                                     </div>
                                 </div>
-                                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px; position: relative;">
-                                    <input type="number" id="setting-session-timeout" placeholder="કલાક લખો (e.g. 12)" min="0" step="0.5" onchange="updateSessionTimeoutSetting(this.value)"
+                                <div
+                                    style="display: flex; gap: 8px; align-items: center; margin-top: 6px; position: relative;">
+                                    <input type="number" id="setting-session-timeout" placeholder="કલાક લખો (e.g. 12)"
+                                        min="0" step="0.5" onchange="updateSessionTimeoutSetting(this.value)"
                                         style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.85rem; font-weight: 700; outline: none; background: #ffffff;">
-                                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); padding-right: 8px;">Hours (કલાક)</span>
+                                    <span
+                                        style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); padding-right: 8px;">Hours
+                                        (કલાક)</span>
                                 </div>
                             </div>
 
@@ -1617,9 +1710,13 @@
                             style="width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); background: #f1f5f9; cursor: not-allowed;">
                     </div>
                 </div>
-                <div id="transfer-to-khata-container" style="display: none; align-items: center; gap: 6px; margin-top: -4px; padding: 2px 4px;">
-                    <input type="checkbox" id="transfer-checkbox-khata" onchange="onTransferKhataToggle(this.checked)" style="cursor: pointer; transform: scale(1.15);">
-                    <label for="transfer-checkbox-khata" style="font-size: 0.78rem; font-weight: 700; color: #1e3a8a; cursor: pointer; user-select: none;">Transfer directly to Khata (ખાતા માં મોકલો)</label>
+                <div id="transfer-to-khata-container"
+                    style="display: none; align-items: center; gap: 6px; margin-top: -4px; padding: 2px 4px;">
+                    <input type="checkbox" id="transfer-checkbox-khata" onchange="onTransferKhataToggle(this.checked)"
+                        style="cursor: pointer; transform: scale(1.15);">
+                    <label for="transfer-checkbox-khata"
+                        style="font-size: 0.78rem; font-weight: 700; color: #1e3a8a; cursor: pointer; user-select: none;">Transfer
+                        directly to Khata (ખાતા માં મોકલો)</label>
                 </div>
                 <div>
                     <label
@@ -1955,7 +2052,7 @@
             if (!password) return '';
             if (typeof password !== 'string') password = String(password);
             if (password.startsWith('enc_')) return password; // Already encrypted
-            
+
             let result = '';
             const key = 42; // Encryption key
             for (let i = 0; i < password.length; i++) {
@@ -1967,7 +2064,7 @@
         function decryptPassword(encrypted) {
             if (!encrypted) return '';
             if (typeof encrypted !== 'string') encrypted = String(encrypted);
-            
+
             // Reversible check for default hashes to show actual plaintext values
             if (encrypted.startsWith('hash_')) {
                 if (encrypted === hashPassword('123') || encrypted === hashPassword(encryptPassword('123'))) return '123';
@@ -1975,7 +2072,7 @@
                 return 'Hashed (નવો સેટ કરો)';
             }
             if (!encrypted.startsWith('enc_')) return encrypted; // Not encrypted
-            
+
             try {
                 const base64 = encrypted.substring(4);
                 const decoded = decodeURIComponent(escape(atob(base64)));
@@ -1996,8 +2093,8 @@
             if (storedHashOrEnc.startsWith('enc_')) {
                 return inputPassword === decryptPassword(storedHashOrEnc);
             }
-            return hashPassword(inputPassword) === storedHashOrEnc || 
-                   hashPassword(encryptPassword(inputPassword)) === storedHashOrEnc;
+            return hashPassword(inputPassword) === storedHashOrEnc ||
+                hashPassword(encryptPassword(inputPassword)) === storedHashOrEnc;
         }
 
         function syncStockDataReference() {
@@ -2142,7 +2239,7 @@
             if (migrated) {
                 try {
                     localStorage.setItem(LS_KEY, obfuscate(JSON.stringify(multiData)));
-                } catch (e) {}
+                } catch (e) { }
                 // Also trigger saveToLocal function to update firebase
                 saveToLocal();
             }
@@ -2534,7 +2631,7 @@
                         if (!item.deptDates) {
                             item.deptDates = {};
                         }
-                        
+
                         // Find the earliest historical date when this Kapan was in SIDE
                         const kName = item.kapan.trim().toUpperCase();
                         let sideDate = null;
@@ -2542,7 +2639,7 @@
                         for (let i = 0; i < sortedDates.length; i++) {
                             const dKey = sortedDates[i];
                             if (dKey >= multiData.active_date) continue; // Only search in the past
-                            
+
                             const dData = multiData.dates[dKey];
                             if (dData && dData.groups) {
                                 let foundInSide = false;
@@ -2744,7 +2841,7 @@
             if (mode === 'daily') {
                 if (viewTracking) viewTracking.style.display = 'none';
                 if (viewDaily) viewDaily.style.display = 'flex';
-                
+
                 if (btnTracking) {
                     btnTracking.style.background = '#ffffff';
                     btnTracking.style.color = 'var(--text-secondary)';
@@ -2774,7 +2871,7 @@
             }
         }
 
-        window.showKapanDetailModal = function(kapanName, groupName, pcs, carat, fromDeptName = '', toDeptName = '') {
+        window.showKapanDetailModal = function (kapanName, groupName, pcs, carat, fromDeptName = '', toDeptName = '') {
             const existing = document.getElementById('kapan-detail-popover');
             if (existing) existing.remove();
 
@@ -2860,13 +2957,13 @@
 
             overlay.appendChild(card);
             document.body.appendChild(overlay);
-            
+
             lucide.createIcons();
 
             setTimeout(() => {
                 card.style.transform = 'scale(1)';
             }, 10);
-            
+
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
                     overlay.remove();
@@ -2877,7 +2974,7 @@
         function getDepartureDates(hItem) {
             const departures = {};
             const entries = [];
-            
+
             Object.keys(hItem.deptDates).forEach(deptId => {
                 const dateStr = hItem.deptDates[deptId];
                 if (dateStr && dateStr !== '-') {
@@ -2888,7 +2985,7 @@
                     }
                 }
             });
-            
+
             const regularDepts = (multiData.departments || []).filter(d => d.id !== 'SIDE').map(d => d.id);
             const getDeptSortIndex = (deptId) => {
                 if (deptId === 'SIDE') {
@@ -2900,21 +2997,21 @@
                     return idx === -1 ? 999 : idx;
                 }
             };
-            
+
             entries.sort((a, b) => {
                 if (a.dateObj.getTime() !== b.dateObj.getTime()) {
                     return a.dateObj - b.dateObj;
                 }
                 return getDeptSortIndex(a.deptId) - getDeptSortIndex(b.deptId);
             });
-            
+
             for (let i = 0; i < entries.length - 1; i++) {
                 departures[entries[i].deptId] = {
                     date: entries[i + 1].dateStr,
                     nextDeptId: entries[i + 1].deptId
                 };
             }
-            
+
             if (entries.length > 0 && hItem.completed && hItem.completedDate) {
                 let compDateStr = hItem.completedDate.replace(/-/g, '/');
                 const compParts = compDateStr.split('/');
@@ -2928,7 +3025,7 @@
                     nextDeptId: 'Completed'
                 };
             }
-            
+
             return departures;
         }
 
@@ -2946,19 +3043,19 @@
             const firstRegularDept = depts.find(d => d.id !== 'SIDE') || depts[0];
 
             let cardsHtml = '';
-            
+
             depts.forEach(dept => {
                 const arrived = [];
                 const departed = [];
 
                 Object.keys(historyMap).forEach(kapanName => {
                     const hItem = historyMap[kapanName];
-                    
+
                     // 1. Arrived (Issue)
                     if (hItem.deptDates[dept.id] === activeDateFormatted) {
                         arrived.push(hItem);
                     }
-                    
+
                     // 2. Departed (Receive)
                     const departures = getDepartureDates(hItem);
                     const depInfo = departures[dept.id];
@@ -3332,7 +3429,7 @@
                             const fromDept = item.sidedFromDept || 'Rough';
                             if (!byFromDept[fromDept]) byFromDept[fromDept] = { lots: 0, pcs: 0, carat: 0 };
                             byFromDept[fromDept].lots++;
-                            byFromDept[fromDept].pcs   += parseInt(item.pcs)   || 0;
+                            byFromDept[fromDept].pcs += parseInt(item.pcs) || 0;
                             byFromDept[fromDept].carat += parseFloat(item.carat) || 0;
                         });
                     });
@@ -3341,7 +3438,7 @@
                     const deptOrderAll = (multiData.departments || []).map(d => d.id);
                     const fromDepts = Object.keys(byFromDept).sort((a, b) => {
                         return (deptOrderAll.indexOf(a) === -1 ? 9999 : deptOrderAll.indexOf(a)) -
-                               (deptOrderAll.indexOf(b) === -1 ? 9999 : deptOrderAll.indexOf(b));
+                            (deptOrderAll.indexOf(b) === -1 ? 9999 : deptOrderAll.indexOf(b));
                     });
 
                     const sideTbody = document.getElementById('side-card-dept-tbody');
@@ -3360,17 +3457,17 @@
                     }
 
                     // Update totals
-                    const sideCardLots      = document.getElementById('side-card-lots');
+                    const sideCardLots = document.getElementById('side-card-lots');
                     const sideCardTotalLots = document.getElementById('side-card-total-lots');
-                    const sideCardPcs       = document.getElementById('side-card-pcs');
-                    const sideCardCarats    = document.getElementById('side-card-carats');
-                    if (sideCardLots)      sideCardLots.innerText      = `${deptLots} Lots`;
+                    const sideCardPcs = document.getElementById('side-card-pcs');
+                    const sideCardCarats = document.getElementById('side-card-carats');
+                    if (sideCardLots) sideCardLots.innerText = `${deptLots} Lots`;
                     if (sideCardTotalLots) sideCardTotalLots.innerText = formatNumberNoCommas(deptLots);
-                    if (sideCardPcs)       sideCardPcs.innerText       = formatNumberNoCommas(deptPcs);
-                    if (sideCardCarats)    sideCardCarats.innerText    = formatCaratNoCommas(deptCarat);
+                    if (sideCardPcs) sideCardPcs.innerText = formatNumberNoCommas(deptPcs);
+                    if (sideCardCarats) sideCardCarats.innerText = formatCaratNoCommas(deptCarat);
                     // Store SIDE totals for combined card
-                    window._sideLots  = deptLots;
-                    window._sidePcs   = deptPcs;
+                    window._sideLots = deptLots;
+                    window._sidePcs = deptPcs;
                     window._sideCarat = deptCarat;
                     // Do NOT add to grand totals and do NOT render a row
                     return;
@@ -3402,18 +3499,18 @@
             document.getElementById('all-stock-summary-grand-lots').innerText = formatNumberNoCommas(grandLots);
 
             // ── Populate Combined Grand Total Card ──
-            const sL = window._sideLots  || 0;
-            const sP = window._sidePcs   || 0;
+            const sL = window._sideLots || 0;
+            const sP = window._sidePcs || 0;
             const sC = window._sideCarat || 0;
             const el = id => document.getElementById(id);
-            if (el('combined-side-lots'))   el('combined-side-lots').innerText   = formatNumberNoCommas(sL);
-            if (el('combined-side-pcs'))    el('combined-side-pcs').innerText    = formatNumberNoCommas(sP);
+            if (el('combined-side-lots')) el('combined-side-lots').innerText = formatNumberNoCommas(sL);
+            if (el('combined-side-pcs')) el('combined-side-pcs').innerText = formatNumberNoCommas(sP);
             if (el('combined-side-carats')) el('combined-side-carats').innerText = formatCaratNoCommas(sC);
-            if (el('combined-active-lots'))   el('combined-active-lots').innerText   = formatNumberNoCommas(grandLots);
-            if (el('combined-active-pcs'))    el('combined-active-pcs').innerText    = formatNumberNoCommas(grandPcs);
+            if (el('combined-active-lots')) el('combined-active-lots').innerText = formatNumberNoCommas(grandLots);
+            if (el('combined-active-pcs')) el('combined-active-pcs').innerText = formatNumberNoCommas(grandPcs);
             if (el('combined-active-carats')) el('combined-active-carats').innerText = formatCaratNoCommas(grandCarat);
-            if (el('combined-total-lots'))   el('combined-total-lots').innerText   = formatNumberNoCommas(sL + grandLots);
-            if (el('combined-total-pcs'))    el('combined-total-pcs').innerText    = formatNumberNoCommas(sP + grandPcs);
+            if (el('combined-total-lots')) el('combined-total-lots').innerText = formatNumberNoCommas(sL + grandLots);
+            if (el('combined-total-pcs')) el('combined-total-pcs').innerText = formatNumberNoCommas(sP + grandPcs);
             if (el('combined-total-carats')) el('combined-total-carats').innerText = formatCaratNoCommas(sC + grandCarat);
         }
 
@@ -4733,14 +4830,14 @@
             const sideBtn = document.getElementById('btn-side-dept');
             if (sideBtn) sideBtn.classList.add('active');
             activeDeptFilter = SIDE_DEPT_ID;
-            
+
             // Show SIDE dropdown
             const sideFilter = document.getElementById('side-dept-filter');
             if (sideFilter) {
                 sideFilter.style.display = 'inline-block';
                 populateSideDeptFilterDropdown();
             }
-            
+
             renderStockCards(document.getElementById('search-bar')?.value || '');
         }
 
@@ -5028,7 +5125,7 @@
                 if (item) {
                     item.completed = false;
                     delete item.completedDate;
-                    
+
                     // Determine which department to restore to.
                     // If the current item.dept is a dispatch department, restore it to the department right before it.
                     // Otherwise, default to first regular department.
@@ -5044,7 +5141,7 @@
                         const firstRegular = depts.find(d => d.id !== SIDE_DEPT_ID);
                         if (firstRegular) targetDeptId = firstRegular.id;
                     }
-                    
+
                     item.dept = targetDeptId;
 
                     recalculateGrandTotals();
@@ -5788,7 +5885,7 @@
             }
             multiData.sessionTimeout = String(numVal);
             saveToLocal();
-            
+
             const displayMsg = numVal === 0 ? 'Never (ક્યારેય નહીં)' : `${numVal} hours`;
             showCustomDialog('alert', 'Success', `Auto Logout Timeout updated to ${displayMsg}!`);
         }
@@ -5823,7 +5920,7 @@
             sessionStorage.removeItem('galaxy_session');
             localStorage.removeItem('galaxy_session');
             checkAccessControl();
-            
+
             const errorEl = document.getElementById('login-error-msg');
             if (errorEl) {
                 errorEl.innerHTML = "⚠️ Session expired! Please log in again.";

@@ -834,8 +834,8 @@
 
         /* SIDE Department Button */
         #btn-side-dept {
-            background: transparent;
-            border: 1px solid transparent;
+            background: #ffffff;
+            border: 1px solid #f59e0b;
             border-radius: 4px;
             padding: 3px 10px;
             font-size: 0.72rem;
@@ -891,12 +891,13 @@
                 style="width:16px;height:16px;"></i> Report</button>
         <button class="top-tab" id="btn-top-master" onclick="switchView('master')"><i data-lucide="database"
                 style="width:16px;height:16px;"></i> Master</button>
-        <button class="top-tab" id="btn-top-setting" onclick="switchView('setting')"><i data-lucide="settings"
-                style="width:16px;height:16px;"></i> Setting</button>
 
         <!-- Date selection dropdown/picker in navbar -->
         <div
             style="margin-left: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">
+            <!-- Setting tab button (only shown when Master/Setting view is active) -->
+            <button class="top-tab" id="btn-top-setting" onclick="switchView('setting')" style="display: none; height: 28px; padding: 4px 10px; border-radius: 6px; align-items: center; gap: 4px;"><i data-lucide="settings"
+                style="width:16px;height:16px;"></i> Setting</button>
             <input type="date" id="header-date-picker" min="2020-01-01" max="2035-12-31"
                 style="border: 1px solid var(--card-border); background: #ffffff; color: var(--text-primary); padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer;">
         </div>
@@ -6213,7 +6214,9 @@
             if (btnAllStock) btnAllStock.style.display = 'flex';
             if (btnReport) btnReport.style.display = 'flex';
             if (btnMaster) btnMaster.style.display = 'flex';
-            if (btnSetting) btnSetting.style.display = 'flex';
+            if (btnSetting) {
+                btnSetting.style.display = (activeViewName === 'master' || activeViewName === 'setting') ? 'inline-flex' : 'none';
+            }
 
             if (datePickerContainer) datePickerContainer.style.display = 'flex';
 
@@ -6272,6 +6275,12 @@
             if (extraSelect) {
                 const hasDropdownDepts = (multiData.departments || []).some(d => d.id !== SIDE_DEPT_ID && d.inDropdown);
                 extraSelect.style.display = (viewName === 'stock' && hasDropdownDepts) ? 'inline-block' : 'none';
+            }
+
+            // Setting button visible next to date picker only when master or setting view is active
+            const btnSetting = document.getElementById('btn-top-setting');
+            if (btnSetting) {
+                btnSetting.style.display = (viewName === 'master' || viewName === 'setting') ? 'inline-flex' : 'none';
             }
         };
 

@@ -3774,7 +3774,7 @@
             updateBulkDeleteButton(groupName, isAllStockView);
         }
 
-        // Update bulk delete button visibility and selected count
+        // Update bulk delete button and undo button visibility and selected count
         function updateBulkDeleteButton(groupName, isAllStockView = false) {
             const safeId = (isAllStockView ? 'all_' : '') + groupName.replace(/[^a-zA-Z0-9-]/g, '_');
             const header = document.getElementById(`card-header-${safeId}`);
@@ -3783,6 +3783,7 @@
                 if (card) {
                     const checkedBoxes = card.querySelectorAll('.kapan-checkbox:checked');
                     const btn = document.getElementById(`btn-bulk-delete-${safeId}`);
+                    const undoBtn = document.getElementById(`btn-bulk-undo-${safeId}`);
                     const selectAllCb = card.querySelector('.select-all-kapan');
                     const totalCheckboxes = card.querySelectorAll('.kapan-checkbox');
 
@@ -3797,6 +3798,15 @@
                             btn.querySelector('.bulk-count').innerText = checkedBoxes.length;
                         } else {
                             btn.style.display = 'none';
+                        }
+                    }
+
+                    if (undoBtn) {
+                        if (checkedBoxes.length > 0) {
+                            undoBtn.style.display = 'inline-flex';
+                            undoBtn.querySelector('.undo-count').innerText = checkedBoxes.length;
+                        } else {
+                            undoBtn.style.display = 'none';
                         }
                     }
                 }
@@ -3872,6 +3882,89 @@
                 } else {
                     await showCustomDialog('alert', 'Success', "Selected kapans successfully dispatched/removed!");
                 }
+            }
+        }
+
+        // Perform bulk undo on selected items - moves kapans back to previous department
+        async function performBulkUndo(groupName, isAllStockView = false) {
+            const safeId = (isAllStockView ? 'all_' : '') + groupName.replace(/[^a-zA-Z0-9-]/g, '_');
+            const header = document.getElementById(`card-header-${safeId}`);
+            if (!header) return;
+            const card = header.closest('.stock-card');
+            if (!card) return;
+
+            const checkedRows = Array.from(card.querySelectorAll('.kapan-row')).filter(row => {
+                const cb = row.querySelector('.kapan-checkbox');
+                return cb && cb.checked;
+            });
+
+            if (checkedRows.length === 0) return;
+
+            const confirmed = await showCustomDialog('confirm', 'Undo Department', `શું તમે ખરેખર ${checkedRows.length} kapan ને પાછા અગાઉના department માં મોકલવા માંગો છો?`);
+            if (!confirmed) return;
+
+            const kapansToUndo = checkedRows.map(row => row.dataset.kapan);
+            const group = stockData.groups.find(g => g.name === groupName);
+            if (!group) return;
+
+            let undoneCount = 0;
+            kapansToUndo.forEach(kapanName => {
+                const item = group.items.find(it => !it.is_subtotal && String(it.kapan) === String(kapanName));
+                if (!item) return;
+
+                const currentDept = item.dept || 'Rough';
+                const depts = multiData.departments || [];
+
+                // Determine previous department
+                let prevDeptId = null;
+
+                if (item.lastTransferFrom && item.lastTransferFrom !== currentDept) {
+                    // Use the tracked lastTransferFrom
+                    prevDeptId = item.lastTransferFrom;
+                } else {
+                    // Fall back to department list order
+                    const currentIdx = depts.findIndex(d => d.id === currentDept);
+                    if (currentIdx > 0) {
+                        // Go to previous dept in order (skip SIDE)
+                        for (let i = currentIdx - 1; i >= 0; i--) {
+                            if (depts[i].id !== '__SIDE__' && depts[i].id !== 'SIDE') {
+                                prevDeptId = depts[i].id;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!prevDeptId) return; // Already at first department, can't undo
+
+                // Move back to previous department
+                item.lastTransferFrom = item.dept; // Track this undo as a transfer too
+                item.dept = prevDeptId;
+
+                // Update date to current active date
+                const activeParts = multiData.active_date.split('-');
+                const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
+                item.date = entryDateFormatted;
+
+                // Update dept dates/times
+                if (!item.deptDates) item.deptDates = {};
+                item.deptDates[prevDeptId] = entryDateFormatted;
+                if (!item.deptTimes) item.deptTimes = {};
+                const now = new Date();
+                const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+                item.deptTimes[prevDeptId] = now.toLocaleTimeString('en-US', timeOptions);
+
+                undoneCount++;
+            });
+
+            if (undoneCount > 0) {
+                recalculateGrandTotals();
+                renderStockCards(document.getElementById('search-bar') ? document.getElementById('search-bar').value : '');
+                renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
+                renderMasterGroupTable();
+                renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
+
+                await showCustomDialog('alert', 'Success', `${undoneCount} kapan સફળતાપૂર્વક પાછા અગાઉના department માં મોકલાયા!`);
             }
         }
 
@@ -4144,8 +4237,11 @@
                             <div class="group-title">${group.name}</div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
+                            <button class="btn-bulk-undo" id="btn-bulk-undo-${safeId}" onclick="performBulkUndo('${group.name.replace(/'/g, "\\'")}', ${isAllStockView})" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
+                                <i data-lucide="undo-2" style="width:12px;height:12px;"></i> (<span class="undo-count">0</span>)
+                            </button>
                             <button class="btn-bulk-delete" id="btn-bulk-delete-${safeId}" onclick="performBulkDelete('${group.name.replace(/'/g, "\\'")}', ${isAllStockView})" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer; align-items: center; gap: 4px; transition: background 0.15s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
-                                <i data-lucide="trash-2" style="width:12px;height:12px;"></i> Delete (<span class="bulk-count">0</span>)
+                                <i data-lucide="trash-2" style="width:12px;height:12px;"></i> (<span class="bulk-count">0</span>)
                             </button>
                             ${addKapanBtnHtml}
                             <div class="group-badge-summary">${matchedItems.length} Lots</div>

@@ -803,12 +803,12 @@
 
         .dept-tab {
             background: transparent;
-            border: none;
+            border: 1px solid transparent;
             border-radius: 4px;
             padding: 3px 10px;
             font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--text-secondary);
+            font-weight: 600;
+            color: #92400e;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -817,26 +817,29 @@
             height: 22px;
             transition: all 0.15s;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
         }
 
         .dept-tab:hover {
-            background: #f1f5f9;
-            color: var(--text-primary);
+            background: #fef3c7;
+            color: #92400e;
         }
 
         .dept-tab.active {
-            background: var(--accent-navy);
+            background: #f59e0b;
             color: #ffffff;
+            border-color: #d97706;
         }
 
         /* SIDE Department Button */
         #btn-side-dept {
-            background: #ffffff;
-            border: 1px solid #f59e0b;
+            background: transparent;
+            border: 1px solid transparent;
             border-radius: 4px;
             padding: 3px 10px;
             font-size: 0.72rem;
-            font-weight: 800;
+            font-weight: 600;
             color: #92400e;
             cursor: pointer;
             display: flex;

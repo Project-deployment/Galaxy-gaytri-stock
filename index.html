@@ -1082,76 +1082,10 @@
                             </table>
                         </div>
 
-                        <!-- Grand Total mini card (below SIDE) -->
-                        <div
-                            style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
-                            <table class="stock-table" style="width:100%;">
-                                <thead>
-                                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                                        <th
-                                            style="text-align:left; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 14px; color:#475569;">
-                                            Stock</th>
-                                        <th
-                                            style="text-align:center; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 10px; color:#dc2626;">
-                                            Total PCS</th>
-                                        <th
-                                            style="text-align:right; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 10px; color:#475569;">
-                                            Carats</th>
-                                        <th
-                                            style="text-align:center; font-size:11px; font-weight:800; text-transform:uppercase; padding:7px 14px; color:#475569;">
-                                            Kapan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td
-                                            style="padding:5px 14px; font-weight:700; color:#92400e; font-size:12px; display:flex; align-items:center; gap:4px;">
-                                            <i data-lucide="log-in" style="width:12px;height:12px;"></i> SIDE</td>
-                                        <td id="combined-side-pcs"
-                                            style="text-align:center; padding:5px 10px; font-weight:700; color:#dc2626; font-size:12px; font-variant-numeric:tabular-nums;">
-                                            0</td>
-                                        <td id="combined-side-carats"
-                                            style="text-align:right; padding:5px 10px; font-weight:700; color:#059669; font-size:12px; font-variant-numeric:tabular-nums;">
-                                            0.00</td>
-                                        <td id="combined-side-lots"
-                                            style="text-align:center; padding:5px 14px; font-weight:700; color:#92400e; font-size:12px;">
-                                            0</td>
-                                    </tr>
-                                    <tr>
-                                        <td
-                                            style="padding:5px 14px; font-weight:700; color:var(--accent-navy); font-size:12px;">
-                                            ✦ Chalu</td>
-                                        <td id="combined-active-pcs"
-                                            style="text-align:center; padding:5px 10px; font-weight:700; color:#dc2626; font-size:12px; font-variant-numeric:tabular-nums;">
-                                            0</td>
-                                        <td id="combined-active-carats"
-                                            style="text-align:right; padding:5px 10px; font-weight:700; color:#059669; font-size:12px; font-variant-numeric:tabular-nums;">
-                                            0.00</td>
-                                        <td id="combined-active-lots"
-                                            style="text-align:center; padding:5px 14px; font-weight:700; color:var(--accent-navy); font-size:12px;">
-                                            0</td>
-                                    </tr>
-                                </tbody>
-                                <tfoot>
-                                    <tr
-                                        style="background:#cbd5e1; border-top:2px solid #94a3b8; font-weight:800; font-size:13px; color:var(--text-primary);">
-                                        <td style="padding:6px 14px;">★ GRAND TOTAL</td>
-                                        <td id="combined-total-pcs"
-                                            style="text-align:center; padding:6px 10px; color:#dc2626; font-variant-numeric:tabular-nums;">
-                                            0</td>
-                                        <td id="combined-total-carats"
-                                            style="text-align:right; padding:6px 10px; color:#059669; font-variant-numeric:tabular-nums;">
-                                            0.00</td>
-                                        <td id="combined-total-lots" style="text-align:center; padding:6px 14px;">0</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-
                     </div><!-- end left column -->
 
                     <!-- RIGHT COLUMN (50%): Chalu dept table -->
-                    <div style="flex: 1 1 0; min-width: 280px;">
+                    <div style="flex: 1 1 0; min-width: 280px; display: flex; flex-direction: column; gap: 12px;">
                         <div
                             style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; width: 100%;">
                             <table class="stock-table" id="all-stock-summary-table" style="width: 100%;">
@@ -1189,6 +1123,72 @@
                                             id="all-stock-summary-grand-carats">0.00</td>
                                         <td style="text-align: center; padding: 4px 4px; font-variant-numeric: tabular-nums;"
                                             id="all-stock-summary-grand-lots">0</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <!-- Grand Total mini card (relocated and enlarged) -->
+                        <div
+                            style="background: #ffffff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+                            <table class="stock-table" style="width:100%; border-collapse:collapse;">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                        <th
+                                            style="text-align:left; font-size:14px; font-weight:800; text-transform:uppercase; padding:10px 14px; color:#475569;">
+                                            Stock</th>
+                                        <th
+                                            style="text-align:center; font-size:14px; font-weight:800; text-transform:uppercase; padding:10px 10px; color:#dc2626;">
+                                            Total PCS</th>
+                                        <th
+                                            style="text-align:right; font-size:14px; font-weight:800; text-transform:uppercase; padding:10px 10px; color:#475569;">
+                                            Carats</th>
+                                        <th
+                                            style="text-align:center; font-size:14px; font-weight:800; text-transform:uppercase; padding:10px 14px; color:#475569;">
+                                            Kapan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                                        <td
+                                            style="padding:10px 14px; font-weight:700; color:#92400e; font-size:15px; display:flex; align-items:center; gap:4px;">
+                                            <i data-lucide="log-in" style="width:14px;height:14px;"></i> SIDE</td>
+                                        <td id="combined-side-pcs"
+                                            style="text-align:center; padding:10px 10px; font-weight:700; color:#dc2626; font-size:15px; font-variant-numeric:tabular-nums;">
+                                            0</td>
+                                        <td id="combined-side-carats"
+                                            style="text-align:right; padding:10px 10px; font-weight:700; color:#059669; font-size:15px; font-variant-numeric:tabular-nums;">
+                                            0.00</td>
+                                        <td id="combined-side-lots"
+                                            style="text-align:center; padding:10px 14px; font-weight:700; color:#92400e; font-size:15px;">
+                                            0</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                                        <td
+                                            style="padding:10px 14px; font-weight:700; color:var(--accent-navy); font-size:15px;">
+                                            ✦ Chalu</td>
+                                        <td id="combined-active-pcs"
+                                            style="text-align:center; padding:10px 10px; font-weight:700; color:#dc2626; font-size:15px; font-variant-numeric:tabular-nums;">
+                                            0</td>
+                                        <td id="combined-active-carats"
+                                            style="text-align:right; padding:10px 10px; font-weight:700; color:#059669; font-size:15px; font-variant-numeric:tabular-nums;">
+                                            0.00</td>
+                                        <td id="combined-active-lots"
+                                            style="text-align:center; padding:10px 14px; font-weight:700; color:var(--accent-navy); font-size:15px;">
+                                            0</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr
+                                        style="background:#cbd5e1; border-top:2px solid #94a3b8; font-weight:800; font-size:16px; color:var(--text-primary);">
+                                        <td style="padding:10px 14px;">★ GRAND TOTAL</td>
+                                        <td id="combined-total-pcs"
+                                            style="text-align:center; padding:10px 10px; color:#dc2626; font-variant-numeric:tabular-nums;">
+                                            0</td>
+                                        <td id="combined-total-carats"
+                                            style="text-align:right; padding:10px 10px; color:#059669; font-variant-numeric:tabular-nums;">
+                                            0.00</td>
+                                        <td id="combined-total-lots" style="text-align:center; padding:10px 14px;">0</td>
                                     </tr>
                                 </tfoot>
                             </table>

@@ -2624,6 +2624,38 @@
         function healHistoricalSideDates() {
             if (!multiData || !multiData.dates || !stockData || !stockData.groups) return;
             let changed = false;
+
+            // Self-healing: Ensure any Kapan in any date with dept === 'SIDE' has sided = true and a valid sidedFromDept
+            Object.keys(multiData.dates).forEach(dateKey => {
+                const dateData = multiData.dates[dateKey];
+                if (!dateData || !dateData.groups) return;
+                dateData.groups.forEach(g => {
+                    g.items.forEach(item => {
+                        if (item.is_subtotal || item.completed || !item.kapan) return;
+                        if (item.dept === 'SIDE') {
+                            if (!item.sided) {
+                                item.sided = true;
+                                changed = true;
+                                console.log(`Healed sided flag for Kapan "${item.kapan}" on date ${dateKey}`);
+                            }
+                            if (!item.sidedFromDept) {
+                                let srcDept = 'Rough';
+                                if (item.lastTransferFrom && item.lastTransferFrom !== 'SIDE') {
+                                    srcDept = item.lastTransferFrom;
+                                } else if (item.deptDates) {
+                                    const historyDepts = Object.keys(item.deptDates).filter(id => id !== 'SIDE' && id !== 'Completed');
+                                    if (historyDepts.length > 0) {
+                                        srcDept = historyDepts[historyDepts.length - 1];
+                                    }
+                                }
+                                item.sidedFromDept = srcDept;
+                                changed = true;
+                                console.log(`Healed sidedFromDept for Kapan "${item.kapan}" on date ${dateKey} to "${srcDept}"`);
+                            }
+                        }
+                    });
+                });
+            });
             stockData.groups.forEach(group => {
                 group.items.forEach(item => {
                     if (item.is_subtotal || item.completed || !item.kapan) return;
@@ -3908,26 +3940,25 @@
             if (!group) return;
 
             let undoneCount = 0;
+            let undoneNames = [];
+            
             kapansToUndo.forEach(kapanName => {
-                const item = group.items.find(it => !it.is_subtotal && String(it.kapan) === String(kapanName));
-                if (!item) return;
+                // Find item in active stock data to determine the current department and correct previous department
+                const activeItem = group.items.find(it => !it.is_subtotal && String(it.kapan).toUpperCase() === String(kapanName).toUpperCase());
+                if (!activeItem) return;
 
-                const currentDept = item.dept || 'Rough';
+                const currentDept = activeItem.dept || 'Rough';
                 const depts = multiData.departments || [];
 
                 // Determine previous department
                 let prevDeptId = null;
-
-                if (item.lastTransferFrom && item.lastTransferFrom !== currentDept) {
-                    // Use the tracked lastTransferFrom
-                    prevDeptId = item.lastTransferFrom;
+                if (activeItem.lastTransferFrom && activeItem.lastTransferFrom !== currentDept) {
+                    prevDeptId = activeItem.lastTransferFrom;
                 } else {
-                    // Fall back to department list order
                     const currentIdx = depts.findIndex(d => d.id === currentDept);
                     if (currentIdx > 0) {
-                        // Go to previous dept in order (skip SIDE)
                         for (let i = currentIdx - 1; i >= 0; i--) {
-                            if (depts[i].id !== '__SIDE__' && depts[i].id !== 'SIDE') {
+                            if (depts[i].id !== SIDE_DEPT_ID) {
                                 prevDeptId = depts[i].id;
                                 break;
                             }
@@ -3935,26 +3966,78 @@
                     }
                 }
 
-                if (!prevDeptId) return; // Already at first department, can't undo
+                if (!prevDeptId) return; // Cannot find previous department
 
-                // Move back to previous department
-                item.lastTransferFrom = item.dept; // Track this undo as a transfer too
-                item.dept = prevDeptId;
+                // Apply this undo globally to all date entries for this Kapan in history
+                Object.keys(multiData.dates).forEach(dateKey => {
+                    const dateData = multiData.dates[dateKey];
+                    if (!dateData || !dateData.groups) return;
 
-                // Update date to current active date
-                const activeParts = multiData.active_date.split('-');
-                const entryDateFormatted = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
-                item.date = entryDateFormatted;
+                    dateData.groups.forEach(g => {
+                        const item = g.items.find(it => !it.is_subtotal && String(it.kapan).toUpperCase() === String(kapanName).toUpperCase());
+                        if (!item) return;
 
-                // Update dept dates/times
-                if (!item.deptDates) item.deptDates = {};
-                item.deptDates[prevDeptId] = entryDateFormatted;
-                if (!item.deptTimes) item.deptTimes = {};
-                const now = new Date();
-                const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
-                item.deptTimes[prevDeptId] = now.toLocaleTimeString('en-US', timeOptions);
+                        let modified = false;
+
+                        // Delete current department's records
+                        if (item.deptDates && item.deptDates[currentDept]) {
+                            delete item.deptDates[currentDept];
+                            modified = true;
+                        }
+                        if (item.deptTimes && item.deptTimes[currentDept]) {
+                            delete item.deptTimes[currentDept];
+                            modified = true;
+                        }
+
+                        // Revert department
+                        if (item.dept === currentDept) {
+                            item.dept = prevDeptId;
+                            item.lastTransferFrom = currentDept;
+
+                            if (prevDeptId === SIDE_DEPT_ID) {
+                                item.sided = true;
+                                // Find predecessor of currentDept to use as sidedFromDept
+                                let srcDept = 'Rough';
+                                const currentIdx = depts.findIndex(d => d.id === currentDept);
+                                if (currentIdx > 1) {
+                                    for (let i = currentIdx - 1; i >= 0; i--) {
+                                        if (depts[i].id !== SIDE_DEPT_ID) {
+                                            srcDept = depts[i].id;
+                                            break;
+                                        }
+                                    }
+                                }
+                                item.sidedFromDept = srcDept;
+                            } else {
+                                item.sided = false;
+                                item.sidedFromDept = null;
+                            }
+
+                            // Restore previous department's entry date
+                            if (item.deptDates && item.deptDates[prevDeptId]) {
+                                item.date = item.deptDates[prevDeptId];
+                            } else {
+                                const activeParts = dateKey.split('-');
+                                item.date = `${activeParts[2]}-${activeParts[1]}-${activeParts[0]}`;
+                            }
+                            modified = true;
+                        }
+
+                        if (modified) {
+                            // If we modified, also check if this was a completed/dispatched status and undo it
+                            const currentDeptObj = depts.find(d => d.id === currentDept);
+                            const isDestDispatch = currentDeptObj && currentDeptObj.isDispatch;
+                            if (currentDept === 'Completed' || isDestDispatch) {
+                                item.completed = false;
+                                delete item.completedDate;
+                                delete item.completedTime;
+                            }
+                        }
+                    });
+                });
 
                 undoneCount++;
+                undoneNames.push(kapanName);
             });
 
             if (undoneCount > 0) {
@@ -3963,6 +4046,12 @@
                 renderAllStockTable(document.getElementById('all-stock-search-bar')?.value || '');
                 renderMasterGroupTable();
                 renderKapanMasterTable(document.getElementById('kapan-master-search')?.value || '');
+
+                // Also update report views
+                if (document.getElementById('view-report')?.style.display === 'flex') {
+                    renderDailyReport();
+                    renderDailyReportMode();
+                }
 
                 await showCustomDialog('alert', 'Success', `${undoneCount} kapan સફળતાપૂર્વક પાછા અગાઉના department માં મોકલાયા!`);
             }
